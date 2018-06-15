@@ -1,0 +1,62 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+
+
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+
+@Service
+@Transactional
+public interface CartoonService extends BaseService<Cartoon> {
+
+
+	List<Cartoon> getALLCartoon(CartoonData cartoonData);
+
+	List<Cartoon> getALLHotCartoon(CartoonData cartoonData);
+
+	List<Cartoon> getSixHotCartoon();
+
+	List<Cartoon> getALLCartoonbyType(CartoonData cartoonData);
+
+	List<Cartoon> getNewCartoon(CartoonData cartoonData);
+
+	List<Cartoon> getALLCartoonbyTypeThree(CartoonData cartoonData);
+
+	int getNewCartoonCount(CartoonData cartoonData);
+
+	int getALLCartoonCount(CartoonData cartoonData);
+
+	int getALLHotCartoonCount(CartoonData cartoonData);
+
+	int getALLCartoonbyTypeCount(CartoonData cartoonData);
+
+	int getALLCartoonbyTypeThreeCount(CartoonData cartoonData);
+
+	List<Cartoon> getHot0_8();
+
+	List<Cartoon> getSearchLike(String conext);
+
+	int getALLCartoonCountByRankingList(CartoonData cartoonData);
+
+	List<Cartoon> getALLCartoonByRankingList(CartoonData cartoonData);
+
+	boolean backupsDatabases();
+
+	boolean addCommentCount(String cartoonId);
+
+	boolean addPlayCount(CartoonPhotoData cartoonPhotoData);
+
+	boolean addFollowNum(CartoonData cartoonData);
+
+	boolean deleteFollowNum(CartoonData cartoonData);
+
+	
+}

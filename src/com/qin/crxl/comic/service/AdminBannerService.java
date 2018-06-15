@@ -1,0 +1,31 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.vo.BannerData;
+
+@Service
+@Transactional
+public interface AdminBannerService extends BaseService<Banner>{
+	//查询Banner图
+	List<Banner> getAllBanner(BannerData bannerData);//
+	
+	
+	//增加Banner图
+	boolean addBanner(BannerData bannerData);
+	
+	//删除Banner图
+	boolean deleteBanner(BannerData bannerData);
+	
+	
+	//修改Banner图
+	boolean updateBanner(BannerData bannerData);
+	
+	//查询Banner图（Id）
+	Banner selectBannerById(BannerData bannerData);
+}

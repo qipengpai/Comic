@@ -1,0 +1,26 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+
+@Service
+@Transactional
+public interface CartoonService extends BaseService<Cartoon> {
+
+	List<Cartoon> getALLCartoon(CartoonData cartoonData);
+
+	List<Cartoon> getALLHotCartoon(CartoonData cartoonData);
+
+	List<Cartoon> getHot0_8();
+
+	List<Cartoon> getSearchLike(String conext);
+
+	
+}

@@ -1,0 +1,492 @@
+package com.qin.crxl.comic.action;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.management.RuntimeErrorException;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonAllType;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.CartoonType;
+import com.qin.crxl.comic.entity.FollowCartoon;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.service.CartoonAllTypeService;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.CartoonTypeService;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonController {
+
+	@Autowired
+	private CartoonService cartoonService;
+	@Autowired
+	private CartoonSetService cartoonSetService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private FollowCartoonService followCartoonService;
+	@Autowired
+	private CartoonCommentService cartoonCommentService;
+	@Autowired
+	private CartoonTypeService cartoonTypeService;
+	@Autowired
+	private CartoonAllTypeService cartoonAllTypeService;
+	/**
+	 * @author pp
+	 * @throws Exception
+	 * @date 2017年12月6日
+	 * @Remarks 首页>最新
+	 * @Tile={<h1></h1>
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOON, method = RequestMethod.POST)
+	public Model getAllCartoon(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		Model model = new Model();
+		List<Cartoon> list = cartoonService.getNewCartoon(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		int num = cartoonService.getNewCartoonCount(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(list.get(i).getId());
+			List<Object> list3 = new ArrayList<Object>();
+			for (int j = 0; j < cartoonAllType.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(i).getCartoonTypeId());
+				map2.put("carrtoonType", cartoonType);
+				list3.add(map2);
+			}
+			/* 查看关注人数 */
+//			int followCartoon = followCartoonService
+//					.getFollowCount(list.get(i).getId());
+//			list.get(i).setFollowCount(followCartoon * 72);
+//			int historyRecord = historyRecordService.getWatchCount(list.get(i));
+//			list.get(i).setPlayCount(historyRecord * 83);
+//			int cartoonComment = cartoonCommentService
+//					.getCartoonCommentCount(list.get(i));
+//			list.get(i).setCommentCount(cartoonComment * 47);
+			map.put("carrtoon", list);
+			map.put("carrtoonAllType",list3);
+			list2.add(map);
+		}
+	
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * @Remarks 发现>热门漫画
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_HOT_CARTOON, method = RequestMethod.POST)
+	public Model getThreeHOTCartoon(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Cartoon> list = cartoonService.getSixHotCartoon();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询异常");
+		}
+	/*	List<Object> list2 = new ArrayList<Object>();
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<CartoonSet> cartoonSet=cartoonSetService.getByCartoon(list.get(i).getId());
+			map.put("cartoonSet", cartoonSet);
+			map.put("cartoon", list);
+			list2.add(map);
+		}*/
+		return new Model(200, list);
+	}
+
+	/**
+	 * @auther  pp
+	 * @Remarks 发现>热门漫画>查看更多>全部
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_HOT_CARTOON_MORE, method = RequestMethod.POST)
+	public Model getMoreAllCartoon(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		int num = cartoonService.getALLCartoonCount(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Cartoon> list = cartoonService.getALLCartoon(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Object> list3 = new ArrayList<Object>();
+			List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(list.get(i).getId());
+			for (int j = 0; j < cartoonAllType.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(i).getCartoonTypeId());
+				map2.put("carrtoonType", cartoonType);
+				list3.add(map2);
+			}
+			map.put("carrtoonAllType", list3);
+			map.put("carrtoon", list);
+			list2.add(map);
+		}
+
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>热门漫画>查看更多>热门 +  +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_MORE_HOT, method = RequestMethod.POST)
+	public Model getCartoonByhot(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		int num = cartoonService.getALLHotCartoonCount(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Cartoon> list = cartoonService.getALLHotCartoon(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Object> list3 = new ArrayList<Object>();
+			List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(list.get(i).getId());
+			for (int j = 0; j < cartoonAllType.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(i).getCartoonTypeId());
+				map2.put("carrtoonType", cartoonType);
+				list3.add(map2);
+			}
+			map.put("carrtoonAllType", list3);
+			map.put("carrtoon", list);
+			list2.add(map);
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>热门漫画>查看更多>分类查询
+	 * @throws Exception
+	 * */
+	/*@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_MORE_BYTYPE, method = RequestMethod.POST)
+	public Model getCartoonById(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.get(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		int followCartoon = 0;
+		int historyRecord = 0;
+		int cartoonComment = 0;
+		int num = cartoonService.getALLCartoonbyTypeCount(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Cartoon> list = cartoonService.getALLCartoonbyType(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			String pp = list.get(i).getCartoonType();
+			
+			 * String[] aa = pp.split("|"); map.put("carrtoonType", aa);
+			 
+
+			 查看关注人数 
+			followCartoon = followCartoonService.getFollowCount(list.get(i).getId());
+			list.get(i).setFollowCount(followCartoon * 72);
+			historyRecord = historyRecordService.getWatchCount(list.get(i));
+			list.get(i).setPlayCount(historyRecord * 83);
+			cartoonComment = cartoonCommentService.getCartoonCommentCount(list
+					.get(i));
+			list.get(i).setCommentCount(cartoonComment * 47);
+			map.put("carrtoon", list);
+			list2.add(map);
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}*/
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>漫画表头
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_HEAD_BYID, method = RequestMethod.POST)
+	public Model getCartoonHeadById(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		Cartoon cartoon = cartoonService.get(cartoonData.getId());
+		if (cartoon == null) {
+			return new Model(404, "无此漫画");
+		}
+		List<Object> list3 = new ArrayList<Object>();
+		List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(cartoon.getId());
+		for (int j = 0; j < cartoonAllType.size(); j++) {
+			Map<String, Object> map2 = new HashMap<String, Object>();
+			CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(j).getCartoonTypeId());
+			map2.put("carrtoonType", cartoonType);
+			list3.add(map2);
+		}
+		map.put("carrtoonAllType", list3);
+		map.put("cartoon", cartoon);
+		//查看用户是否关注该剧
+		List<FollowCartoon> followCartoon2 = followCartoonService
+				.getFollowByid(cartoonData, userEntity);
+		if (!ParaClick.clickList(followCartoon2)) {
+			map.put("followCartoon", 0);
+		} else {
+			map.put("followCartoon", 1);
+		}
+		return new Model(200, map);
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>猜你喜欢>
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_HEAD_BYID, method = RequestMethod.POST)
+	public Model getCartoonByhobby(HttpSession session, CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		int num = cartoonService.getALLCartoonbyTypeThreeCount(cartoonData);
+		if (num == 0) {
+			return new Model(406, "未查询到信息");
+		}
+		List<Cartoon> list = cartoonService
+				.getALLCartoonbyTypeThree(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list);
+		return model;
+	}
+	/**
+	 * pp
+	 * @Remarks 发现>热门漫画>查看更多>总排行榜 + +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOON_RANKING, method = RequestMethod.POST)
+	public Model getAllCartoonByRankingList(CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Map<String,Object>> list2 = new ArrayList<Map<String,Object>>();
+		int num = cartoonService.getALLCartoonCountByRankingList(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Cartoon> list = cartoonService.getALLCartoonByRankingList(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Object> list3 = new ArrayList<Object>();
+			List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(list.get(i).getId());
+			for (int j = 0; j < cartoonAllType.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(j).getCartoonTypeId());
+				map2.put("carrtoonType", cartoonType);
+				list3.add(map2);
+			}
+			map.put("carrtoonAllType", list3);
+			map.put("carrtoon", list);
+			list2.add(map);
+		}
+	/*	// 进行降序排列
+		Collections.sort(list2, new Comparator<Map<String,Object>> (){
+			@Override
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				// 排序  
+				Cartoon ca=(Cartoon) o1.get("carrtoon");
+				Cartoon ca2=(Cartoon) o2.get("carrtoon");
+				Integer  tag1=(Integer)ca.getPlayCount();   
+				Integer  tag2=(Integer)ca2.getPlayCount();   
+				return tag1.compareTo(tag2);
+			}
+			
+		});*/
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+	/**
+	 * pp
+	 * @Remarks 发现>热门漫画>查看更多>排行榜前三 + 
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_HOT_CARTOON_MORE, method = RequestMethod.POST)
+	public Model getAllCartoonByThree(CartoonData cartoonData)
+			throws Exception {
+		Model model = new Model();
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		List<Map<String,Object>> list2 = new ArrayList<Map<String,Object>>();
+		List<Cartoon> list = cartoonService.getALLCartoonByRankingList(cartoonData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Object> list3 = new ArrayList<Object>();
+			List<CartoonAllType> cartoonAllType=cartoonAllTypeService.getByCartoonId(list.get(i).getId());
+			for (int j = 0; j < cartoonAllType.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				CartoonType cartoonType=cartoonTypeService.get(cartoonAllType.get(j).getCartoonTypeId());
+				map2.put("carrtoonType", cartoonType);
+				list3.add(map2);
+			}
+			map.put("carrtoonAllType", list3);
+			map.put("carrtoon", list);
+			list2.add(map);
+		}
+	/*	// 进行降序排列
+		Collections.sort(list2, new Comparator<Map<String,Object>> (){
+			@Override
+			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+				// 排序  
+				Cartoon ca=(Cartoon) o1.get("carrtoon");
+				Cartoon ca2=(Cartoon) o2.get("carrtoon");
+				Integer  tag1=(Integer)ca.getPlayCount();   
+				Integer  tag2=(Integer)ca2.getPlayCount();   
+				return tag1.compareTo(tag2);
+			}
+			
+		});
+		List<Map<String,Object>> list5 = new ArrayList<Map<String,Object>>();
+		list5.add(list2.get(0));
+		list5.add(list2.get(1));
+		list5.add(list2.get(2));*/
+		model.setError(200);
+		model.setObj(list2);
+		return model;
+	}
+	
+	/**
+	 * pp
+	 * @Remarks 更新数据>全部
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.BACKSUPS_CARTOON_DATA, method = RequestMethod.POST)
+	public Model getMoreAllCartoon()
+			throws Exception {
+		boolean flag=cartoonService.backupsDatabases();
+		if(!flag){
+			System.out.println("controller更新数据失败");
+			return new Model(500,"500");
+		}
+		System.out.println("controller更新数据成功");
+		return new Model(200,"200");
+	}
+}

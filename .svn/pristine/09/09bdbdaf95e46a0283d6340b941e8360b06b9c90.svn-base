@@ -1,0 +1,78 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class Banner extends BaseEntity implements Serializable {
+	@SuppressWarnings("static-access")
+	@Id
+	private String id = ran.generateString(32);
+	private String comicUrl = "";
+	private String httpImg="";
+	private int  state=0;
+	private int  click = 0;
+	private String title = "";
+	private String implDate = "";
+	private String cartoonId="";
+	
+	public String getCartoonId() {
+		return cartoonId;
+	}
+	public void setCartoonId(String cartoonId) {
+		this.cartoonId = cartoonId;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getComicUrl() {
+		return comicUrl;
+	}
+	public void setComicUrl(String comicUrl) {
+		this.comicUrl = comicUrl;
+	}
+	public String getHttpImg() {
+		return httpImg;
+	}
+	public void setHttpImg(String httpImg) {
+		this.httpImg = httpImg;
+	}
+	
+	public int getState() {
+		return state;
+	}
+	public void setState(int state) {
+		this.state = state;
+	}
+	public int getClick() {
+		return click;
+	}
+	public void setClick(int click) {
+		this.click = click;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getImplDate() {
+		return implDate;
+	}
+	public void setImplDate(String implDate) {
+		this.implDate = implDate;
+	}
+	
+	
+
+}

@@ -1,0 +1,40 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.AdminFansData;
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+@Service
+@Transactional
+public interface AdminUserOrderService extends BaseService<UserOrder>{
+	
+	//查询用户订单
+	List<Object[]> selectUserOrder(UserOrderData userOrderData);
+	
+	//计算订单数量
+	int getCountUserOrder(UserOrderData userOrderData);
+	
+	//查询用户订单（Id）
+	UserOrder selectUserOrderById(UserOrderData userOrderData);
+	
+	//查询用户充值金额
+	double moneyUserEntity(String userId);
+	
+	//统计用户流水
+	double moneyWater(UserOrderData userOrderData);
+
+	List<Object[]> selectCartoonOrderProfit(String starTime, String endTime);
+
+	List<Object[]> selectCartoonOrderProfitNew(String starTime, String endTime);
+
+	void export(String[] titles, ServletOutputStream out, AdminFansData adminFansData);
+	
+	
+}

@@ -1,0 +1,33 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.MallCartoonOrder;
+import com.qin.crxl.comic.entity.vo.MallCartoonOrderData;
+/**
+ *用户用咔咔豆充值漫画订单的接口
+ * @author cui
+ *
+ */
+@Service
+@Transactional
+public interface AdminMallCartoonOrderService extends BaseService<MallCartoonOrder>{
+	//查询用户用咔咔豆购买订单（已购买）
+	List<Object[]> selectMallCartoonOrder(MallCartoonOrderData mallCartoonOrderData);
+	
+	
+	//计算用户用咔咔豆购买订单数量
+	int getCount(MallCartoonOrderData mallCartoonOrderData);
+	
+	
+	//查询每个漫画收益
+	List<Object[]> cartoonMoneyWater(MallCartoonOrderData mallCartoonOrderData);
+	
+	//计算漫画收益的数量
+	int getNum(MallCartoonOrderData mallCartoonOrderData);
+	
+}

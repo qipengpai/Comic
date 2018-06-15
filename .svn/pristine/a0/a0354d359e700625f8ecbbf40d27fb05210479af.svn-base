@@ -1,0 +1,185 @@
+var nowpage = 1;
+var totalpage;
+$(function(){
+	findmodule();
+	changeoption();
+})
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+/*页面进行时渲染数据*/
+function ajax(nowpage){
+	/*判断页数*/
+	$.ajax({
+		url:"/Comic/crxl/qpp/admin/selectCartoonByModel.do",
+		type:"post",
+		data:{
+			"nowpage" : nowpage,
+			"cartoonModelId":$("#moduleoptions").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-data").html(data.totalpage);
+				$(".pagination-num").val(data.nowpage);
+				totalpage = data.totalpage;
+				nowpage = data.nowpage;
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoonAllModel == ""){
+						var cartoonAllModel = "空";
+					}else{
+						var cartoonAllModel = data.obj[i].cartoonAllModel;
+					}
+				var str = "";
+				str +="<tr>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					cartoonAllModel + 
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);	 
+				};
+            
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+/*查询模块*/
+function findmodule(){
+	$.ajax({
+		url:"/Comic/crxl/qpp/admin/selectCartoonModel.do",
+		type:"post",
+		success:function(data){
+			if(data.error == 200){
+				$("#moduleoptions").empty();
+				var str = "";
+				for(var i=0;i<data.obj.length;i++){
+					str += "<option value='"+data.obj[i].id+"'>"+data.obj[i].model+"</option>";
+				}
+				$("#moduleoptions").append(str);
+				ajax(nowpage);
+			}
+		}
+	});
+}
+function changeoption(){
+	$("#moduleoptions").change(function(){
+		ajax(nowpage);
+	})
+}
+/*上移*/
+function topp(id,sort){
+	$.ajax({
+		url:"/Comic/crxl/qpp/admin/updateCartoonSortByModel.do",
+		type:"post",
+		data:{
+			"sign":1,
+			"sort":sort,
+			"id":id,
+			"cartoonModelId":$("#moduleoptions").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				ajax(nowpage);
+			}
+		}
+	});
+}
+/*下移*/
+function bottomm(id,sort){
+	$.ajax({
+		url:"/Comic/crxl/qpp/admin/updateCartoonSortByModel.do",
+		type:"post",
+		data:{
+			"sign":0,
+			"sort":sort,
+			"id":id,
+			"cartoonModelId":$("#moduleoptions").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				ajax(nowpage);
+			}
+		}
+	});
+}
+/*置顶*/
+function stick(id,sort){
+	$.ajax({
+		url:"/Comic/crxl/qpp/admin/updateCartoonSortByModel.do",
+		type:"post",
+		data:{
+			"sign":2,
+			"sort":sort,
+			"id":id,
+			"cartoonModelId":$("#moduleoptions").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				ajax(nowpage);
+			}
+		}
+	});
+}
+function firstpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage == 1){
+		return false
+	}else{
+		ajax(1);
+	}
+}
+function prevpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(totalpage>1){
+		ajax(nowpage-1);
+	}else{
+		return false;
+	}
+}
+function lastpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage == totalpage){
+		return false;
+	}else{
+		ajax(totalpage)
+	}
+}
+function nextpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(totalpage > nowpage){
+		ajax(nowpage+1)
+	}else{
+		return false
+	}
+}
+function selectpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage >= totalpage){
+		ajax(totalpage);
+	}else{
+		ajax(nowpage);
+	}
+}

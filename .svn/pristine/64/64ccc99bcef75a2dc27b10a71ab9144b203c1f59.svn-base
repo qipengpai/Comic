@@ -1,0 +1,35 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Feedback;
+import com.qin.crxl.comic.entity.vo.FeedBackData;
+import com.qin.crxl.comic.service.AdminFeedbackService;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminFeedbackServiceImpl extends BaseServiceImpl<Feedback>
+		implements AdminFeedbackService {
+
+	@Override
+	public List<Feedback> selectFeedback(FeedBackData feedBackData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from Feedback where 1=1");
+		if (!ParaClick.clickString(feedBackData.getContent())) {
+			sb.append(" AND content like '%" + feedBackData.getCondition()+"%'");
+		}
+		if(!ParaClick.clickString(feedBackData.getBackDate())){
+			sb.append(" AND backDate like '%" + feedBackData.getBackDate()+"%'");
+		}
+		sb.append(" order by updateDate DESC LIMIT "
+				+ (Integer.parseInt(feedBackData.getNowPage()) - 1) * Integer.parseInt(feedBackData.getPageNum()) + ","
+				+ Integer.parseInt(feedBackData.getPageNum()));
+		List<Feedback> sql = SQL(sb.toString(),Feedback.class);
+		return sql;
+	}
+
+	
+
+}

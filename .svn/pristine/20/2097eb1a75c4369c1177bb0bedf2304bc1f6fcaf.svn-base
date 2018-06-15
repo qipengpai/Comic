@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>潮人微游</title>
+
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="this is my page">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+
+<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+<style>
+* {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+body{
+	background: #000000;
+}
+</style>
+
+</head>
+
+<body>
+
+	
+
+	<script type="text/javascript"
+		src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+	<script type="text/javascript">
+		
+		$(function() {
+			//判断用户是否是从微信分享进来的
+			var fx = getUrlParam("fx");
+			if (fx != "1") {
+				/* alert("非分享渠道进入"); */
+			} else {
+				$.ajax({
+					type : "post",
+					url : "/AppGame/getCRXLgameUrl.do?gameid="
+							+ getUrlParam("gameid"),
+					success : function(data) {
+						window.location.href = data.msg;
+					}
+				});
+			}
+		});
+	</script>
+
+
+	<script type="text/javascript">
+	var gamedata = {
+			title : "潮人微游",
+			desc : "无需等待，即点即玩，快来和我一起玩吧，我在潮人微游等着你哦~",
+			link : window.location.href.split('#')[0]+"&fx=1",
+			imgUrl : 'http://ox143yv1l.bkt.clouddn.com/tubiao.png'
+		};
+	
+	
+		$(function() {
+			//分享  */
+				//开始分享
+			var form_data = {
+				'url' : window.location.href.split('#')[0]
+			};
+			$
+					.ajax({
+						url : "./get/weixin/fenxiang.do",
+						type : "post",
+						data : form_data,
+						dataType : "json",
+						success : function(result) {
+							wx.config({
+								debug : true,
+								appId : result.appid,
+								timestamp : result.timestamp,
+								nonceStr : result.nonceStr,
+								signature : result.signature,
+								jsApiList : [ 'checkJsApi',
+										'onMenuShareTimeline',
+										'onMenuShareAppMessage',
+										'onMenuShareQQ', 'onMenuShareWeibo',
+										'onMenuShareQZone', 'hideMenuItems',
+										'showMenuItems',
+										'hideAllNonBaseMenuItem',
+										'showAllNonBaseMenuItem',
+										'translateVoice', 'startRecord',
+										'stopRecord', 'onVoiceRecordEnd',
+										'playVoice', 'onVoicePlayEnd',
+										'pauseVoice', 'stopVoice',
+										'uploadVoice', 'downloadVoice',
+										'chooseImage', 'previewImage',
+										'uploadImage', 'downloadImage',
+										'getNetworkType', 'openLocation',
+										'getLocation', 'hideOptionMenu',
+										'showOptionMenu', 'closeWindow',
+										'scanQRCode', 'chooseWXPay',
+										'openProductSpecificView', 'addCard',
+										'chooseCard', 'openCard' ]
+							});
+
+							wx.ready(function() {
+								// 1 判断当前版本是否支持指定 JS 接口，支持批量判断
+								wx.checkJsApi({
+									jsApiList : [ 'getNetworkType',
+											'previewImage' ],
+									success : function(res) {
+										/* alert(JSON.stringify(res)); */
+									}
+								});
+
+								// 2. 分享接口
+								// 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+								wx.onMenuShareAppMessage({
+									title : gamedata.title,
+									desc : gamedata.desc,
+									link : gamedata.link,
+									imgUrl : gamedata.imgUrl,
+									trigger : function(res) {
+										// 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+										/* alert('用户点击发送给朋友'); */
+									},
+									success : function(res) {
+										/*  alert($("#myiframe").css("border", "solid 7px red")); */
+										/* alert('已分享'); */
+										$.ajax({
+												type : "post",
+												url : "/app/share/backurl.do?userId=",
+												success : function(data) {
+													window.location.href = data.msg;
+												}
+											});
+										
+									},
+									cancel : function(res) {
+										/* alert('已取消'); */
+									},
+									fail : function(res) {
+										/* alert(JSON.stringify(res)); */
+									}
+								});
+
+								// 2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+								wx.onMenuShareTimeline({
+									title : gamedata.title,
+									desc : gamedata.desc,
+									link : gamedata.link,
+									imgUrl : gamedata.imgUrl,
+									trigger : function(res) {
+										// 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+										/* alert('用户点击分享到朋友圈'); */
+									},
+									success : function(res) {
+										/* alert('已分享'); */
+									},
+									cancel : function(res) {
+										/* alert('已取消'); */
+									},
+									fail : function(res) {
+										/* alert(JSON.stringify(res)); */
+									}
+								});
+							});
+
+						}
+
+					});
+			return false;
+
+		});
+	function getUrlParam(name) {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+			var r = window.location.search.substr(1).match(reg); //匹配目标参数
+			if (r != null)
+				return unescape(r[2]);
+			return null; //返回参数值
+		}
+	</script>
+</body>
+</html>

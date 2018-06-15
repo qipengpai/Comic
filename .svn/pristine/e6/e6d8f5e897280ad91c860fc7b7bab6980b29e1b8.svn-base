@@ -1,0 +1,111 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+
+@Service
+public class CartoonServiceImpl  extends BaseServiceImpl<Cartoon>implements CartoonService{
+
+	@Override
+	public List<Cartoon> getALLCartoon(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY sort DESC ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public int getALLCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		int num=super.gettotalpage(sb.toString());
+		return num;
+	}
+	@Override
+	public List<Cartoon> getNewCartoon(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY updateDate DESC  ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public int getNewCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		int num=super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLHotCartoon(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public int getALLHotCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ");
+		int num=super.gettotalpage(sb.toString());
+		return num;
+	}
+	@Override
+	public List<Cartoon> getSixHotCartoon() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC LIMIT 0,3 ");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public List<Cartoon> getALLCartoonbyType(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"+cartoonData.getCartoonType()+"' ORDER BY sort DESC  ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public int getALLCartoonbyTypeCount(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"+cartoonData.getCartoonType()+"' ");
+		int num=super.gettotalpage(sb.toString());
+		return num;
+	}
+	@Override
+	public List<Cartoon> getALLCartoonbyTypeThree(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 and state=1 AND cartoonType='"+cartoonData.getCartoonType()+"' ORDER BY sort DESC  ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+",3 ");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public int getALLCartoonbyTypeThreeCount(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 and state=1 AND cartoonType='"+cartoonData.getCartoonType()+"' ");
+		int num=super.gettotalpage(sb.toString());
+		return num;
+	}
+	@Override
+	public List<Cartoon> getHot0_8() {
+		return SQL("SELECT * from Cartoon where hot=1 ORDER BY sort ASC LIMIT 0,8", Cartoon.class);
+	}
+	@Override
+	public List<Cartoon> getSearchLike(String conext) {
+		return SQL("SELECT * from Cartoon where cartoonName LIKE '%"+conext+"%'", Cartoon.class);
+	}
+	
+	
+	
+	
+	
+}

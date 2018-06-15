@@ -1,0 +1,23 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Feedback;
+import com.qin.crxl.comic.entity.vo.FeedBackData;
+/**
+ * 用户反馈表接口
+ * @author cui
+ *
+ */
+@Service
+@Transactional
+public interface AdminFeedbackService extends BaseService<Feedback>{
+	//查询用户反馈
+	List<Feedback> selectFeedback(FeedBackData feedBackData);
+	//计算用户反馈数量
+	int getCount(FeedBackData feedBackData);
+}

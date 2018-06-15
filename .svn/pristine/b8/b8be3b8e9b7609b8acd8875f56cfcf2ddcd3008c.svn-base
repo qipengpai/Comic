@@ -1,0 +1,32 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.service.CartoonSetService;
+
+@Service
+public class CartoonSetServiceImpl  extends BaseServiceImpl<CartoonSet>implements CartoonSetService{
+
+
+	@Override
+	public List<CartoonSet> getByCartoonId(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  CartoonSet where CartoonId='"+cartoonData.getId()+"' ");
+		if (Integer.parseInt(cartoonData.getMode())==1) {
+			sb.append("ORDER BY sort DESC");
+		}else{
+			sb.append("ORDER BY sort ASC");
+		}
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<CartoonSet> list=super.SQL(sb.toString(),CartoonSet.class);
+		return list;
+	}
+
+
+
+}

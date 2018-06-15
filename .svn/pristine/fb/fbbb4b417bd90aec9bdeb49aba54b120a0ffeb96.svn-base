@@ -1,0 +1,142 @@
+package com.qin.crxl.comic.action;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder.In;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.CartoonSetComment;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.entity.vo.CartoonSetCommentData;
+import com.qin.crxl.comic.service.CartoonPhotoService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.service.MallCartoonOrderService;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonPhotoController {
+
+	@Autowired
+	private CartoonPhotoService CartoonPhotoService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private CartoonService cartoonService;
+	@Autowired
+	private MallCartoonOrderService mallCartoonOrderService;
+	/**
+	 * pp
+	 * 
+	 * @Remarks 每话每个漫画集数>看漫画
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOON_PHOTO_BYCARTOONSET, method = RequestMethod.POST)
+	public Model getAllCartoonCommentSetConmmentSon(
+			CartoonPhotoData cartoonPhotoData) throws Exception {
+		Model model = new Model();
+		cartoonPhotoData.clickUser();
+		UserEntity userEntity = userService.get(cartoonPhotoData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+
+		int num = 0;
+		List<CartoonPhoto> list = new ArrayList<CartoonPhoto>();
+		if (Integer.parseInt(cartoonPhotoData.getVip()) == 1) {
+			if (userEntity.getVipId() != 1) {
+				List<Object> list2 = new ArrayList<Object>();
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("price", cartoonPhotoData.getPrice());
+				map.put("integral", userEntity.getIntegral());
+				return new Model(303, map);
+			}
+			num = CartoonPhotoService.getCartoonPhotoNum(cartoonPhotoData);
+			if (num == 0) {
+				return new Model(500, "查询信息数量异常");
+			}
+			list = CartoonPhotoService
+					.getALLCartoonPhotoByCartoonSetId(cartoonPhotoData);
+			if (!ParaClick.clickList(list)) {
+				return new Model(500, "查询话集异常");
+			}
+			boolean fl = CartoonPhotoService.addAllParameter(cartoonPhotoData,
+					userEntity);
+			if (!fl) {
+				return new Model(500, "修改狀態异常");
+			}
+		} else {
+			num = CartoonPhotoService.getCartoonPhotoNum(cartoonPhotoData);
+			if (num == 0) {
+				return new Model(500, "查询信息数量异常");
+			}
+			list = CartoonPhotoService
+					.getALLCartoonPhotoByCartoonSetId(cartoonPhotoData);
+			if (!ParaClick.clickList(list)) {
+				return new Model(500, "查询话集异常");
+			}
+			boolean fl = CartoonPhotoService.addAllParameter(cartoonPhotoData,
+					userEntity);
+			if (!fl) {
+				return new Model(500, "修改狀態异常");
+			}
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonPhotoData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * @Remarks 每话每个漫画集数>購買次集漫畫（不重複購買）
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.BUY_THIS_CARTOONSET, method = RequestMethod.POST)
+	public Model purchaseThisCartoonSet(CartoonPhotoData cartoonPhotoData) throws Exception {
+		Model model = new Model();
+		cartoonPhotoData.clickUser();
+		UserEntity userEntity = userService.get(cartoonPhotoData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		boolean flag=mallCartoonOrderService.BuyThisCartoonSet(userEntity,cartoonPhotoData);
+		if(!flag){
+			return new Model(500, "解鎖失敗");
+		}
+		int num = CartoonPhotoService.getCartoonPhotoNum(cartoonPhotoData);
+		if (num == 0) {
+			return new Model(500, "查询信息数量异常");
+		}
+		List<CartoonPhoto> list  = CartoonPhotoService
+				.getALLCartoonPhotoByCartoonSetId(cartoonPhotoData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonPhotoData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list);
+		return model;
+	}
+}

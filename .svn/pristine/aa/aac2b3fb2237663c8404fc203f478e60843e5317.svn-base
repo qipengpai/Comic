@@ -1,0 +1,83 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.FriendsCirclePhoto;
+import com.qin.crxl.comic.entity.vo.FriendsCircleData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.service.FriendsCirclePhotoService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class FriendCirclesPhotoServiceImpl extends
+		BaseServiceImpl<FriendsCirclePhoto> implements FriendsCirclePhotoService {
+
+	@Override
+	public boolean addFriendCirclePhoto(String string,
+			FriendsCircleData friendsCircleData, UserEntityData userEntityData) {
+		// 添加图片
+		boolean flag = false;
+		try {
+			FriendsCirclePhoto friendCirclePhoto = new FriendsCirclePhoto();
+			friendCirclePhoto.setFriendCircleId(friendsCircleData.getId());
+			friendCirclePhoto.setImplDate(DateUtil
+					.getdate_yyyy_MM_dd_HH_MM_SS());
+			friendCirclePhoto.setPhoto(string);
+			friendCirclePhoto.setUserId(userEntityData.getUserId());
+			save(friendCirclePhoto);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<FriendsCirclePhoto> getFriendsCirclePhotoByFriendsCircleId(
+			String id) {
+		// 查询该条朋友圈素有图片
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM FriendCirclePhoto WHERE friendCircleId='" + id
+				+ "'");
+		List<FriendsCirclePhoto> list = SQL(sb.toString(),
+				FriendsCirclePhoto.class);
+		return list;
+	}
+
+	@Override
+	public boolean deleteByPhotoId(FriendsCircleData friendsCircleData) {
+		// 删除该条朋友圈图片
+		boolean flag = false;
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append("SELECT * FROM FriendCirclePhoto WHERE friendCircleId='"
+					+ friendsCircleData.getId()+ "'");
+			List<FriendsCirclePhoto> list = SQL(sb.toString(),
+					FriendsCirclePhoto.class);
+			if (!ParaClick.clickList(list)) {
+				flag = true;
+				return flag;
+			}
+			for (int i = 0; i < list.size(); i++) {
+				FriendsCirclePhoto friendCirclePhoto = super.get(list.get(i).getId());
+				if (friendCirclePhoto == null) {
+					return flag;
+				}
+				super.delete(list.get(i).getId());
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

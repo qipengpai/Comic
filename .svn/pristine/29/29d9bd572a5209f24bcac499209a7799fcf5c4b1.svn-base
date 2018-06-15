@@ -1,0 +1,355 @@
+package com.qin.crxl.comic.action;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.vo.AdminFansData;
+import com.qin.crxl.comic.entity.vo.MallCartoonOrderData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.service.AdminMallCartoonOrderService;
+import com.qin.crxl.comic.service.AdminUserEntityService;
+import com.qin.crxl.comic.service.AdminUserOrderService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+/**
+ * 后台流水统计和粉丝统计
+ * 
+ * @author cui
+ * 
+ */
+@Controller
+public class AdminTJController {
+	@Autowired
+	private AdminUserEntityService adminUserEntityService;
+	@Autowired
+	private AdminUserOrderService adminUserOrderService;
+	@Autowired
+	private AdminMallCartoonOrderService adminMallCartoonOrderService;
+
+	// 用户性别（统计）
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY_SEX, method = RequestMethod.POST)
+	public Model selectSexGroupBy() {
+		List<Object[]> sexGroupBy = adminUserEntityService.selectSexGroupBy();
+		if (!ParaClick.clickList(sexGroupBy)) {
+			return new Model(500, "查询异常");
+		}
+		List<AdminFansData> obj = new ArrayList<AdminFansData>();
+		double num = 0.0;
+		for (int i = 0; i < sexGroupBy.size(); i++) {
+			if ("1".equals(sexGroupBy.get(i)[0].toString())) {
+				AdminFansData adminFansData = new AdminFansData();
+				adminFansData.setName("男");
+				adminFansData.setValue(Double.parseDouble(sexGroupBy.get(i)[1]
+						.toString()));
+				obj.add(adminFansData);
+			} else if ("2".equals(sexGroupBy.get(i)[0].toString())) {
+				AdminFansData adminFansData = new AdminFansData();
+				adminFansData.setName("女");
+				adminFansData.setValue(Double.parseDouble(sexGroupBy.get(i)[1]
+						.toString()));
+				obj.add(adminFansData);
+			} else {
+				num += Double.parseDouble(sexGroupBy.get(i)[1].toString());
+			}
+		}
+		AdminFansData adminFansData = new AdminFansData();
+		adminFansData.setName("其他");
+		adminFansData.setValue(num);
+		obj.add(adminFansData);
+		if (!ParaClick.clickList(obj)) {
+			return new Model(500, "查询异常");
+		}
+		Model model = new Model();
+		model.setError(200);
+		model.setMsg("粉丝性别统计");
+		model.setObj(obj);
+		return model;
+	}
+
+	// 粉丝的分布(地域)
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY_AREA, method = RequestMethod.POST)
+	public Model selectUserEntityFansArea(UserEntityData userEntityData) {
+		Model model = new Model();
+		int num = 0;
+		if (ParaClick.clickString(userEntityData.getNowPage())) {
+			userEntityData.setNowPage("1");
+		}
+		if (ParaClick.clickString(userEntityData.getPageNum())) {
+			userEntityData.setPageNum("10");
+		}
+
+		List<Object[]> result = adminUserEntityService.getCircleByArea();
+		List<Object[]> circleByArea = adminUserEntityService
+				.getCircleByArea(userEntityData);
+		num = adminUserEntityService.areaNum(userEntityData);
+		if (!ParaClick.clickList(result) || !ParaClick.clickList(circleByArea)
+				|| num == 0) {
+			return new Model(500, "查询异常");
+		}
+
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		List<AdminFansData> areaList = new ArrayList<AdminFansData>();
+		
+		for (int i = 0; i < result.size(); i++) {
+			Object[] obj = result.get(i);
+			AdminFansData c = new AdminFansData();
+			if (ParaClick.clickString((String) obj[0])) {
+				c.setName("其他");
+			} else {
+				c.setName(StringToInt.toString(obj[0].toString()));
+			}
+			c.setValue(Double.parseDouble(obj[1].toString()));
+			list.add(c);
+		}
+		
+		for (int i = 0; i < circleByArea.size(); i++) {
+			Object[] obj = circleByArea.get(i);
+			AdminFansData c = new AdminFansData();
+			if (ParaClick.clickString((String) obj[0])) {
+				c.setName("其他");
+			} else {
+				c.setName(StringToInt.toString(obj[0].toString()));
+			}
+			c.setValue(Double.parseDouble(obj[1].toString()));
+			areaList.add(c);
+		}
+
+		if (!ParaClick.clickList(list)||!ParaClick.clickList(areaList)) {
+			return new Model(500, "查询异常");
+		}
+		
+		model.setError(200);
+		model.setMsg("粉丝渠道统计");
+		model.setObj(list);
+		model.setObj2(areaList);
+		model.setNowpage(Integer.parseInt(userEntityData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(userEntityData.getPageNum()) - 1)
+				/ Integer.parseInt(userEntityData.getPageNum()));
+		model.setTotalNum(num);
+		return model;
+	}
+
+	// 粉丝的分布列表分页(地域)
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY_AREA_PAGE, method = RequestMethod.POST)
+	public Model areaUser(UserEntityData userEntityData) {
+		Model model = new Model();
+		int num = 0;
+		if (ParaClick.clickString(userEntityData.getNowPage())) {
+			userEntityData.setNowPage("1");
+		}
+		if (ParaClick.clickString(userEntityData.getPageNum())) {
+			userEntityData.setPageNum("10");
+		}
+		
+		List<Object[]> circleByArea = adminUserEntityService
+				.getCircleByArea(userEntityData);
+		num = adminUserEntityService.areaNum(userEntityData);
+		if (!ParaClick.clickList(circleByArea)
+				|| num == 0) {
+			return new Model(500, "查询异常");
+		}
+		
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		for (int i = 0; i < circleByArea.size(); i++) {
+			Object[] obj = circleByArea.get(i);
+			AdminFansData c = new AdminFansData();
+			if (ParaClick.clickString((String) obj[0])) {
+				c.setName("其他");
+			} else {
+				c.setName(StringToInt.toString(obj[0].toString()));
+			}
+			c.setValue(Double.parseDouble(obj[1].toString()));
+			list.add(c);
+		}
+		
+		model.setError(200);
+		model.setMsg("粉丝渠道统计");
+		model.setObj2(list);
+		model.setNowpage(Integer.parseInt(userEntityData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(userEntityData.getPageNum()) - 1)
+				/ Integer.parseInt(userEntityData.getPageNum()));
+		model.setTotalNum(num);
+		return model;
+	}
+
+	// 公众号粉丝分布(数量)
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY_GONGZHONG, method = RequestMethod.POST)
+	public Model selectUserEntityFansBuGongZhong() {
+		List<Object[]> fansByGongZhong = adminUserEntityService
+				.getFansByGongZhong();
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		for (int i = 0; i < fansByGongZhong.size(); i++) {
+			AdminFansData adminFansData = new AdminFansData();
+			adminFansData.setName(fansByGongZhong.get(i)[0].toString());
+			adminFansData.setValue(Double.parseDouble(fansByGongZhong.get(i)[1]
+					.toString()));
+			list.add(adminFansData);
+		}
+		Model model = new Model();
+		model.setError(200);
+		model.setMsg("公众号粉丝统计");
+		model.setObj(list);
+		return model;
+	}
+
+	// 各个公众号渠道的咔咔豆收益
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY_GONGZHONG_KAKAMONEY, method = RequestMethod.POST)
+	public Model selectQD(AdminFansData adminFansData) {
+		// if ("".equals(adminFansData.getStarTime()) || null ==
+		// adminFansData.getStarTime()) {
+		// adminFansData.setStarTime(DateUtil.getdate_yyyy_MM_dd());
+		// adminFansData.setEndTime(DateUtil.getdate_yyyy_MM_dd());
+		// }
+		if (!ParaClick.clickString(adminFansData.getStarTime())
+				&& !ParaClick.clickString(adminFansData.getEndTime())) {
+			Long start = 0L;
+			Long end = 0L;
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					adminFansData.getStarTime() + " 00:00:00").getTime();
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					adminFansData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间大于结束时间");
+			}
+		}
+		List<Object[]> mallCartoonOrderByGongZhong = adminMallCartoonOrderService
+				.selectMallCartoonOrderByGongZhong(adminFansData.getStarTime(),
+						adminFansData.getEndTime());
+		if (!ParaClick.clickList(mallCartoonOrderByGongZhong)) {
+			return new Model(500, "查询异常");
+		}
+		DecimalFormat df = new DecimalFormat("######0.00");
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		for (int i = 0; i < mallCartoonOrderByGongZhong.size(); i++) {
+			mallCartoonOrderByGongZhong.get(i)[1] = df.format(Double
+					.parseDouble(String.valueOf(mallCartoonOrderByGongZhong
+							.get(i)[1])));
+			AdminFansData adminFans = new AdminFansData();
+			adminFans
+					.setName(String.valueOf(mallCartoonOrderByGongZhong.get(i)[0]));
+			adminFans.setValue(Double.parseDouble(String
+					.valueOf(mallCartoonOrderByGongZhong.get(i)[1])));
+			list.add(adminFans);
+		}
+		Model model = new Model();
+		model.setError(200);
+		model.setMsg("各个公众号渠道的咔咔豆收益");
+		model.setObj(list);
+		return model;
+	}
+
+	// 各个漫画的咔咔豆收益
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_CARTOON_KAKAMONEY, method = RequestMethod.POST)
+	public Model selectCartoonkaKaMoney(AdminFansData adminFansData) {
+		// if ("".equals(adminFansData.getStarTime()) || null ==
+		// adminFansData.getStarTime()) {
+		// adminFansData.setStarTime(DateUtil.getdate_yyyy_MM_dd());
+		// adminFansData.setEndTime(DateUtil.getdate_yyyy_MM_dd());
+		// }
+		if (!ParaClick.clickString(adminFansData.getStarTime())
+				&& !ParaClick.clickString(adminFansData.getEndTime())) {
+			Long start = 0L;
+			Long end = 0L;
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					adminFansData.getStarTime() + " 00:00:00").getTime();
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					adminFansData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间大于结束时间");
+			}
+		}
+		List<Object[]> cartoonMoneyWater = adminMallCartoonOrderService
+				.cartoonMoneyWater(adminFansData.getStarTime(),
+						adminFansData.getEndTime());
+		if (!ParaClick.clickList(cartoonMoneyWater)) {
+			return new Model(500, "暂无数据");
+		}
+		double allMoney = 0.0;
+		DecimalFormat df = new DecimalFormat("######0.00");
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		for (int i = 0; i < cartoonMoneyWater.size(); i++) {
+			cartoonMoneyWater.get(i)[2] = df.format(Double.parseDouble(String
+					.valueOf(cartoonMoneyWater.get(i)[2])));
+			AdminFansData adminFans = new AdminFansData();
+			adminFans.setName(String.valueOf(cartoonMoneyWater.get(i)[1]));
+			adminFans.setValue(Double.parseDouble(String
+					.valueOf(cartoonMoneyWater.get(i)[2])));
+			list.add(adminFans);
+			allMoney += Double.parseDouble(String.valueOf(cartoonMoneyWater
+					.get(i)[2]));
+		}
+		Model model = new Model();
+		model.setError(200);
+		model.setMsg("各个漫画的咔咔豆收益");
+		model.setObj(list);
+		model.setSpare(df.format(allMoney));
+		return model;
+	}
+
+	// 漫画每个话的收益
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_CARTOONSET_KAKAMONEY, method = RequestMethod.POST)
+	public Model selectCartoonSetkaKaMoney(
+			MallCartoonOrderData mallCartoonOrderData) {
+		// if ("".equals(mallCartoonOrderData.getStarTime()) || null ==
+		// mallCartoonOrderData.getStarTime()) {
+		// mallCartoonOrderData.setStarTime(DateUtil.getdate_yyyy_MM_dd());
+		// mallCartoonOrderData.setEndTime(DateUtil.getdate_yyyy_MM_dd());
+		// }
+		if (!ParaClick.clickString(mallCartoonOrderData.getStarTime())
+				&& !ParaClick.clickString(mallCartoonOrderData.getEndTime())) {
+			Long start = 0L;
+			Long end = 0L;
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getStarTime() + " 00:00:00").getTime();
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间大于结束时间");
+			}
+		}
+		List<Object[]> cartoonMoneyWater = adminMallCartoonOrderService
+				.cartoonSetMoneyWater(mallCartoonOrderData);
+		if (!ParaClick.clickList(cartoonMoneyWater)) {
+			return new Model(500, "暂无数据");
+		}
+		double allMoney = 0.0;
+		DecimalFormat df = new DecimalFormat("######0.00");
+		List<AdminFansData> list = new ArrayList<AdminFansData>();
+		for (int i = 0; i < cartoonMoneyWater.size(); i++) {
+			cartoonMoneyWater.get(i)[2] = df.format(Double.parseDouble(String
+					.valueOf(cartoonMoneyWater.get(i)[2])));
+			AdminFansData adminFans = new AdminFansData();
+			adminFans.setName(String.valueOf(cartoonMoneyWater.get(i)[1]));
+			adminFans.setValue(Double.parseDouble(String
+					.valueOf(cartoonMoneyWater.get(i)[2])));
+			list.add(adminFans);
+			allMoney += Double.parseDouble(String.valueOf(cartoonMoneyWater
+					.get(i)[2]));
+		}
+		Model model = new Model();
+		model.setError(200);
+		model.setMsg("漫画每个话的咔咔豆收益");
+		model.setObj(list);
+		model.setSpare(df.format(allMoney));
+		return model;
+	}
+
+}

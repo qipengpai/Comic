@@ -1,0 +1,38 @@
+package com.qin.crxl.comic.system;
+
+public class ActionUrl {
+
+	// 微信登录
+	public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	public static final String GET_CARTOONSET_BYID = "/qpp/comic/get/cartoon/byid";
+	// 首頁查询漫画列表
+	public static final String GET_ALL_CARTOON = "/qpp/comic/get/allcartoon";
+	// 查询热门漫画
+	public static final String GET_ALL_HOT_CARTOON = "/qpp/comic/get/hot/cartoon";
+	// 二级页面查询表头
+	public static final String GET_CARTOON_HEAD_BYID = "/qpp/comic/get/cartoon/head";
+	// 漫画详情
+	public static final String GET_CARTOONPHOTO_INFO_BYID = "/qpp/comic/get/info";
+	// 微信登录
+	// public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 微信登录
+	//public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	//public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	//public static final String GET_CARTOON_BYID = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 微信登录
+	//public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	//public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	//public static final String GET_CARTOON_BYID = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+
+}

@@ -1,0 +1,130 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.MallCartoonOrder;
+import com.qin.crxl.comic.entity.vo.MallCartoonOrderData;
+import com.qin.crxl.comic.service.AdminMallCartoonOrderService;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 用户用咔咔豆兑换漫画实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminMallCartoonOrderServiceImpl extends BaseServiceImpl<MallCartoonOrder> implements
+		AdminMallCartoonOrderService {
+
+	@Override
+	public List<Object[]> selectMallCartoonOrder(
+			MallCartoonOrderData mallCartoonOrderData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select a.id,a.orderNum,u.nickname,a.cartoonName,a.titile,a.orderMoney,a.orderDate from (select o.id,o.orderNum,o.userId,c.cartoonName,s.titile,o.orderMoney,o.orderDate from MallCartoonOrder o,Cartoon c,CartoonSet s where o.cartoonId=c.id and o.cartoonSetId=s.id and orderState=1");
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonId())){
+			sb.append(" and c.cartoonName like '%"+mallCartoonOrderData.getCartoonId()+"%'");
+		}
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonSetId())){
+			sb.append(" and s.titile like '%"+mallCartoonOrderData.getCartoonSetId()+"%'");
+		}
+		if (!ParaClick.clickString(mallCartoonOrderData.getStarTime())
+				&& !ParaClick.clickString(mallCartoonOrderData.getEndTime())) {
+			sb.append(" and o.orderDate BETWEEN '"
+					+ mallCartoonOrderData.getStarTime() + " 00:00:00' and '"
+					+ mallCartoonOrderData.getEndTime() + " 23:59:59'");
+		}
+		sb.append(") a,UserEntity u");
+		sb.append(" where a.userId=u.userId");
+		sb.append(" order by a.cartoonName DESC,a.orderDate  DESC LIMIT "
+				+ (Integer.parseInt(mallCartoonOrderData.getNowPage()) - 1) * Integer.parseInt(mallCartoonOrderData.getPageNum()) + ","
+				+ Integer.parseInt(mallCartoonOrderData.getPageNum()));
+		List<Object[]> list=null;
+		try {
+			list = getSessionFactory().createSQLQuery(sb.toString()).list();
+		} catch (HibernateException e) {
+			// TODO Auto-generated catch block
+		}
+		return list;
+	}
+
+	@Override
+	public int getCount(MallCartoonOrderData mallCartoonOrderData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select count(*) from (select o.id,o.orderNum,o.userId,c.cartoonName,s.titile,o.orderMoney,o.orderDate from MallCartoonOrder o,Cartoon c,CartoonSet s where o.cartoonId=c.id and o.cartoonSetId=s.id and orderState=1");
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonId())){
+			sb.append(" and c.cartoonName like '%"+mallCartoonOrderData.getCartoonId()+"%'");
+		}
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonSetId())){
+			sb.append(" and s.titile like '%"+mallCartoonOrderData.getCartoonSetId()+"%'");
+		}
+		if (!ParaClick.clickString(mallCartoonOrderData.getStarTime())
+				&& !ParaClick.clickString(mallCartoonOrderData.getEndTime())) {
+			sb.append(" and o.orderDate BETWEEN '"
+					+ mallCartoonOrderData.getStarTime() + " 00:00:00' and '"
+					+ mallCartoonOrderData.getEndTime() + " 23:59:59'");
+		}
+		sb.append(") a,UserEntity u");
+		sb.append(" where a.userId=u.userId");
+		int gettotalpage=0;
+		try {
+			gettotalpage = super.gettotalpage(sb.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return gettotalpage;
+		
+	}
+
+	@Override
+	public List<Object[]> cartoonMoneyWater(MallCartoonOrderData mallCartoonOrderData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select c.id,c.cartoonName,SUM(orderMoney) from MallCartoonOrder mo,Cartoon c where mo.cartoonId=c.id");
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonId())){
+			sb.append(" and c.cartoonName like '%"+mallCartoonOrderData.getCartoonId()+"%'");
+		}
+		if (!ParaClick.clickString(mallCartoonOrderData.getStarTime())
+				&& !ParaClick.clickString(mallCartoonOrderData.getEndTime())) {
+			sb.append(" and mo.orderDate BETWEEN '"
+					+ mallCartoonOrderData.getStarTime() + " 00:00:00' and '"
+					+ mallCartoonOrderData.getEndTime() + " 23:59:59'");
+		}
+		sb.append(" group by mo.cartoonId");
+		sb.append(" LIMIT "
+				+ (Integer.parseInt(mallCartoonOrderData.getNowPage()) - 1) * Integer.parseInt(mallCartoonOrderData.getPageNum()) + ","
+				+ Integer.parseInt(mallCartoonOrderData.getPageNum()));
+		List<Object[]> list=null;
+		try {
+			list = getSessionFactory().createSQLQuery(sb.toString()).list();
+		} catch (HibernateException e) {
+			// TODO Auto-generated catch block
+		}
+		return list;
+	}
+
+	@Override
+	public int getNum(MallCartoonOrderData mallCartoonOrderData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select count(a.num) from (select count(*) num from MallCartoonOrder mo,Cartoon c where mo.cartoonId=c.id");
+		if(!ParaClick.clickString(mallCartoonOrderData.getCartoonId())){
+			sb.append(" and c.cartoonName like '%"+mallCartoonOrderData.getCartoonId()+"%'");
+		}
+		if (!ParaClick.clickString(mallCartoonOrderData.getStarTime())
+				&& !ParaClick.clickString(mallCartoonOrderData.getEndTime())) {
+			sb.append(" and mo.orderDate BETWEEN '"
+					+ mallCartoonOrderData.getStarTime() + " 00:00:00' and '"
+					+ mallCartoonOrderData.getEndTime() + " 23:59:59'");
+		}
+		sb.append(" group by mo.cartoonId) a");
+		System.out.println(sb.toString());
+		int gettotalpage=0;
+		try {
+			gettotalpage = super.gettotalpage(sb.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return gettotalpage;
+	}
+}

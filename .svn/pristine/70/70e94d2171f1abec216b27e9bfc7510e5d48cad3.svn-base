@@ -1,0 +1,139 @@
+package com.qin.game.entity.redis;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+/**
+ * @Description : redis 缓存工厂类
+ */
+public class JedisFactory {
+
+	// ridis 连接池
+	private static JedisPool jedisPool;
+
+	private static JedisFactory jedisFactory = new JedisFactory();
+
+	private JedisFactory() {
+
+	}
+
+	public static JedisFactory getInstance() {
+		if (jedisFactory == null) {
+			jedisFactory = new JedisFactory();
+		}
+		return jedisFactory;
+	}
+
+	/**
+	 * @Description : 初始化  非切片池(非集群环境)
+	 * @return :void
+	 */
+	static {
+
+		JedisPoolConfig config = new JedisPoolConfig();
+		// 最大连接数
+		config.setMaxTotal(3000);
+		// 最大空闲连接数
+		config.setMaxIdle(50);
+		// 获取连接时的最大等待毫秒数（5分钟）
+		config.setMaxWaitMillis(5 * 60 * 1000);
+		// 在获取连接的时候检查有效性, 默认false
+		config.setTestOnBorrow(true);
+		// 在空闲时检查有效性, 默认false
+		config.setTestWhileIdle(false);
+		jedisPool = new JedisPool(config, RedisConfig.getHostName(), RedisConfig.getPort(), 2000, RedisConfig.getPWD());
+	//	jedisPool = new JedisPool(config, RedisConfig.getHostName(), RedisConfig.getPort());
+	}
+
+	
+
+	
+
+	
+
+	// 释放连接
+	public static void returnResource(Jedis jedis) {
+		if (jedis!=null) {
+			jedis.close();
+		}
+	}
+
+
+
+	
+	
+	public JedisAdpater getJedis() {
+		return new JedisAdpater(jedisPool.getResource());
+	}
+	
+	/**
+	 * 删除指定 数据
+	 */
+	public void remove(String key) {
+		getJedis().del(key);
+	}
+
+	/**
+	 * 
+	 * @author 覃金林
+	 * @date 2018年1月24日
+	 * @Remarks
+	 * @Tile={<h1>获取数据</h1>}
+	 * @describe={<p>...</p>}
+	 *
+	 */
+	public Object get(String key) {
+		byte[] bytes = getJedis().get(key.getBytes());
+		return SerializeUtil.unserialize(bytes);
+	}
+    /**
+     * @date 2017年1月14日下午7:52:30
+     * @param key
+     * @param seconds void
+     * @Des: 设置key多长时间过期
+     */
+	public void expire(String key, int seconds) {
+		getJedis().expire(key, seconds);
+	}
+
+	/**
+	 * 
+	 * @author 覃金林
+	 * @date 2018年1月24日
+	 * @Remarks
+	 * @Tile={<h1>写入数据</h1>}
+	 * @describe={<p>...</p>}
+	 *
+	 */
+	public void set(String key, Object value) {
+		getJedis().set(key.getBytes(), SerializeUtil.serialize(value));
+	}
+
+	/**
+	 * 
+	 * @author 覃金林
+	 * @date 2018年1月24日
+	 * @Remarks
+	 * @Tile={<h1>更新一条数据</h1>}
+	 * @describe={<p>...</p>}
+	 *
+	 */
+	public Object update(String key,Object valObject){
+		byte[] bytes =  getJedis().update(key.getBytes(), SerializeUtil.serialize(valObject));
+		return SerializeUtil.unserialize(bytes);
+	}
+	
+	/**
+	 * 
+	 * @author 覃金林
+	 * @date 2018年1月24日
+	 * @Remarks
+	 * @Tile={<h1>检查key是否存在</h1>}
+	 * @describe={<p>...</p>}
+	 *
+	 */
+	public boolean exists(String key){
+		return getJedis().exists(key.getBytes());
+	}
+}

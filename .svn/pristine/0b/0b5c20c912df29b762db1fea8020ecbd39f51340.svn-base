@@ -1,0 +1,80 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.CartoonPhotoService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.tool.Model;
+
+@Service
+public class CartoonPhotoServiceImpl extends BaseServiceImpl<CartoonPhoto>
+		implements CartoonPhotoService {
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private CartoonService cartoonService;
+	
+	@Override
+	public int getCartoonPhotoNum(CartoonPhotoData cartoonPhotoData) {
+		// 查詢此話所有圖片數量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId(
+			CartoonPhotoData cartoonPhotoData) {
+		// 查詢此話所有圖片
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1");
+		sb.append("ORDER BY sort DESC LIMIT "
+				+ (Integer.parseInt(cartoonPhotoData.getNowPage()) - 1) * 10
+				+ " ,10");
+		List<CartoonPhoto> list = super.SQL(sb.toString(), CartoonPhoto.class);
+		return list;
+	}
+
+	@Override
+	public boolean addAllParameter(CartoonPhotoData cartoonPhotoData,
+			UserEntity userEntity) {
+		// 增加所喲有參數屬性
+		boolean fl=false;
+		try {
+			boolean flag3 = historyRecordService.updateState(cartoonPhotoData,
+					userEntity);
+			if (!flag3) {
+				throw new BusinessException("修改狀態異常");
+			}
+			boolean flag = historyRecordService.addhistoryRecord(cartoonPhotoData,
+					userEntity);
+			if (!flag) {
+				throw new BusinessException("增加歷史紀錄失敗");
+			}
+			boolean flag2 = cartoonService.addPlayCount(cartoonPhotoData);
+			if (!flag2) {
+				throw new BusinessException("增加歷史紀錄次數失敗");
+			}
+			fl=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return fl;
+		}
+		return fl;
+	}
+
+}

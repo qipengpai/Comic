@@ -1,0 +1,66 @@
+package com.qin.crxl.comic.service.impl;
+/**
+ * 漫画类型接口实现类
+ */
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonType;
+import com.qin.crxl.comic.entity.vo.CartoonTypeVo;
+import com.qin.crxl.comic.service.AdminCartoonTypeService;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminCartoonTypeServiceImpl extends BaseServiceImpl<CartoonType> implements AdminCartoonTypeService {
+
+	@Override
+	public boolean addCartoonType(CartoonTypeVo cartoonTypeData) {
+		try{
+			CartoonType cartoonType =new CartoonType();
+			cartoonType.setCartoonType(cartoonTypeData.getCartoonType());
+			super.save(cartoonType);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean updateCartoonType(CartoonTypeVo cartoonTypeData) {
+		CartoonType cartoonType=null;
+		try {
+			cartoonType=super.get(cartoonTypeData.getId());
+			if(ParaClick.clickObj(cartoonType)){
+				cartoonType.setCartoonType(cartoonTypeData.getCartoonType());
+				cartoonType.setClick(cartoonTypeData.getClick());
+				cartoonType.setShowNum(cartoonTypeData.getShowNum());
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return false;
+		}
+	}
+
+	@Override
+	public CartoonType selectCartoonType(String id) {
+		List<CartoonType> cartoonType = SQL("select * from CartoonType where id="+id,CartoonType.class);
+		if(cartoonType!=null&&cartoonType.size()>0){
+			return cartoonType.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public List<CartoonType> allCartoonType() {
+		List<CartoonType> cartoonType = super.getAll();
+		return cartoonType;
+	}
+
+	
+
+}

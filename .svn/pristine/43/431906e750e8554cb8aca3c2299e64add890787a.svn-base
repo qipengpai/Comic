@@ -1,0 +1,43 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonType;
+import com.qin.crxl.comic.entity.vo.CartoonTypeData;
+import com.qin.crxl.comic.service.CartoonTypeService;
+
+@Service
+public class CartoonTypeServiceImpl extends BaseServiceImpl<CartoonType> implements CartoonTypeService{
+
+	@Override
+	public int gettotalNum(CartoonTypeData cartoonTypeData) {
+		// 查詢所有類型總數
+		int num=super.gettotalpage("SELECT COUNT(*) FROM CartoonType");
+		return num;
+	}
+
+	@Override
+	public List<CartoonType> getAllCartoonType(CartoonTypeData cartoonTypeData) {
+		// 查詢所有類型
+		List<CartoonType> list=super.SQL("SELECT * FROM CartoonType ORDER BY showNum ASC ", CartoonType.class);
+		//LIMIT "+(Integer.parseInt(cartoonTypeData.getNowPage())-1)*10+",10
+		return list;
+	}
+
+//	@Override
+//	public CartoonType getById(String string) {
+//		// 查询所有类型
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("SELECT  * FROM  CartoonType  WHERE  1=1 AND id='"
+//				+ string
+//				+ "' ");
+//		List<CartoonType> list = super.SQL(sb.toString(),
+//				CartoonType.class);
+//		return list;
+//	}
+	 
+	
+}

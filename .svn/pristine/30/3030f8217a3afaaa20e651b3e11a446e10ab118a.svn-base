@@ -1,0 +1,206 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonComment;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.CartoonSetComment;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonSetCommentData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.CartoonSetCommentService;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.CommentVeryOkServcie;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class CartoonSetCommentServiceImpl extends
+		BaseServiceImpl<CartoonSetComment> implements CartoonSetCommentService {
+	@Autowired
+	private CartoonSetService cartoonSetService;
+	@Autowired
+	private CommentVeryOkServcie commentVeryOkServcie;
+	@Autowired
+	private CartoonSetCommentService cartoonSetCommentService;
+	@Override
+	public int getAllCartoonSetCommentCount(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 查看该话评论人数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonSetComment WHERE cartoonSetId='"
+						+ cartoonSetCommentData.getCartoonSetId() + "'");
+		return num;
+	}
+
+	public int getAllCartoonSetCommentCountByCommentId(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 查看该话评论人数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonSetComment  WHERE CommentId='"
+						+ cartoonSetCommentData.getCommentId() + "'");
+		return num;
+	}
+
+	@Override
+	public int getCartoonSetComment2Count(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 查看该话评论的评论数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonSetComment WHERE cartoonSetId='"
+						+ cartoonSetCommentData.getId() + "'");
+		return num;
+	}
+
+	@Override
+	public List<CartoonSetComment> getALLCartoonSetComment(
+			CartoonSetCommentData cartoonSetCommentData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  CartoonSetComment  WHERE  1=1 AND cartoonSetId='"
+				+ cartoonSetCommentData.getCartoonSetId()
+				+ "' ");
+		if (Integer.parseInt(cartoonSetCommentData.getBastNew())==1) {
+			sb.append("ORDER BY commentDate DESC ");
+		}else{
+			sb.append("ORDER BY okCount DESC ");
+		}
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonSetCommentData.getNowPage())-1)*10+",10");
+		List<CartoonSetComment> list = super.SQL(sb.toString(),
+				CartoonSetComment.class);
+		return list;
+	}
+
+	@Override
+	public boolean addCartoonSetComment(
+			CartoonSetCommentData cartoonSetCommentData, UserEntity userEntity) {
+		// 评论该话
+		boolean flag = false;
+		try {
+			// int num = getAllCartoonSetCommentCount(cartoonSetCommentData);
+			CartoonSetComment cartoonSetComment = new CartoonSetComment();
+			cartoonSetComment.setCartoonSetId(cartoonSetCommentData
+					.getCartoonSetId());
+			cartoonSetComment.setCommentInfo(cartoonSetCommentData
+					.getCommentInfo());
+			cartoonSetComment.setCommentId("0");
+			cartoonSetComment.setCommentDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			cartoonSetComment.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			cartoonSetComment.setUserId(userEntity.getUserId());
+			cartoonSetComment.setAite("0");
+			cartoonSetComment.setOkCount(0);
+			save(cartoonSetComment);
+			boolean flag2 = cartoonSetService.addCartoonSetCommentCount(cartoonSetCommentData);
+			if (!flag2) {
+				throw new BusinessException("评论异常");
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<CartoonSetComment> getALLCartoonSetCommentByCommentId(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// TODO Auto-generated method stub
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  CartoonSetComment  WHERE  1=1 AND commentId='"
+				+ cartoonSetCommentData.getCommentId()
+				+ "' ORDER BY commentDate DESC ");
+		List<CartoonSetComment> list = super.SQL(sb.toString(),
+				CartoonSetComment.class);
+		return list;
+	}
+
+	@Override
+	public boolean addCartoonCommentSetConmment(
+			CartoonSetCommentData cartoonSetCommentData, UserEntity userEntity) {
+		// 评论该评论
+		boolean flag = false;
+		try {
+			int num = getAllCartoonSetCommentCountByCommentId(cartoonSetCommentData);
+			CartoonSetComment cartoonSetComment = new CartoonSetComment();
+			cartoonSetComment.setCartoonSetId("0");
+			cartoonSetComment.setCommentInfo(cartoonSetCommentData
+					.getCommentInfo());
+			cartoonSetComment
+					.setCommentId(cartoonSetCommentData.getCommentId());
+			cartoonSetComment.setCommentDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonSetComment.setImplDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonSetComment.setUserId(userEntity.getUserId());
+			cartoonSetComment.setAite("0");
+			cartoonSetComment.setOkCount(0);
+			cartoonSetComment.setSort(num + 1);
+			save(cartoonSetComment);
+			boolean flag2=cartoonSetCommentService.addCartoonCommentSetConmmentCount(cartoonSetCommentData);
+			if (!flag2) {
+				throw new BusinessException("评论异常");
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+
+	}
+
+	@Override
+	public boolean addCartoonCommentSetConmment(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 點讚该评论
+		boolean flag = false;
+		try {
+			CartoonSetComment cartoonSetComment = super
+					.get(cartoonSetCommentData.getId());
+			cartoonSetComment.setOkCount(Integer.parseInt(cartoonSetCommentData
+					.getOkCount()) + 1);
+			flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addCartoonCommentSetConmmentCount(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 增加评论次数
+		boolean flag = false;
+		try {
+			CartoonSetComment cartoonSetComment = super
+					.get(cartoonSetCommentData.getId());
+			cartoonSetComment.setCommentCount(cartoonSetComment
+					.getCommentCount() + 1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addVeryOkCount(String id) {
+		// 增加点赞数
+		boolean flag = false;
+		try {
+			CartoonSetComment cartoonSetComment = super
+					.get(id);
+			cartoonSetComment.setOkCount(cartoonSetComment
+					.getCommentCount() + 1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

@@ -1,0 +1,182 @@
+package com.qin.crxl.comic.action;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.BannerData;
+import com.qin.crxl.comic.service.BannerService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class BannerController {
+
+	
+	@Autowired
+	private BannerService bannerService;
+	@Autowired
+	private UserService userService;
+	
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>comic获取bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>...</li>
+	 * <li>...</li>
+	 * </ul>}
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_BANNER, method = RequestMethod.POST)
+	public Model getAllBannerByIos(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.getUserInfoById(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBanner();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}
+	
+
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>comic获取bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>...</li>
+	 * <li>...</li>
+	 * </ul>}
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.IOS_GET_BANNER, method = RequestMethod.POST)
+	public Model getAllBanner(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.getUserInfoById(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBannerByIos();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>comic获取bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>PC</li>
+	 * </ul>}
+	 */
+	/*@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_BANNER, method = RequestMethod.POST)
+	public Model getPCAllBanner(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.getUserInfoById(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBanner();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}*/
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>comic增加bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>PC</li>
+	 * </ul>}
+	 */
+	/*@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_BANNER, method = RequestMethod.POST)
+	public Model addBanner(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.get(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBanner();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}*/
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>删除bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>PC</li>
+	 * </ul>}
+	 */
+	/*@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_BANNER, method = RequestMethod.POST)
+	public Model deleteBanner(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.get(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBanner();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}*/
+	/**
+	 * @author 10747
+	 * @date 2017年12月8日
+	 * @Remarks
+	 * @Tile={<h1>修改bannr图 </h1>}
+	 * @describe={
+	 * <p>添加方法：</p >
+	 * <ul>
+	 * <li>PC</li>
+	 * </ul>}
+	 */
+	/*@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_BANNER, method = RequestMethod.POST)
+	public Model updateBanner(BannerData bannerData) throws Exception {
+		bannerData.clickUser();
+		UserEntity userEntity=userService.get(bannerData.getUserId());
+		if (userEntity==null) {
+			return new Model(404,"无用户");
+		}
+		List<Banner> list = bannerService.getAllBanner();
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询banner失败");
+		}
+		return new Model(200, list);
+	}*/
+}

@@ -1,0 +1,35 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.FriendsCirclePhoto;
+import com.qin.crxl.comic.entity.vo.FriendsCirclePhotoData;
+import com.qin.crxl.comic.service.AdminFriendsCirclePhotoService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class AdminFriendsCirclePhotoController {
+	
+	@Autowired
+	private AdminFriendsCirclePhotoService adminFriendCriclePhotoService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_ALL_FRIENDSCIRCLE_PHOTO, method = RequestMethod.POST)
+	public Model getUserPerfectInfoHeadPortrait(
+			FriendsCirclePhotoData friendsCirclePhotoData) throws Exception {
+		List<FriendsCirclePhoto> friendsCirclePhotoList = adminFriendCriclePhotoService.selectFriendsCirclePhoto(friendsCirclePhotoData.getFriendCircleId());
+		if(!ParaClick.clickList(friendsCirclePhotoList)){
+			return new Model(500,"无数据");
+		}
+		return new Model(200,friendsCirclePhotoList);
+	}
+	
+}

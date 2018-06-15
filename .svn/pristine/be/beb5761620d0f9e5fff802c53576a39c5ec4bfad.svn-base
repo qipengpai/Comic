@@ -1,0 +1,143 @@
+$(function(){
+	tableback();
+});
+/*页面进行时渲染数据*/
+function tableback(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/feedBack.do",
+		type:"post",
+		data:{
+			"content" : $("#search").val(),
+			"backDate" : $("#date").val(),
+			"nowPage" : $(".pagination-num").val(),
+			"pageNum" : $(".pagination-page-list").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#gong").html(data.totalNum);
+				for(var i = 0; i<data.obj.length;i++){
+					var str = "<tr><td></td><td>"+data.obj[i].obj+"</td><td>"+data.obj[i].userId+"</td><td>"+data.obj[i].content+"</td><td>"+data.obj[i].backDate+"</td></tr>";
+					$("#tbody").append(str);
+				}
+				
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html('暂无数据');
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');
+				$("#tbody").empty();
+			}
+		}
+	});
+}
+
+
+
+
+
+
+/*页码的第一个*/
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/feedBack.do",
+		type:"post",
+		data:{
+			"content" : $("#search").val(),
+			"backDate" : $("#date").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#gong").html(data.totalNum);
+				for(var i = 0; i<data.obj.length;i++){
+					var str = "<tr><td></td><td>"+data.obj[i].obj+"</td><td>"+data.obj[i].userId+"</td><td>"+data.obj[i].content+"</td><td>"+data.obj[i].backDate+"</td></tr>";
+					$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/feedBack.do",
+		type:"post",
+		data:{
+			"content" : $("#search").val(),
+			"backDate" : $("#date").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#gong").html(data.totalNum);
+				for(var i = 0; i<data.obj.length;i++){
+					var str = "<tr><td></td><td>"+data.obj[i].obj+"</td><td>"+data.obj[i].userId+"</td><td>"+data.obj[i].content+"</td><td>"+data.obj[i].backDate+"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/feedBack.do",
+		type:"post",
+		data:{
+			"content" : $("#search").val(),
+			"backDate" : $("#date").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#gong").html(data.totalNum);
+				for(var i = 0; i<data.obj.length;i++){
+					var str = "<tr><td></td><td>"+data.obj[i].obj+"</td><td>"+data.obj[i].userId+"</td><td>"+data.obj[i].content+"</td><td>"+data.obj[i].backDate+"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/feedBack.do",
+		type:"post",
+		data:{
+			"content" : $("#search").val(),
+			"backDate" : $("#date").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#gong").html(data.totalNum);
+				for(var i = 0; i<data.obj.length;i++){
+					var str = "<tr><td></td><td>"+data.obj[i].obj+"</td><td>"+data.obj[i].userId+"</td><td>"+data.obj[i].content+"</td><td>"+data.obj[i].backDate+"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}

@@ -1,0 +1,33 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserTask;
+import com.qin.crxl.comic.entity.vo.CartoonTaskData;
+import com.qin.crxl.comic.entity.vo.UserTaskData;
+
+@Service
+@Transactional
+public interface UserTaskService extends BaseService<UserTask>{
+
+	List<UserTask> getAllUserTask(UserEntity userEntity);
+
+	boolean addUserTask(UserEntity userEntity);
+
+	UserTask getTaskByUser(UserTaskData userTaskData);
+
+	boolean updateSignState(UserTaskData userTaskData);
+
+	boolean updateSignState2(UserTaskData userTaskData);
+
+	boolean updateUserInteAndState(UserTaskData userTaskData, int i);
+
+	boolean finallyShare(CartoonTaskData cartoonTaskData);
+
+
+}

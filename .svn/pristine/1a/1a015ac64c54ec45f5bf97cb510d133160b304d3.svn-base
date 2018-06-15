@@ -1,0 +1,167 @@
+package com.qin.crxl.comic.action;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import test.HttpRequest;
+
+import com.alibaba.fastjson.JSONObject;
+import com.qin.crxl.comic.entity.Product;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.ProductData;
+import com.qin.crxl.comic.service.ProductService;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class PayByIos {
+
+	@Autowired
+	private UserOrderService userOrderService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * Ios生成支付订单 pp
+	 * 
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GENERATE_APP_ORDER, method = RequestMethod.POST)
+	public Model generateOrder(ProductData productData) throws Exception {
+		productData.clickUser();
+		UserEntity userEntity = userService.getUserInfoByAPP(
+				productData.getUserId(), productData.getUuid());
+		if (userEntity == null) {
+			return new Model(700, "无用户");
+		}
+		Product product = productService.get(productData.getId());
+		if (product == null) {
+			return new Model(500, "暂无商品");
+		}
+		String flag = userOrderService.addOrder(product,
+				userEntity.getUserId(), userEntity.getUsername(),
+				userEntity.getPlatformIndex());
+		if (ParaClick.clickString(flag)) {
+			return new Model(500, "生成訂單失敗失败");
+		}
+		return new Model(200, "生成订单成功", flag);
+	}
+
+	/**
+	 * Ios支付 pp
+	 * 
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.APP_IOS_PAY, method = RequestMethod.POST)
+	public Model getALL(ProductData productData, HttpServletRequest req,
+			HttpServletResponse resp) throws Exception {
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		productData.clickUser();
+		UserEntity userEntity = userService.getUserInfoByAPP(
+				productData.getUserId(), productData.getUuid());
+		if (userEntity == null) {
+			return new Model(700, "无用户");
+		}
+		String base64 = req.getParameter("receiptBase64");
+		String url = req.getParameter("url");
+		Map<String, String> map = new HashMap<>();
+		// url="https://buy.itunes.apple.com/verifyReceipt";
+		// url="https://sandbox.itunes.apple.com/verifyReceipt";
+		if (productData.getPassword() == null
+				|| "".equals(productData.getPassword())) {
+			map.put("receipt-data", base64);
+		} else {
+			map.put("receipt-data", base64);
+			map.put("password", productData.getPassword());
+		}
+		String result = HttpRequest.sendPost(url, JSONObject.toJSONString(map));
+		JSONObject myJsonArray =JSONObject.parseObject(result);
+		Map<String, Object> m = myJsonArray;
+		if (Integer.parseInt(m.get("status") + "") == 0) {
+			UserOrder userOrder = userOrderService.updateOrder(productData
+					.getOrderNum());
+			if ("101".equals(userOrder.getOrderDescription())) {
+				UserEntity entity = userService.updateMoney(
+						userEntity.getUserId(), userOrder.getOrderCurrency());
+				if (entity != null) {
+					entity.setNickname(StringToInt.toString(entity
+							.getNickname()));
+					System.out.println("VIP---------IOS---------success支付回调:订单"
+							+ userOrder.getOrderNum() + "  状态:"
+							+ userOrder.getOrderState() + "---------");
+					return new Model(200, "充值成功");
+				} else {
+					System.out.println("VIP-------IOS---------error---------");
+					return new Model(500, "充值失败");
+				}
+			} else if ("102".equals(userOrder.getOrderDescription())) {
+				boolean flag = userService.updateVipStateByIOS(
+						userEntity.getUserId(), userOrder.getOrderCurrency());
+				if (flag) {
+					System.out.println("VIP---------IOS---------success支付回调:订单"
+							+ userOrder.getOrderNum() + "  状态:"
+							+ userOrder.getOrderState() + "---------");
+					return new Model(200, "充值成功");
+				} else {
+					System.out.println("-------IOS---------error---------");
+					return new Model(500, "充值失败");
+				}
+			} else {
+				System.out.println("VIP-------IOS---------无效订单error---------");
+				return new Model(500, "充值失败");
+			}
+		} else {
+			return new Model(500,"充值失败");
+		}
+	}
+
+	private static byte[] getRequestPostBytes(HttpServletRequest request)
+			throws IOException {
+		int contentLength = request.getContentLength();
+		/* 当无请求参数时，request.getContentLength()返回-1 */
+		if (contentLength < 0) {
+			return null;
+		}
+		byte buffer[] = new byte[contentLength];
+		for (int i = 0; i < contentLength;) {
+			int readlen = request.getInputStream().read(buffer, i,
+					contentLength - i);
+			if (readlen == -1) {
+				break;
+			}
+			i += readlen;
+		}
+		return buffer;
+	}
+
+}

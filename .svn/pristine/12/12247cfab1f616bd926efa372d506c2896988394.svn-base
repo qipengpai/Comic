@@ -1,0 +1,22 @@
+package com.qin.crxl.comic.entity.vo;
+/**
+ * 用于后台统计实体类
+ * @author cui
+ *
+ */
+public class AdminFansData extends BaseEntityVO{
+	private double num;  //数量
+	private String name; //名字
+	public double getNum() {
+		return num;
+	}
+	public void setNum(double num) {
+		this.num = num;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}

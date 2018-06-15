@@ -1,0 +1,34 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.CartoonType;
+import com.qin.crxl.comic.entity.vo.CartoonTypeVo;
+/**
+ * 漫画类型接口
+ * @author cui
+ *
+ */
+
+@Service
+@Transactional
+public interface AdminCartoonTypeService extends BaseService<CartoonType>{
+	//增加漫画类型
+	boolean addCartoonType(CartoonTypeVo cartoonTypeData);
+	
+	//修改漫画类型
+	boolean updateCartoonType(CartoonTypeVo cartoonTypeData);
+	
+	
+	//查询漫画类型(id查询)
+	CartoonType selectCartoonType(String id);
+	
+	
+	//查询全部漫画类型
+	List<CartoonType> allCartoonType();
+	
+}

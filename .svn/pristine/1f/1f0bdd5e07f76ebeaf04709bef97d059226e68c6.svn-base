@@ -1,0 +1,16 @@
+package com.qin.crxl.comic.service;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+/**
+ * 漫画所有类型的接口
+ * @author cui
+ *
+ */
+@Service
+@Transactional
+public interface AdminCartoonAllTypeService {
+	//查询漫画属于的类型
+	
+}

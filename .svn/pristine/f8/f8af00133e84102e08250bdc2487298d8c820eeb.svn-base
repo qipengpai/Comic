@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mallinfoadd.html</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/bootstrap.css">
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+<body class="gray-bg">
+   <div class="wrapper wrapper-content animated fadeInRight" role="form" id = "formid" style = "margin:0 auto;border:2px solid #D4D4D4;padding:30px 50px;box-shadow:3px 3px 5px #D4D4D4;margin-top:5%;">	
+   	<form method="post" id="uploadForm" enctype="multipart/form-data">
+   			<h3 class = "text-center" id = "hid">新增漫画</h3>	
+   			<div class="form-group">				
+				<div class="ui-widget">
+					<label for="mallinfoimg">类别：</label><br> 
+					<div id="ckeckd">
+											</div>
+					
+				</div>
+			</div>		
+			 <div class="form-group">
+				<label>热度：</label>
+				<label class="radio-inline" style="margin-left:13%">
+					<input type="radio" name="hot" value="1" checked> 是
+				</label>
+				<label class="radio-inline">
+					<input type="radio" name="hot"  value="0"> 否
+				</label>
+			</div>
+			<div class="form-group">
+				<label>上架：</label>
+				<label class="radio-inline" style="margin-left:13%">
+					<input type="radio" name="state" value="1" checked> 是
+				</label>
+				<label class="radio-inline">
+					<input type="radio" name="state"  value="0"> 否
+				</label>
+			</div>
+			<a onclick="window.history.back()" class="btn btn-primary">返回</a>
+			<input type="button" class="btn btn-success pull-right" id = "submitbtn" onclick="refer()" value="提交">
+		</form>	
+		</div>
+		<!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+			            </div>
+			            <div class="modal-body" id = "textcontent">在这里添加一些文本</div>
+			            <div class="modal-footer">
+			                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			            </div>
+			        </div>
+			    </div>
+			</div>	
+			
+			
+	<script src="js/jquery.min.js"></script>
+	<script src="js/mallinfoadd_add.js"></script>
+</body>
+</html>

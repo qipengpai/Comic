@@ -1,0 +1,8 @@
+package com.qin.crxl.comic.service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.SearchHistory;
+
+public interface SearchHistoryService extends BaseService<SearchHistory> {
+
+}

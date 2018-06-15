@@ -1,0 +1,144 @@
+$(function(){
+	selectupdata();
+});
+
+function updatashow(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id")
+		},
+		success:function(data){
+			
+		}
+	});
+}
+function selectupdata(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id")
+		},
+		success:function(data){
+			if(data.error == 200){
+				for(var int=0;int<data.obj.length;int++){
+					var str ="";
+					var data_url = "";
+					/*str += "<div><p>第"+parseInt(int+1)+"张</p><img src='"+data.obj[int].photoUrl+"'></div>";*/
+					str += "<form id='form"+int+"' method='post' class='uploadForm' enctype=''multipart/form-data'>" +
+					"<div class='form-group'>" +
+					"<div class='form-group_input'>" +
+					"<h2>第" +
+					parseInt(int+1) +
+					"张</h2>" +
+					"<input type='file' name='file' onchange='doUpload("+int+")'>" +
+					"<img alt='image' class='showPhoto'  src='"+data.obj[int].photoUrl+"'>" +
+					"</div>"+
+					"</div>" +
+					"</form>";
+					$("#updata").append(str);
+					data_url += "<input type='hidden' value='"+data.obj[int].photoUrl+"' class='urlurl'>";
+					$("#url_data").append(data_url);
+					
+					
+					
+				}
+				
+				
+			}else{
+				var str ="暂无数据";
+				$("#updata").append(str);
+				/*window.location.href="table_basic_updata.html?id="+GetQueryString("id")+"&cartoonid="+GetQueryString("cartoonid");*/
+				$("#submitbtn").css("display","none");
+			}
+		}
+	});
+}
+function addup(){
+	window.location.href="table_basic_updata.html?id="+GetQueryString("id")+"&cartoonid="+GetQueryString("cartoonid");
+}
+
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return unescape(r[2]);
+	return null;
+}
+function showPhoto(){
+	var formData = new FormData($( "#uploadForm" )[0]);
+	$.ajax({
+		url : '/Comic/app/uplod/multipartFile.do',
+		type:"post",
+		 data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		 var img_conent = "";
+       		 var img_url = "";
+       		 var imgurldata = returndata.obj[0];
+       		img_conent += "<img src='"+imgurldata+"'>";
+       		img_url +="<input type='hidden' class='img_url' value='"+imgurldata+"' >";
+       		$("#showPhoto").append(img_conent);
+       		$("#url").append(img_url);
+       	  };
+       	  
+         }
+	});
+}
+function doUpload(id) {
+	
+    var formData = new FormData($(".uploadForm" )[id]); 
+//    console.log(formData)
+    $.ajax({    
+         url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+         type: 'POST',    
+         data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		  $("#form"+id ).find("img").attr("src",returndata.obj[0]);
+           	  
+       	  }
+       	  
+         },    
+         error: function (returndata) {    
+             alert(returndata);    
+         }    
+    }); 
+    
+//    return lj01
+}
+function sure(){
+	var addurl ="";
+	$(".urlurl").each(function (i){
+		addurl += $(this).val() + "," ;
+		
+	});
+	$.ajax({
+		url : "/Comic/qpp/comic/update/cartoonPhotoById.do",
+		type:"post",
+		data:{
+			"cartoonSetId":GetQueryString("cartoonid"),
+			"cartoonId":GetQueryString("id"),
+			"photoUrl":addurl
+		},
+		success:function(data){
+			if(data.error == 200){
+				alert("修改成功");
+			}
+			
+		}
+	});
+}

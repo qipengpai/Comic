@@ -1,0 +1,54 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.VeryOk;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.VeryOkService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class VeryOkServiceImpl extends BaseServiceImpl<VeryOk> implements VeryOkService{
+
+	@Override
+	public boolean addVeryOK(CartoonSetData cartoonSetData,
+			UserEntity userEntity) {
+		// 点赞
+		boolean flag=false;
+		try {
+			VeryOk  veryOk=new VeryOk();
+			veryOk.setCartoonSetId(cartoonSetData.getId());
+			veryOk.setOkDate(DateUtil.getdate_yyyy_MM_dd());
+			veryOk.setUserId(userEntity.getUserId());
+			veryOk.setOkState(1);
+			super.save(veryOk);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<VeryOk> getUserVseryOk(String id,
+			UserEntity userEntity) {
+		// 查询此话该用户是否点赞
+		List<VeryOk> list=SQL("SELECT * FROM VeryOk WHERE userId='"+userEntity.getUserId()+"' AND cartoonSetId='"+id+"' AND okState=1 ",VeryOk.class);
+		return list;
+	}
+
+	@Override
+	public int getUserVseryOkCount(String id, UserEntity userEntity) {
+		// 查询此话点赞次数
+		int num=super.gettotalpage("SELECT * FROM VeryOk  WHERE cartoonSetId='"+id+"' AND okState=1 ");
+		return num;
+	}
+	
+	
+}

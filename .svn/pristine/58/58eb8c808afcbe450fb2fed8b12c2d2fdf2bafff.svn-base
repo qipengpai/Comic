@@ -1,0 +1,233 @@
+package com.qin.crxl.comic.action;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.CartoonTask;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserTask;
+import com.qin.crxl.comic.entity.vo.CartoonTaskData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.entity.vo.UserTaskData;
+import com.qin.crxl.comic.service.CartoonTaskServcie;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.service.UserTaskService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonTaskController {
+
+	@Autowired
+	private UserTaskService userTaskService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private CartoonTaskServcie cartoonTaskServcie;
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>生成任务 +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOONTASK, method = RequestMethod.POST)
+	public Model pp(UserEntityData entity) throws Exception {
+		entity.clickUser();
+		UserEntity userEntity = userService.get(entity.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		// 今天时间
+		//String newTime = DateUtil.dateToTimeStamp(new Date());
+		// 查询用户今天是否登录过任务
+		List<UserTask> userTask = userTaskService.getAllUserTask(userEntity);
+		if (!ParaClick.clickList(userTask)) {
+			// 用戶第一次登陸
+			boolean flag = userTaskService.addUserTask(userEntity);
+			if (!flag) {
+				return new Model(500, "增加失敗");
+			}
+		}
+		return new Model(200, "已存在");
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心> 查询用户任务根据userId(用户登录时展示任务页面)
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_TASK, method = RequestMethod.POST)
+	public Model selectCartoonTaskByUserId(UserEntityData entity)
+			throws Exception {
+		// 获取登录用户信息
+		entity.clickUser();
+		UserEntity userEntity = userService.get(entity.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		
+		// 获取任务表
+		List<UserTask> userTask = userTaskService.getAllUserTask(userEntity);
+//		List<Object> list2 = new ArrayList<Object>();
+//		for (UserTask userTask2 : userTask) {
+//			Hashtable<String, Object> map = new Hashtable<String, Object>();
+//			CartoonTask cartoonTask = cartoonTaskServcie.get(userTask2
+//					.getTaskId());
+//			map.put("cartoonTask", cartoonTask);
+//			map.put("userTask", userTask2);
+//			list2.add(map);
+//		}
+		Model model = new Model();
+		model.setError(200);
+		model.setObj(userTask);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>用户签到
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_SIGN_AWARD, method = RequestMethod.POST)
+	public Model payDay(UserTaskData userTaskData) throws Exception {
+		boolean flag=false;
+		// 获取登录用户信息
+		userTaskData.clickUser();
+		UserEntity userEntity = userService.get(userTaskData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		Model model=new Model();
+		// 获取昨天的日期
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -1);
+		String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal
+				.getTime());
+	//	UserTask userTask = userTaskService.getTaskByUser(userTaskData.getId(),userEntity.getUserId());
+		UserTask userTask =userTaskService.get(userTaskData.getId());
+		if (userTask == null) {
+			return new Model(500, "任務爲空");
+		}
+		String s=userTask.getImplDate().substring(0,userTask.getImplDate().lastIndexOf(" "));
+		if (s.equals(DateUtil.getdate_yyyy_MM_dd())||userTask.getButtonState()==1) {
+			return new Model(500, "已簽到");
+		} else if (s.equals(yesterday)) {
+			flag = userTaskService.updateSignState(userTaskData);
+		} else {
+			flag = userTaskService.updateSignState2(userTaskData);
+		}
+		if (!flag) {
+			return new Model(500, "簽到失敗");
+		}
+		UserTask userTask2=userTaskService.get(userTask.getId());
+		if (userTask2==null) {return new Model(500,"失败");}
+		if(userTask2.getTaskState()==7){
+			boolean flag2=userService.updateVipState2(userEntity);
+			if(!flag2){
+				return new Model(500, "转为会员失败");
+			}
+		}
+		model.setError(200);
+		model.setSpare("恭喜您获取一天会员");
+		model.setObj(userTask2);
+		return model;
+	}
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>取奖励
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOON_RECHARGE_AWARD, method = RequestMethod.POST)
+	public Model boandPhone(UserTaskData userTaskData) throws Exception {
+		// 获取登录用户信息
+		userTaskData.clickUser();
+		UserEntity userEntity = userService.get(userTaskData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		UserTask userTask = userTaskService.get(userTaskData.getId());
+		if (userTask == null) {
+			return new Model(500, "任務爲空");
+		}
+		CartoonTask cartoonTask=cartoonTaskServcie.get(userTask.getTaskId());
+		if (cartoonTask == null) {
+			return new Model(500, "任務爲空");
+		}
+		boolean flag=userTaskService.updateUserInteAndState(userTaskData,cartoonTask.getTaskAward());
+		if (!flag) {
+			return new Model(500, "領取失敗");
+		}
+		UserTask userTask2=userTaskService.get(userTask.getId());
+		if (userTask2 == null) {
+			return new Model(500, "任務爲空");
+		}
+		return new Model(200,userTask2);
+	}
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>領取關注公衆號獎勵
+	 * @throws Exception
+	 * */
+//	@ResponseBody
+//	@RequestMapping(value = ActionUrl.GET_CARTOON_FOLLOW_AWARD, method = RequestMethod.POST)
+//	public Model followAward(UserTaskData userTaskData) throws Exception {
+//		// 获取登录用户信息
+//		userTaskData.clickUser();
+//		UserEntity userEntity = userService.get(userTaskData.getUserId());
+//		if (userEntity == null) {
+//			return new Model(404, "无用户");
+//		}
+//		UserTask userTask = userTaskService.get(userTaskData.getId());
+//		if (userTask == null) {
+//			return new Model(500, "任務爲空");
+//		}
+//		CartoonTask cartoonTask=cartoonTaskServcie.get(userTask.getTaskId());
+//		if (cartoonTask == null) {
+//			return new Model(500, "任務爲空");
+//		}
+//		boolean flag=userTaskService.updateUserInteAndState(userTaskData,cartoonTask.getTaskAward());
+//		if (!flag) {
+//			return new Model(500, "領取失敗");
+//		}
+//		return new Model(200,userTask);
+//	}
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>增加任务
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.TEXT, method = RequestMethod.GET)
+	public Model bA(CartoonTaskData CartoonTaskData) throws Exception {
+		// 获取登录用户信息
+		boolean flag=cartoonTaskServcie.addTask(CartoonTaskData);
+		if (!flag) {
+			return new Model(500, "領取失敗");
+		}
+		return new Model(200,"成功");
+	}
+}

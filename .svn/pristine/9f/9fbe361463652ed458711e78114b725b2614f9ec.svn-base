@@ -1,0 +1,131 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder.In;
+
+import org.apache.log4j.DailyRollingFileAppender;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonComment;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonCommentData;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class CartoonCommentServiceImpl extends BaseServiceImpl<CartoonComment>
+		implements CartoonCommentService {
+
+	@Override
+	public int getCartoonCommentCount(Cartoon cartoon) {
+		// 查看漫画评论人数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonComment WHERE cartoonId='"
+						+ cartoon.getId() + "'");
+		return num;
+	}
+
+	@Override
+	public List<CartoonComment> getALLCartoonComment(
+			CartoonCommentData cartoonCommentData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  CartoonComment  WHERE  1=1 AND cartoonId='"
+				+ cartoonCommentData.getCartoonId()
+				+ "' ORDER BY contentDate ASC ");
+		List<CartoonComment> list = super.SQL(sb.toString(),
+				CartoonComment.class);
+		return list;
+	}
+
+	@Override
+	public int getAllCartoonCommentCount(CartoonCommentData cartoonCommentData) {
+		// 查看漫画评论人数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonComment WHERE cartoonId='"
+						+ cartoonCommentData.getCartoonId() + "'");
+		return num;
+	}
+
+	@Override
+	public int getCartoonComment2Count(CartoonCommentData cartoonCommentData) {
+		// 查看漫画评论的评论数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM  CartoonComment WHERE commentId='"
+						+ cartoonCommentData.getId() + "'");
+		return num;
+	}
+
+	@Override
+	public boolean addCartoonComment(CartoonCommentData cartoonCommentData,
+			UserEntity userEntity) {
+		// 评论该剧
+		boolean flag = false;
+		try {
+			int num = getAllCartoonCommentCount(cartoonCommentData);
+			CartoonComment cartoonComment = new CartoonComment();
+			cartoonComment.setCartoonId(cartoonCommentData.getCartoonId());
+			cartoonComment.setContentInfo(cartoonCommentData.getContentInfo());
+			cartoonComment.setCommentId("0");
+			cartoonComment.setContentDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonComment.setImplDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonComment.setUserId(userEntity.getUserId());
+			cartoonComment.setAite("0");
+			cartoonComment.setOkCount(302);
+			cartoonComment.setSort(num + 1);
+			save(cartoonComment);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addCartoonCommentSetConmment(
+			CartoonCommentData cartoonCommentData, UserEntity userEntity) {
+		// 评论该评论
+		boolean flag = false;
+		try {
+			int num = getAllCartoonCommentCount(cartoonCommentData);
+			CartoonComment cartoonComment = new CartoonComment();
+			cartoonComment.setCartoonId("0");
+			cartoonComment.setContentInfo(cartoonCommentData.getContentInfo());
+			cartoonComment.setCommentId(cartoonCommentData.getCommentId());
+			cartoonComment.setContentDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonComment.setImplDate(DateUtil.getdate_yyyy_MM_dd());
+			cartoonComment.setUserId(userEntity.getUserId());
+			cartoonComment.setAite("0");
+			cartoonComment.setOkCount(302);
+			cartoonComment.setSort(num + 1);
+			save(cartoonComment);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addCartoonCommentSetConmment(CartoonCommentData  cartoonCommentData) {
+		// 點讚该评论
+		boolean flag = false;
+		try {
+			CartoonComment cartoonComment=super.get(cartoonCommentData.getId());
+			cartoonComment.setOkCount(Integer.parseInt(cartoonCommentData.getOkCount())+1);
+			flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

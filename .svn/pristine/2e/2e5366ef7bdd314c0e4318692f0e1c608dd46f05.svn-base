@@ -1,0 +1,57 @@
+package com.qin.crxl.comic.entity.vo;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.qin.crxl.comic.action.UserEntityController;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.service.impl.UserServiceImpl;
+import com.qin.crxl.comic.tool.ParaClick;
+
+
+public class BaseEntityVO {
+	
+	public String userId;
+	public String starTime;//用于时间段查询（开始时间）
+	public String endTime;//用于时间段查询（结束时间）
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	
+	public void clickUser() throws Exception{
+		if(ParaClick.clickString(userId)){
+			throw new Exception("用户身份缺失");
+		}
+		/*User user2=new User();
+		//到緩存裏去查找用戶 如果有用戶直接同行 否則到db取用戶數據存入緩存機制同行
+		UserEntity user= user2.getUserInfoById(userId);
+		if(user==null){
+			throw new Exception("非法用戶");
+		}*/
+	}
+
+	public String getStarTime() {
+		return starTime;
+	}
+
+	public void setStarTime(String starTime) {
+		this.starTime = starTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	
+	
+}

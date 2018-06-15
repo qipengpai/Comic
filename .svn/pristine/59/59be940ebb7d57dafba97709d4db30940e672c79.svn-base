@@ -1,0 +1,97 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class CartoonTask extends BaseEntity implements Serializable {
+	@SuppressWarnings("static-access")
+	@Id
+	@GeneratedValue(generator="increment")
+	@GenericGenerator(name="increment", strategy = "increment")
+	private int id ;
+	private String taskName = ""; // 任務名
+	private int state = 0; // 任務狀態
+	private String implDate = ""; // 操作時間
+	private int taskAward = 0; // 任務獎勵
+	private int taskType =0; // 任務類型
+	private String taskInfo = ""; // 任務類型
+	private int sort = 0; // 任務獎勵
+
+	public int getSort() {
+		return sort;
+	}
+
+	public void setSort(int sort) {
+		this.sort = sort;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public String getImplDate() {
+		return implDate;
+	}
+
+	public void setImplDate(String implDate) {
+		this.implDate = implDate;
+	}
+
+	public int getTaskAward() {
+		return taskAward;
+	}
+
+	public void setTaskAward(int taskAward) {
+		this.taskAward = taskAward;
+	}
+
+
+	public int getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(int taskType) {
+		this.taskType = taskType;
+	}
+
+	public String getTaskInfo() {
+		return taskInfo;
+	}
+
+	public void setTaskInfo(String taskInfo) {
+		this.taskInfo = taskInfo;
+	}
+
+}

@@ -1,0 +1,97 @@
+package com.qin.crxl.comic.action;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.service.AdminCartoonAllTypeService;
+import com.qin.crxl.comic.system.ActionUrl;
+/**
+ * 漫画所有类型的控制类
+ * @author cui
+ *
+ */
+import com.qin.crxl.comic.tool.Model;
+/**
+ * 漫画所有类型的控制类
+ * @author cui
+ *
+ */
+@Controller
+public class AdminCartoonAllTypeController {
+	@Autowired
+	private  AdminCartoonAllTypeService  adminCartoonAllTypeService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOONALLTYPE, method = RequestMethod.POST)
+	public Model addCartoonAllType(String cartoonId,@RequestParam("cartoonTypeId[]")String[] cartoonTypeId){
+		
+//		JSONObject jsonObject = JSONObject.fromObject(cartoonTypeId);  //把转为json对象
+//        String array= jsonObject.getString("cartoonTypeId"); //获取cartoonTypeId的值
+//        JSONArray jsonArray = JSONArray.fromObject(array); //把cartoonTypeId的值转为json数组对象
+//        String[] strs = (String[])jsonArray.toArray(); //json转为数组
+       
+		if(cartoonTypeId.length==0||cartoonTypeId==null){
+			return new Model(200,"你未选择类型");
+		}
+		boolean bool = adminCartoonAllTypeService.addCartoonType(cartoonId, cartoonTypeId);
+		if(bool){
+			return new Model(200,"添加成功");
+		}
+		return new Model(500,"添加失败");
+	}
+	
+	
+	
+	 public static void main(String[] args) {  
+//	        String joStr = "{name:\"张三\",age:\"20\"}";  
+//	        //将json字符串转化为JSONObject  
+//	        JSONObject jsonObject = JSONObject.fromObject(joStr);  
+//	        //通过getString("")分别取出里面的信息  
+//	        String name = jsonObject.getString("name");  
+//	        String age = jsonObject.getString("age");  
+//	        //输出   张三  20  
+//	        System.out.println(name+"  "+age);  
+//	        
+//	        JSONArray jsonArray2 = JSONArray.fromObject(joStr);
+	        
+//	        String jUser2 = jsonArray2.get(0).toString();
+//	        System.out.println(jUser2+"333333"); 
+	        
+	        String str = "{'list':['1,2','3,4','5,6']}";
+	        JSONObject jsonObject2 = JSONObject.fromObject(str);  //吧转为json对象
+	        String array= jsonObject2.getString("list"); //获取list的值
+	        JSONArray jsonArray = JSONArray.fromObject(array); //吧list的值转为json数组对象
+	        Object[] strs = jsonArray.toArray(); //json转为数组
+	        for(Object s:strs){
+	            System.out.println(s+"jjj");
+	        }
+	          
+//	        String jaStr = "[{user:{name:\"张三\",age:\"20\"}},{score:{yuwen:\"80\",shuxue:\"90\"}}]";  
+//	        //将jsonArray字符串转化为JSONArray  
+//	        JSONArray jsonArray = JSONArray.fromObject(jaStr);  
+//	        //取出数组第一个元素  
+//	        JSONObject jUser = jsonArray.getJSONObject(0).getJSONObject("user");  
+//	        //取出第一个元素的信息，并且转化为JSONObject  
+//	        String name2 = jUser.getString("name");  
+//	        String age2 = jUser.getString("age");  
+//	        //输出  张三  20  
+//	        System.out.println(name2+"  "+age2);  
+//	        //取出数组第二个元素，并且转化为JSONObject  
+//	        JSONObject jScore = jsonArray.getJSONObject(1).getJSONObject("score");  
+//	        //取出第二个元素的信息  
+//	        String yuwen = jScore.getString("yuwen");  
+//	        String shuxue = jScore.getString("shuxue");  
+//	        //输出   80  90  
+//	        System.out.println(yuwen+"   "+shuxue);  
+	    }  
+	
+	
+	
+}

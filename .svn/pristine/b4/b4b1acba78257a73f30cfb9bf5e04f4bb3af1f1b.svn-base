@@ -1,0 +1,150 @@
+package com.qin.crxl.comic.entity.vo;
+
+public class CartoonData extends BaseEntityVO{
+
+	private String id ="";
+	private String cartoonType = ""; //类型
+	private String cartoonName="";	 //剧名
+	private String updateTile="";	 //更新标题
+	private String cartoonAuthor=""; //作者
+	private String updateType = "";	 //导演		
+	private String mainPhoto = "";	 //首页主图
+	private String introduction =""; //介绍图
+	private String introduc="";	     //短介绍
+	private String hot="";               //热度
+	private String sort = "";	         //排序	
+	private String commentCount ="";     //评论次数
+	private String playCount ="";        //播放次数
+	private String state = "";           //漫画状态
+	private String nowPage ="";     //当前页
+	private String pageNum ="";        //每页容量
+	private String condition = "";           //查询条件
+	private String mode = "";           //查询条件
+	private String cartoonSetId="";
+	private String hotState="";			//给热门查询用的状态
+	
+	
+	public String getHotState() {
+		return hotState;
+	}
+	public void setHotState(String hotState) {
+		this.hotState = hotState;
+	}
+	public String getCartoonSetId() {
+		return cartoonSetId;
+	}
+	public void setCartoonSetId(String cartoonSetId) {
+		this.cartoonSetId = cartoonSetId;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getCartoonType() {
+		return cartoonType;
+	}
+	public void setCartoonType(String cartoonType) {
+		this.cartoonType = cartoonType;
+	}
+	public String getCartoonName() {
+		return cartoonName;
+	}
+	public void setCartoonName(String cartoonName) {
+		this.cartoonName = cartoonName;
+	}
+	public String getUpdateTile() {
+		return updateTile;
+	}
+	public void setUpdateTile(String updateTile) {
+		this.updateTile = updateTile;
+	}
+	public String getCartoonAuthor() {
+		return cartoonAuthor;
+	}
+	public void setCartoonAuthor(String cartoonAuthor) {
+		this.cartoonAuthor = cartoonAuthor;
+	}
+	public String getUpdateType() {
+		return updateType;
+	}
+	public void setUpdateType(String updateType) {
+		this.updateType = updateType;
+	}
+	public String getMainPhoto() {
+		return mainPhoto;
+	}
+	public void setMainPhoto(String mainPhoto) {
+		this.mainPhoto = mainPhoto;
+	}
+	public String getIntroduction() {
+		return introduction;
+	}
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+	public String getIntroduc() {
+		return introduc;
+	}
+	public void setIntroduc(String introduc) {
+		this.introduc = introduc;
+	}
+	public String getHot() {
+		return hot;
+	}
+	public void setHot(String hot) {
+		this.hot = hot;
+	}
+	public String getSort() {
+		return sort;
+	}
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
+	public String getCommentCount() {
+		return commentCount;
+	}
+	public void setCommentCount(String commentCount) {
+		this.commentCount = commentCount;
+	}
+	public String getPlayCount() {
+		return playCount;
+	}
+	public void setPlayCount(String playCount) {
+		this.playCount = playCount;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	public String getNowPage() {
+		return nowPage;
+	}
+	public void setNowPage(String nowPage) {
+		this.nowPage = nowPage;
+	}
+	public String getPageNum() {
+		return pageNum;
+	}
+	public void setPageNum(String pageNum) {
+		this.pageNum = pageNum;
+	}
+	public String getCondition() {
+		return condition;
+	}
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
+	public String getMode() {
+		return mode;
+	}
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+	
+	
+	
+}

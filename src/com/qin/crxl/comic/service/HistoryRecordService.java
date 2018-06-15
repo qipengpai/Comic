@@ -1,0 +1,65 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.HistoryRecord;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+@Service
+@Transactional
+public interface HistoryRecordService  extends BaseService<HistoryRecord> {
+
+	int getWatchCount(Cartoon cartoon);
+
+//	boolean addhistoryRecord(CartoonPhotoData cartoonPhotoData, String userId);
+
+	boolean addhistoryRecord(String cartoonId, String cartoonSetId,
+			String userId);
+	
+//	List<HistoryRecord> getWatchStateByUserAndCartoonSetId(CartoonSet cartoonSet,
+//			UserEntity userEntity);
+
+	List<HistoryRecord> getWatchStateByUserAndCartoonSetId(String cartoonId,
+			String id, String userId);
+	
+	boolean updateState(String string, String userId);
+
+	int getAllHistoryRecordCount(UserEntity userEntity, CartoonData cartoonData);
+
+	List<Object>  getAllHistoryRecord(UserEntity userEntity, CartoonData cartoonData);
+
+	boolean updateState2(CartoonSet cartoonSet, UserEntity userEntity);
+
+	boolean addhistoryRecord2(CartoonSet cartoonSet, UserEntity userEntity);
+
+	List<HistoryRecord> getHistoryByCartoonId(String cartoonId, UserEntity userEntity);
+
+	List<HistoryRecord> getCartoonHistoryRecord(UserEntity userEntity,
+			CartoonData cartoonData);
+
+	List<HistoryRecord> getHisToday(String userId);
+
+	int getHistoryByCartoonIdCount(String id, UserEntity userEntity);
+
+	List<HistoryRecord> getWatchStateByUserAndCartoonId(String cartoonId,
+			String userId);
+
+	int getAllHistoryRecordCountByIos(UserEntity userEntity,
+			CartoonData cartoonData);
+
+	List<Object> getAllHistoryRecordByIos(UserEntity userEntity,
+			CartoonData cartoonData);
+
+	
+
+
+
+	
+}

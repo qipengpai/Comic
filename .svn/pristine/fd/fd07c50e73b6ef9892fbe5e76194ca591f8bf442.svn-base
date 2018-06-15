@@ -1,0 +1,67 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class CartoonTaskIntegral extends BaseEntity implements Serializable {
+	@Id
+    private String id="1";//每日任务平台币id（固定不变）
+	private Integer payDayIntegralOne;//连续签到一天给的平台币数量
+	private Integer payFirstIntegral;//每日首充给的平台币数量
+	private Integer payExchangeIntegral;//每日首兑给的平台币数量
+	private Integer seeMeIntegral;//关注公众号给的平台币数量
+	private Integer boundPhoneIntegral;//绑定手机号给的平台币数量
+	private Integer payDayIntegral7;//连续签到7天给的平台币数量
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public Integer getPayDayIntegralOne() {
+		return payDayIntegralOne;
+	}
+	public void setPayDayIntegralOne(Integer payDayIntegralOne) {
+		this.payDayIntegralOne = payDayIntegralOne;
+	}
+	public Integer getPayFirstIntegral() {
+		return payFirstIntegral;
+	}
+	public void setPayFirstIntegral(Integer payFirstIntegral) {
+		this.payFirstIntegral = payFirstIntegral;
+	}
+	public Integer getPayExchangeIntegral() {
+		return payExchangeIntegral;
+	}
+	public void setPayExchangeIntegral(Integer payExchangeIntegral) {
+		this.payExchangeIntegral = payExchangeIntegral;
+	}
+	public Integer getSeeMeIntegral() {
+		return seeMeIntegral;
+	}
+	public void setSeeMeIntegral(Integer seeMeIntegral) {
+		this.seeMeIntegral = seeMeIntegral;
+	}
+	public Integer getBoundPhoneIntegral() {
+		return boundPhoneIntegral;
+	}
+	public void setBoundPhoneIntegral(Integer boundPhoneIntegral) {
+		this.boundPhoneIntegral = boundPhoneIntegral;
+	}
+	public Integer getPayDayIntegral7() {
+		return payDayIntegral7;
+	}
+	public void setPayDayIntegral7(Integer payDayIntegral7) {
+		this.payDayIntegral7 = payDayIntegral7;
+	}
+	
+	
+}

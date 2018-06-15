@@ -1,0 +1,393 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
+
+
+
+
+
+
+
+import org.apache.log4j.Logger;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.EmojiFilter;
+import com.qin.crxl.comic.tool.MD5;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Service
+public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements
+		UserService {
+	
+	
+	@SuppressWarnings("unused")
+	private static Logger log = Logger.getLogger(UserServiceImpl.class
+			.getName());
+
+	@Override
+	public UserEntity updateUser(UserEntity entity, String wxqd) throws Exception {
+		List<UserEntity> userEntity = SQL(
+				"SELECT * from UserEntity WHERE openid ='" + entity.getOpenid()
+						+ "'", UserEntity.class);
+		if (userEntity != null && userEntity.size() > 0) {
+			for (UserEntity old : userEntity) {
+				old.setHeadimgurl(entity.getHeadimgurl());
+
+				if (EmojiFilter.containsEmoji(entity.getNickname()) != false) {
+					old.setNickname(StringToInt.toInt("潮人用户"));
+				} else {
+					old.setNickname(StringToInt.toInt(entity.getNickname()));
+				}
+
+				if (ParaClick.clickString(old.getPlatformIndex())) {
+					old.setPlatformIndex(wxqd);
+				}
+
+				old.setCountry(StringToInt.toInt(entity.getCountry()));
+				old.setProvince(StringToInt.toInt(entity.getProvince()));
+				old.setCity(StringToInt.toInt(entity.getCity()));
+				if(old.getSubscribe()==1){
+					SQL("UPDATE UserTask SET taskState=1 WHERE userId='"+old.getUserId()+"' AND taskId=5");
+				}
+			}
+			log.info("-----数据库用户:" + userEntity.toString() + "------");
+			return userEntity.get(0);
+		} else {
+			if (EmojiFilter.containsEmoji(entity.getNickname()) != false) {
+				entity.setNickname(StringToInt.toInt("潮人用户"));
+			} else {
+				entity.setNickname(StringToInt.toInt(entity.getNickname()));
+			}
+			entity.setProvince(StringToInt.toInt(entity.getProvince()));
+			entity.setCity(StringToInt.toInt(entity.getCity()));
+			entity.setCountry(StringToInt.toInt(entity.getCountry()));
+			entity.setHeadPortrait(entity.getHeadimgurl());
+			if (!ParaClick.clickString(wxqd)) {
+				entity.setPlatformIndex(wxqd);
+			}
+			save(entity);
+			if(entity.getSubscribe()==1){
+				SQL("UPDATE UserTask SET taskState=1 WHERE userId='"+entity.getUserId()+"' AND taskId=5");
+			}
+		}
+		return entity;
+	}
+
+	@Override
+	public boolean addUserEntity(UserEntityData userEntityData) {
+		// 首次注册
+		boolean flag = false;
+		try {
+			UserEntity userEntity = new UserEntity();
+			userEntity.setPhone(userEntityData.getPhone());
+			userEntity.setUserPassword(MD5.getMd5(userEntityData
+					.getUserPassword()));
+			userEntity.setRegisterDate(DateUtil.getdate_yyyy_MM_dd());
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<UserEntity> getByPhone(UserEntityData userEntityData) {
+		// 查看手机号是否被注册
+		List<UserEntity> list = super.SQL(
+				"SELECT * FROM UserEntity WHERE phone='"
+						+ userEntityData.getPhone() + "'", UserEntity.class);
+		return list;
+	}
+
+	@Override
+	public List<UserEntity> getUserEntityByLogin(UserEntityData userEntityData) {
+		// 用户登录
+		List<UserEntity> list = super.SQL(
+				"SELECT * FROM UserEntity WHERE phone='"
+						+ userEntityData.getPhone() + "' AND  userPassword='"
+						+ MD5.getMd5(userEntityData.getUserPassword()) + "'",
+				UserEntity.class);
+		return list;
+	}
+
+	@Override
+	public boolean userProfectInfo(UserEntityData userEntityData) {
+		// 用戶完善信息
+		boolean flag = false;
+		try {
+			UserEntity userEntity = super.get(userEntityData.getUserId());
+			if (userEntity == null) {
+				return flag;
+			}
+			if (!ParaClick.clickString(userEntityData.getUsername())) {
+				userEntity.setUsername(userEntityData.getUsername());
+			}
+			if (!ParaClick.clickString(userEntityData.getSex())) {
+				userEntity.setSex(Integer.parseInt(userEntityData.getSex()));
+			}
+			if (!ParaClick.clickString(userEntityData.getHobby())) {
+				userEntity.setHobby(userEntityData.getHobby());
+			}
+			if (!ParaClick.clickString(userEntityData.getBirthday())) {
+				userEntity.setBirthday(userEntityData.getBirthday());
+			}
+			userEntity.setImplDate(DateUtil.getdate_yyyy_MM_dd());
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean userUpdateHeadPortrict(UserEntityData userEntityData) {
+		// 修改用户头像
+		boolean flag = false;
+		try {
+			UserEntity userEntity = super.get(userEntityData.getUserId());
+			if (userEntity == null) {
+				return flag;
+			}
+			userEntity.setHeadPortrait(userEntityData.getHeadPortrait());
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public UserEntity getByOpenId(String openid) {
+		// 再次查看用户信息
+		List<UserEntity> list = SQL("SELECT * from UserEntity WHERE openid ='"
+				+ openid + "'", UserEntity.class);
+		System.out.println("再次查看用户信息:" + list);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	public static Date addDate(Date date, long day) throws ParseException {
+		long time = date.getTime(); // 得到指定日期的毫秒数
+		day = day * 24 * 60 * 60 * 1000; // 要加上的天数转换成毫秒数
+		time += day; // 相加得到新的毫秒数
+		return new Date(time); // 将毫秒数转换成日期
+	}
+
+	@Override
+	public boolean updateVipState(String userid, Integer integer) {
+		// 设置vip
+		boolean flag = false;
+		try {
+			UserEntity userEntity = super.get(userid);
+			if (userEntity == null) {
+				return flag;
+			}
+			if (integer == 20) {
+				userEntity.setStartDate(new Date());
+				String start = DateUtil.getdate_yyyy_MM_dd_HH_MM_SS();
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 日期格式
+				Date date = dateFormat.parse(start); // 指定日期
+				Date end = addDate(date, 30); // 指定日期加上20天
+				userEntity.setEndDate(end);
+
+			} else if (integer == 55) {
+				userEntity.setStartDate(new Date());
+				String start = DateUtil.getdate_yyyy_MM_dd_HH_MM_SS();
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 日期格式
+				Date date = dateFormat.parse(start); // 指定日期
+				Date end = addDate(date, 90); // 指定日期加上20天
+				userEntity.setEndDate(end);
+			} else if (integer == 199) {
+				userEntity.setStartDate(new Date());
+				String start = DateUtil.getdate_yyyy_MM_dd_HH_MM_SS();
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 日期格式
+				Date date = dateFormat.parse(start); // 指定日期
+				Date end = addDate(date, 365); // 指定日期加上20天
+				userEntity.setEndDate(end);
+			}
+			userEntity.setVipId(1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public UserEntity updateMoney(String userid, Integer orderCurrency) {
+		List<UserEntity> list = SQL("SELECT * from UserEntity WHERE openid ='"
+				+ userid + "'", UserEntity.class);
+		System.out.println("支付回调:" + list);
+		if (list != null && list.size() > 0) {
+			for (UserEntity user : list) {
+				int num = 0;
+				if (user.getIntegral() != -1) {
+					num = user.getIntegral();
+				}
+				user.setIntegral(num + orderCurrency);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	@Cacheable(value = "myehcach")
+	public UserEntity getUserInfoById(String string) {
+		// 拿到用户
+		UserEntity userEntity = super.get(string);
+		return userEntity;
+	}
+
+	@Override
+	public UserEntity updateUserPhone(UserEntity user, String phone)
+			throws Exception {
+		// 用户修改手机号
+		boolean flag=false;
+		List<UserEntity> list=new ArrayList<UserEntity>();
+		try {
+			list = SQL("SELECT * from UserEntity WHERE userId ='"
+					+ user.getUserId() + "'", UserEntity.class);
+			if (list != null && list.size() > 0) {
+				for (UserEntity u : list) {
+					u.setTruePhone(phone);
+					u.setTruePhoneDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+				}
+			}
+			SQL(" UPDATE UserTask SET taskState=1 WHERE userId='"+user.getUserId()+"' AND taskId=2");
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		if(!flag){
+			return null;
+		}
+		return list.get(0);
+	}
+
+	@Override
+	//@CacheEvict(value = "myehcach")
+	public boolean deductTheIntegral(CartoonPhotoData cartoonPhotoData,
+			UserEntity userEntity) {
+		// 購買後扣除積分
+		boolean flag = false;
+		try {
+			UserEntity userEntity2 = super.get(userEntity.getUserId());
+			if (userEntity2 == null) {
+				return flag;
+			}
+			userEntity2.setIntegral(userEntity2.getIntegral()
+					- Integer.parseInt(cartoonPhotoData.getPrice()));
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean updateVipState2(UserEntity userEntity) {
+		// 簽到送會員
+		boolean flag = false;
+		try {
+			UserEntity userEntity2 = super.get(userEntity.getUserId());
+			if (userEntity2 == null) {
+				return flag;
+			}
+			userEntity.setStartDate(new Date());
+			String start = DateUtil.getdate_yyyy_MM_dd_HH_MM_SS();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 日期格式
+			Date date = dateFormat.parse(start); // 指定日期
+			Date end = addDate(date, 1); // 指定日期加上20天
+			userEntity.setEndDate(end);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean updateUserIntegral(String userId,int integral) {
+		// 怎加用戶積分
+		boolean flag = false;
+		try {
+			UserEntity userEntity2 = super.get(userId);
+			if (userEntity2 == null) {
+				return flag;
+			}
+			userEntity2.setIntegral(userEntity2.getIntegral()
+					+integral );
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean chackVip() {
+		// 檢查會員是否過期 
+		boolean flag=false;
+		try {
+		List<UserEntity> list=super.SQL("SELECT * FROM UserEntity WHERE vipId=1", UserEntity.class);
+		if (!ParaClick.clickList(list)) {
+			return flag;
+		}
+		for (int i = 0; i < list.size(); i++) {
+			if(list.get(i).getEndDate().getTime()<new Date().getTime()){
+				list.get(i).setVipId(0);
+			}
+		}
+		flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		
+		return flag;
+	}
+
+	@Override
+	public List<Object[]> getById(String userId) {
+		// 去除冗余数据
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT headimgurl,userId,nickname FROM UserEntity  WHERE userId='"+userId+"'");
+		@SuppressWarnings("unchecked")
+		List<Object[]> list = super.getSessionFactory()
+				.createSQLQuery(sb.toString()).list();
+		return list;
+	}
+}

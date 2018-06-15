@@ -1,0 +1,207 @@
+
+function mall(){
+	if($(".byname").val()!== ""){
+		$.ajax({
+			type:"post",
+			url:"/Comic/qpp/comic/add/cartoon.do",
+			data:{
+				"firsrtType": $("#firstclass").val(),
+				"cartoonName":$("#byname").val(),
+				"cartoonAuthor":$("#author").val(),
+				"serialState":$("#type option:selected").val(),
+				"mainPhoto":$("#mainPhoto").val(),
+				"introduction":$("#introduction").val(),
+				"midelPhoto":$("#midelPhoto").val(),
+				"smallPhoto":$("#smallPhoto").val(),
+				"introduc":$("#introduc").val(),
+				"cartoonAuthorPic":$("#authorPhoto").val()
+			},
+			success:function(data){
+				if(data.error == 200){
+					window.location.href='mallinfoadd_add.html?id='+data.msg;
+				}
+				
+			}
+		});
+	}else{
+		$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+	}
+	
+};
+
+function uploadmain(formData){
+	 $.ajax({    
+	       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+	       type: 'POST',    
+	       data: formData,    
+	       async: false,    
+	       cache: false,    
+	       contentType: false,    
+	       processData: false,    
+	       success: function (returndata) {  
+	     	  if(returndata.error==200){
+	     		  $(".form-group_input .filename01").css("max-width","100%");
+	     		 lujing01 = returndata.obj[0].src;
+	         	 $("#mainPhoto").val(lujing01);
+	         	 $(".mainPhoto").attr("src",lujing01);
+	         	  
+	     	  }
+	     	  
+	       },    
+	       error: function (returndata) {    
+	          $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+	       }    
+	  }); 
+}
+function mainphoto(){
+	var formData = document.getElementById('mainph'); 
+	lrz(formData.files[0]).then(function(data) {
+        return uploadmain(data.formData);
+       
+    });
+}
+function uploadintro(formData){
+	 $.ajax({    
+	       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+	       type: 'POST',    
+	       data: formData,    
+	       async: false,    
+	       cache: false,    
+	       contentType: false,    
+	       processData: false,    
+	       success: function (returndata) {  
+	     	  if(returndata.error==200){
+	     		 $(".form-group_input .filename02").css("max-width","100%");
+	     		  lujing01 = returndata.obj[0].src;
+	         	 $("#introduction").val(lujing01);
+	         	 $(".introduction").attr("src",lujing01);
+	         	  
+	     	  };
+	     	  
+	       },
+	       error: function (returndata) {    
+	           $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+	       }  
+	  })
+}
+function introduction(){
+	var formData = document.getElementById('intro'); 
+	lrz(formData.files[0]).then(function(data) {
+        return uploadintro(data.formData);
+       
+    });
+}
+function uploadmidelPh(formData){
+	  $.ajax({    
+	       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+	       type: 'POST',    
+	       data: formData,    
+	       async: false,    
+	       cache: false,    
+	       contentType: false,    
+	       processData: false,    
+	       success: function (returndata) {  
+	     	  if(returndata.error==200){
+	     		 $(".form-group_input .filename03").css("max-width","100%");
+	     		lujing01 = returndata.obj[0].src;
+	         	 $("#midelPhoto").val(lujing01);
+	         	 $(".midelPhoto").attr("src",lujing01);
+	         	  
+	     	  };
+	     	  
+	       },
+	       error: function (returndata) {    
+	          $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+	       }  
+	  })
+}
+function midelPhoto(){
+	var formData = document.getElementById('midelPh'); 
+	lrz(formData.files[0]).then(function(data) {
+        return uploadmidelPh(data.formData);
+       
+    });
+
+}
+function uploadsma(formData){
+	 $.ajax({    
+	       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+	       type: 'POST',    
+	       data: formData,    
+	       async: false,    
+	       cache: false,    
+	       contentType: false,    
+	       processData: false,    
+	       success: function (returndata) {  
+	     	  if(returndata.error==200){
+	     		 $(".form-group_input .filename04").css("max-width","100%");
+	     		lujing01 = returndata.obj[0].src;
+	         	 $("#smallPhoto").val(lujing01);
+	         	 $(".smallPhoto").attr("src",lujing01);
+	         	  
+	     	  };
+	     	  
+	       },
+	       error: function (returndata) {    
+	           $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	   
+	       }  
+	  })
+}
+function smallPhoto(){
+	var formData = document.getElementById('smallPh'); 
+	lrz(formData.files[0]).then(function(data) {
+        return uploadsma(data.formData);
+       
+    });
+ 
+}
+function authorPhoto(){
+	var formData = document.getElementById('authorPh'); 
+	lrz(formData.files[0]).then(function(data) {
+        return uploadaut(data.formData);
+       
+    });
+ 
+}
+function uploadaut(formData){
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		 $(".form-group_input .filename05").css("max-width","100%");
+     		lujing01 = returndata.obj[0].src;
+         	 $("#authorPhoto").val(lujing01);
+         	 $(".authorPhoto").attr("src",lujing01);
+         	  
+     	  };
+     	  
+       },
+       error: function (returndata) {    
+           $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("请填写所有信息");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	 
+       }  
+  })
+}

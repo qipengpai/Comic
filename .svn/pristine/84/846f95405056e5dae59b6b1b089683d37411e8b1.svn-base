@@ -1,0 +1,72 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class FriendsCirclePhoto  extends BaseEntity implements Serializable{
+	
+	@SuppressWarnings("static-access")
+	@Id
+	private String id = ran.generateString(32);
+	private String userId= "";
+	private String friendCircleId= "";
+	private String implDate= "";
+	private String src= "";
+	private String width= "";
+	private String high= "";
+	
+	
+	public String getSrc() {
+		return src;
+	}
+	public void setSrc(String src) {
+		this.src = src;
+	}
+	public String getWidth() {
+		return width;
+	}
+	public void setWidth(String width) {
+		this.width = width;
+	}
+	public String getHigh() {
+		return high;
+	}
+	public void setHigh(String high) {
+		this.high = high;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getFriendCircleId() {
+		return friendCircleId;
+	}
+	public void setFriendCircleId(String friendCircleId) {
+		this.friendCircleId = friendCircleId;
+	}
+	public String getImplDate() {
+		return implDate;
+	}
+	public void setImplDate(String implDate) {
+		this.implDate = implDate;
+	}
+
+	
+	
+}

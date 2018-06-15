@@ -1,0 +1,115 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.DistributorNews;
+import com.qin.crxl.comic.entity.vo.DistributorNewsData;
+import com.qin.crxl.comic.service.DistributorNewsService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class DistributorNewsServiceImpl extends
+		BaseServiceImpl<DistributorNews> implements DistributorNewsService {
+
+	@Override
+	public boolean addDistributorNews(String content, String title) {
+		// 增加公告
+		boolean flag = false;
+		try {
+			DistributorNews distributorNews = new DistributorNews();
+			distributorNews.setContent(content);
+			distributorNews.setTitle(title);
+			distributorNews.setReleaseDate(DateUtil
+					.getdate_yyyy_MM_dd_HH_MM_SS());
+			distributorNews.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			distributorNews.setState(1);
+			save(distributorNews);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean updateDistributorNews(DistributorNewsData distributorNewsData) {
+		// 修改公告
+		boolean flag = false;
+		try {
+			DistributorNews distributorNews = get(distributorNewsData.getId());
+			if (distributorNews == null) {
+				return flag;
+			}
+			if (!ParaClick.clickString(distributorNewsData.getState())) {
+				distributorNews.setState(Integer.parseInt(distributorNewsData
+						.getState()));
+			}
+			if (!ParaClick.clickString(distributorNewsData.getTitle())) {
+				distributorNews.setTitle(distributorNewsData.getTitle());
+			}
+			if (!ParaClick.clickString(distributorNewsData.getContent())) {
+				distributorNews.setContent(distributorNewsData.getContent());
+			}
+			distributorNews.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean deleteDistributorNews(String id) {
+		// 删除公告
+		boolean flag = false;
+		try {
+			DistributorNews distributorNews = get(id);
+			if (distributorNews == null) {
+				return flag;
+			}
+			delete(id);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<DistributorNews> selectDistributorNews(String condition,
+			String nowPage, String pageNum) {
+		// 查询供应商公告列表
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM DistributorNews WHERE 1=1 ");
+		if (!ParaClick.clickString(condition)) {
+			sb.append(" AND title LIKE '%" + condition + "%' ");
+		}
+		sb.append(" ORDER BY ReleaseDate DESC LIMIT "
+				+ (Integer.parseInt(nowPage) - 1) * Integer.parseInt(pageNum)
+				+ "," + Integer.parseInt(pageNum) + " ");
+		return SQL(sb.toString(), DistributorNews.class);
+	}
+
+	@Override
+	public int selectDistributorNewsCount(String condition, String nowPage,
+			String pageNum) {
+		// 查询供应商公告数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM DistributorNews WHERE 1=1 ");
+		if (!ParaClick.clickString(condition)) {
+			sb.append(" AND title LIKE '%" + condition + "%' ");
+		}
+		return super.gettotalpage(sb.toString());
+	}
+
+}

@@ -1,0 +1,314 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import javassist.bytecode.LineNumberAttribute.Pc;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+
+@Service
+public class CartoonServiceImpl extends BaseServiceImpl<Cartoon> implements
+		CartoonService {
+
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private FollowCartoonService followCartoonService;
+	@Autowired
+	private CartoonCommentService cartoonCommentService;
+
+	@Override
+	public List<Cartoon> getALLCartoon(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  c.* FROM  Cartoon as c,CartoonAllType as cat,CartoonType as ct WHERE  c.id=cat.CartoonId AND cat.CartoonTypeId=ct.id  AND c.state=1 ");
+		/*if (!ParaClick.clickString(cartoonData.getHotState())) {
+			sb.append(" AND c.hot=1");
+		}*/
+		if (!ParaClick.clickString(cartoonData.getCartoonType())) {
+			sb.append(" AND ct.id='" + cartoonData.getCartoonType() + "'");
+		}
+		if (!ParaClick.clickString(cartoonData.getFirsrtType())) {
+			sb.append(" AND c.+firsrtType='" + cartoonData.getFirsrtType() + "'");
+		}
+		sb.append(" ORDER BY c.sort DESC,c.hot DESC  LIMIT "
+				+ (Integer.parseInt(cartoonData.getNowPage()) - 1) * 10 + ",10");
+		// sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getNewCartoon(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY updateDate DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getNewCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLHotCartoon(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLHotCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getSixHotCartoon() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC LIMIT 0,3 ");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonbyType(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ORDER BY sort DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + " ,10 ");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonbyTypeCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonbyTypeThree(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 and state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ORDER BY sort DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 3 + ",3 ");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonbyTypeThreeCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 and state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getHot0_8() {
+		return SQL(
+				"SELECT * FROM Cartoon WHERE hot=1 ORDER BY sort ASC LIMIT 0,8",
+				Cartoon.class);
+	}
+
+	@Override
+	public List<Cartoon> getSearchLike(String conext) {
+		return SQL("SELECT * FROM Cartoon WHERE cartoonName LIKE '%" + conext
+				+ "%'", Cartoon.class);
+	}
+
+	@Override
+	public int getALLCartoonCountByRankingList(CartoonData cartoonData) {
+		// 查询所有数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonByRankingList(CartoonData cartoonData) {
+		// 按播放量排序查询
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY playCount DESC");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	public List<Cartoon> getALLCartoonByRun() {
+		// 查看所有
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1  ");
+		// sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		// sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*10+",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public boolean backupsDatabases() {
+		// 备份数据
+		boolean flag = false;
+		try {
+			int followCartoon = 0;
+			int historyRecord = 0;
+			int cartoonComment = 0;
+			List<Cartoon> list = getALLCartoonByRun();
+			if (!ParaClick.clickList(list)) {
+				throw new RuntimeException();
+			}
+			for (int i = 0; i < list.size(); i++) {
+				/* 查看关注人数 */
+				followCartoon = followCartoonService.getFollowCount(list.get(i)
+						.getId());
+				list.get(i).setFollowCount(followCartoon * 72);
+				historyRecord = historyRecordService.getWatchCount(list.get(i));
+				list.get(i).setPlayCount(historyRecord * 83);
+				cartoonComment = cartoonCommentService
+						.getCartoonCommentCount(list.get(i));
+				list.get(i).setCommentCount(cartoonComment * 47);
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+
+		return flag;
+	}
+
+	/*@Override
+	public boolean addCommentCount(String cartoonId) {
+		// 增加评论次数
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonId);
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setCommentCount(cartoon.getCommentCount() + 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+
+		return flag;
+	}
+*/
+	@Override
+	public boolean addPlayCount(CartoonPhotoData cartoonPhotoData) {
+		// 增加播放量
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonPhotoData.getCartoonId());
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setPlayCount(cartoon.getPlayCount() + 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+	@Override
+	public boolean addPlayCount2(CartoonSet cartoonSet) {
+		// 增加播放量
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonSet.getCartoonId());
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setPlayCount(cartoon.getPlayCount() + 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+	/*@Override
+	public boolean addFollowNum(CartoonData cartoonData) {
+		// 增加關注人數
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonData.getId());
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setFollowCount(cartoon.getFollowCount() + 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+*/
+/*	@Override
+	public boolean deleteFollowNum(CartoonData cartoonData) {
+		// 關注人數-1
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonData.getId());
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setFollowCount(cartoon.getFollowCount() - 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}*/
+
+}

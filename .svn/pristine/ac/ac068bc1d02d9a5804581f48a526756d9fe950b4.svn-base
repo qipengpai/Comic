@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>新增漫画页面</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="css/bootstrap.css">
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript" src="js/lrz.bundle.js" ></script>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight" 
+		id="formid"
+		style="margin:0 auto;border:2px solid #D4D4D4;padding:30px 50px;box-shadow:3px 3px 5px #D4D4D4;padding-top:5%;">
+	<form method="post" class="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<label>漫画主图：</label><br>
+				<!-- <input id="mallimg" type="text" class="form-control bannerurl" placeholder="填写图片链接"> -->
+				<div class="form-group_input">
+					<!-- <input type="file" name="file" onclick="doUpload(this.files);"> -->
+
+					<input type="file" name="file" onchange="mainphoto()" id="mainph">
+					<img alt="image" class="mainPhoto" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+
+				</div>
+			</div>
+		</div>
+	</form>
+	<form method="post" class="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<label>漫画介绍图：</label><br>
+				<!-- 		<input id="mallinimg" type="text" class="form-control bannerurl" placeholder="填写图片链接"> -->
+				<div class="form-group_input">
+					<input type="file" name="file" onchange="introduction()" id="intro">
+
+					<img alt="image" class="introduction" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+				</div>
+			</div>
+		</div>
+		
+	</form>
+	<form method="post" class="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">漫画中图：</label><br>
+				<!--<input id="mallmiimg" type="text" class="form-control bannerurl" placeholder="填写图片链接">
+					<input type="file"> -->
+				<div class="form-group_input">
+
+					<input type="file" name="file" onchange="midelPhoto()" id="midelPh">
+					<img alt="image" class="midelPhoto" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+				</div>
+			</div>
+		</div>
+		
+
+	</form>
+	<form method="post" class="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">漫画小一图：</label><br>
+				<!-- 	<input id="mallsmimg" type="text" class="form-control bannerurl" placeholder="填写图片链接"> -->
+				<div class="form-group_input">
+
+					<input type="file" name="file" onchange="smallPhoto()" id="smallPh">
+					<img alt="image" class="smallPhoto" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+					<!-- <div  id="mallsmimg" ></div> -->
+				</div>
+
+
+			</div>
+		</div>
+	</form>
+	
+		<input id="authorPhoto" type="hidden"> 
+		<input id="mainPhoto" type="hidden"> 
+		<input  id="introduction" type="hidden"> 
+		<input  id="midelPhoto" type="hidden">
+		<input id="smallPhoto" type="hidden">
+		<h3 class="text-center" id="hid">新增漫画</h3>
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">分类：</label><br> <select
+					id="firstclass">
+					<option value="2">普通漫画</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">别名：</label><br> <input id="byname"
+					class="byname" type="text" class="form-control bannerurl"
+					placeholder="填写漫画别名">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">作者：</label><br> <input id="author"
+					type="text" class="byname" class="form-control bannerurl"
+					placeholder="填写漫画作者">
+			</div>
+		</div>
+		<form method="post" class="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">作者头像：</label><br>
+				<!--<input id="mallmiimg" type="text" class="form-control bannerurl" placeholder="填写图片链接">
+					<input type="file"> -->
+				<div class="form-group_input">
+
+					<input type="file" name="file" onchange="authorPhoto()" id="authorPh">
+					<img alt="image" class="authorPhoto" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+				</div>
+			</div>
+		</div>
+		
+
+	</form>
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">短介绍：</label><br> <input id="introduc"
+					class="byname" type="text" class="form-control bannerurl"
+					placeholder="填写漫画短介绍">
+			</div>
+		</div>
+	<!-- 	<div class="form-group">
+			<div class="ui-widget">
+				<input id="title" type="text" class="byname" placeholder="填写更新标题">
+			</div>
+		</div> -->
+		<div class="form-group">
+			<div class="ui-widget">
+				<label for="mallinfoimg">更新类型：</label><br> <select id="type">
+					<option value="1">连载中</option>
+					<option value="0">完结</option>
+				</select>
+			</div>
+		</div>
+
+		<a onclick="back()" class="btn btn-primary">返回</a>
+		<button class="btn btn-success pull-right" id="submitbtn"
+			onclick="mall()">提交</button>
+	</div>
+
+
+
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+				</div>
+				<div class="modal-body" id="textcontent">在这里添加一些文本</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	  <!--管理员登录验证  -->
+	<script src="js/login_Yan.js"></script>
+	<script src="js/mallinfoadd_edit.js"></script>
+</body>
+</html>

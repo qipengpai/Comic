@@ -1,0 +1,66 @@
+package com.qin.crxl.comic.action;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.CartoonTask;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.CartoonTaskServcie;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonTaskController {
+
+	@Autowired
+	private CartoonTaskServcie cartoonTaskServcie;
+	
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>个人中心>生成任务  +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOONTASK, method = RequestMethod.POST)
+	public Model pp(UserEntity entity) {
+		Map<Integer, Object> map = new HashMap<Integer, Object>();
+		// 今天时间
+		String newTime = DateUtil.dateToTimeStamp(new Date());
+		// 查询用户今天是否登录过任务
+		CartoonTask cartoonTask = cartoonTaskServcie.updateQianDao(entity,
+				newTime);
+		if (!ParaClick.clickObj(cartoonTask)) {
+			// 查询用户曾经是否存在任务列表
+			CartoonTask cartoonTask2 = cartoonTaskServcie
+					.updateQianDao2(entity);
+			// 用户是第一次进入平台未做过任务
+			if (!ParaClick.clickObj(cartoonTask2)) {
+				boolean b = cartoonTaskServcie.addCartoonTask(entity);
+				if (b) {
+					return new Model(200,entity);
+				} else {
+					return new Model(500,"已生成");
+				}
+			}
+			// 用户曾经进入过平台存在任务列表
+			boolean cartoonTask3 = cartoonTaskServcie.addCartoonTask2(entity,
+					cartoonTask2);
+			if (cartoonTask3) {
+				return new Model(200,entity);
+			} else {
+				return new Model(500,"已生成");
+			}
+		}
+		return new Model(500,"已生成");
+	}
+}

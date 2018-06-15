@@ -1,0 +1,165 @@
+package com.qin.crxl.comic.action;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.HistoryRecord;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.VeryOk;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.service.VeryOkService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonSetController {
+	@Autowired
+	private VeryOkService veryOkService;
+	@Autowired
+	private CartoonSetService cartoonSetService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+
+	/**
+	 * pp 漫画集数列表
+	 * 
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOONSET_BYID, method = RequestMethod.POST)
+	public Model getCartoonSetById(CartoonData cartoonData) throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonData
+				.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (ParaClick.clickString(cartoonData.getNowPage())) {
+			cartoonData.setNowPage("1");
+		}
+		Model model = new Model();
+		int num = cartoonSetService.getPageNum(cartoonData);
+		if (num == 0) {
+			return new Model(500, "未查询到信息");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		List<CartoonSet> cartoonSet = cartoonSetService
+				.getByCartoonId(cartoonData);
+		if (!ParaClick.clickList(cartoonSet)) {
+			return new Model(500, "查询话集异常");
+		}
+		String mode="";
+		if(Integer.parseInt(cartoonData.getMode())==0){
+			mode="1";
+		}else{
+			mode="0";
+		}
+		for (CartoonSet cartoonSet2 : cartoonSet) {
+			
+//		}
+//		for (int i = 0; i < cartoonSet.size(); i++) {
+			
+			Hashtable<String, Object> map = new Hashtable<String, Object>();
+//			List<VeryOk> list = veryOkService.getUserVseryOk(cartoonSet2
+//					.getId(), userEntity);
+//			if (!ParaClick.clickList(list)) {
+//				map.put("veryOk", 0);
+//			} else {
+//				map.put("veryOk", 1);
+//			}
+			List<HistoryRecord> historyRecord = historyRecordService
+					.getWatchStateByUserAndCartoonSetId(cartoonSet2,
+							userEntity);
+			if (!ParaClick.clickList(historyRecord)) {
+				map.put("watchState", 0);
+			} else {
+				map.put("watchState", historyRecord.get(0).getWatchState());
+			}
+			map.put("cartoonSet", cartoonSet2);
+			/*
+			 * if (Integer.parseInt(cartoonData.getMode())==1) { map.put("max",
+			 * cartoonSet.get(0).getSort()); map.put("min",
+			 * cartoonSet.get(cartoonSet.size()).getSort()); }else{
+			 * map.put("min", cartoonSet.get(0).getSort()); map.put("max",
+			 * cartoonSet.get(cartoonSet.size()).getSort()); }
+			 */
+			list2.add(map);
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		model.setSpare(mode);
+		return model;
+	}
+
+	/**
+	 * pp 漫画集数列表>点赞
+	 * 
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_CARTOONSET_BYID_OKCOUNT, method = RequestMethod.POST)
+	public Model getCartoonSetByIdOkCOUNT(HttpSession session,
+			CartoonSetData cartoonSetData) throws Exception {
+		Model model = new Model();
+		cartoonSetData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonSetData
+				.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (Integer.parseInt(cartoonSetData.getVeryOk()) == 1) {
+			boolean flag = veryOkService.deleteVeryOK(cartoonSetData, userEntity);
+			if (!flag) {
+				return new Model(500, "点赞异常");
+			}
+		} else {
+			boolean flag = veryOkService.addVeryOK(cartoonSetData, userEntity);
+			if (!flag) {
+				return new Model(500, "点赞异常");
+			}
+		}
+		CartoonSet cartoonSet = cartoonSetService.get(cartoonSetData.getId());
+		if (cartoonSet == null) {
+			return new Model(500, "查询话集异常");
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<VeryOk> list = veryOkService.getUserVseryOk(
+				cartoonSetData.getId(), userEntity);
+		if (!ParaClick.clickList(list)) {
+			map.put("veryOk", 0);
+		} else {
+			map.put("veryOk", 1);
+		}
+		/*
+		 * int
+		 * count=veryOkService.getUserVseryOkCount(cartoonSet.getId(),userEntity
+		 * ); cartoonSet.setOkCount(count);
+		 */
+		//map.put("cartoonSet", cartoonSet);
+		model.setError(200);
+		model.setSpare(map);
+		return model;
+	}
+	
+}

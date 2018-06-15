@@ -1,0 +1,92 @@
+var nowpage = (parseInt($(".pagination-num").val())<parseInt($(".pagination-data").html()))?(parseInt($(".pagination-num").val())):$(".pagination-data").html();
+var pagenum = $(".pagination-page-list").val();
+$(function(){
+	tableuser();
+});
+/*页面进行时渲染数据*/
+function tableuser(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : nowpage
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-data").html(data.totalpage);
+				$(".pagination-num").val(data.nowpage);
+				$("#gong").val(data.totalNum);
+				var vipId;
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "vip";
+					}else if(data.obj[i].vipId == 2){
+						vipId = "svip"
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].userId+"</td><td>" +
+					data.obj[i].username +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].truePhone +"</td>" +
+					"<td>" +data.obj[i].city +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].obj+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				
+					$('#myModal').modal('show');
+					$('#myModalLabel').html('系统提示');
+					$('#textcontent').html('暂无数据');
+					$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+/*改变当前页码数*/
+function change(){
+	nowpage = $(".pagination-num").val();
+	tableuser()
+}
+/*搜搜*/
+function sousuo(){
+	nowpage = 1;
+	tableuser()
+}
+function leftbottom(){
+	nowpage = 1;
+	tableuser()
+	
+}
+/*页码的上一个*/
+function leftcenter(){
+	nowpage = ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1;
+	tableuser()
+	
+}
+
+
+/*页码的最后一个*/
+function rightbottom(){
+	nowpage = $(".pagination-data").html();
+	tableuser()
+	
+}
+/*页码的后一个*/
+function rightcenter(){
+	nowpage = (parseInt($(".pagination-num").val())<parseInt($(".pagination-data").html()))?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html();
+	tableuser()
+	
+}

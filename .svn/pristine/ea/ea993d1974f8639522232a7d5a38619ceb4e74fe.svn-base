@@ -1,0 +1,49 @@
+package com.qin.crxl.comic.url;
+
+import com.qin.weixin.dao.impl.WeiXinDaoImpl;
+import com.qin.weixin.model.useValue;
+
+
+public class GetUrl {
+	
+	
+	public static String getWXGameUrl(String str){
+		WeiXinDaoImpl dao=new WeiXinDaoImpl();
+		String pathUrl=null;
+		try {
+			pathUrl=dao.getCodeUrl(useValue.AppId,str,"snsapi_userinfo", "state");
+			System.out.println(pathUrl);
+		} catch (Exception e) {
+			
+		}
+		return pathUrl;
+	}
+
+	public static String getGameUrl(String gameId){
+		String url="http://www.edisonluorui.com/htmlGame.html?gameid="+gameId+"&qd=CRXL";
+		WeiXinDaoImpl dao=new WeiXinDaoImpl();
+		String pathUrl=null;
+		try {
+			pathUrl=dao.getCodeUrl(useValue.AppId,url,"snsapi_userinfo", "state");
+			System.out.println(pathUrl);
+		} catch (Exception e) {
+			
+		}
+		return pathUrl;
+	}
+	
+	
+	public static void main(String[] args){
+		String url="http://www.kktoon.com//UserLoginWX.html";
+		
+		WeiXinDaoImpl dao=new WeiXinDaoImpl();
+		String pathUrl=null;
+		try {
+			pathUrl=dao.getCodeUrl(useValue.AppId,url,"snsapi_userinfo", "state");
+			System.out.println(pathUrl);
+		} catch (Exception e) {
+			
+		}
+		System.out.println(pathUrl);
+	}
+}

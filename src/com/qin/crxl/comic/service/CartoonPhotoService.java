@@ -1,0 +1,38 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+
+@Service
+@Transactional
+public interface CartoonPhotoService extends BaseService<CartoonPhoto>{
+
+//	List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId(
+//			CartoonPhotoData cartoonPhotoData);
+
+	boolean addAllParameter(CartoonPhotoData cartoonPhotoData,
+			String string);
+
+//	int getCartoonPhotoNum2(CartoonSet cartoonSet);
+
+	boolean addAllParameter2(CartoonSet cartoonSet, UserEntity userEntity);
+
+//	List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId2(CartoonSet cartoonSet, CartoonPhotoData cartoonPhotoData);
+
+	int getCartoonPhotoNum(String cartoonId, String id);
+
+	List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId(String cartoonId,
+			String id, String string);
+
+	List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId2(String cartoonId,
+			String cartoonSetId);
+
+}

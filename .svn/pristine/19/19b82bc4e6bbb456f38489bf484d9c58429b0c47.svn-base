@@ -1,0 +1,55 @@
+package com.qin.crxl.comic.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.vo.BannerData;
+import com.qin.crxl.comic.service.AdminBannerService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+
+/**
+ * 漫画的Banner
+ * @author cui
+ *
+ */
+@Controller
+public class AdminBannerController {
+	@Autowired
+	private AdminBannerService adminBannerService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_BANNER, method = RequestMethod.POST)
+	public Model addBanner(BannerData bannerData){
+		boolean bool = adminBannerService.addBanner(bannerData);
+		if(bool){
+			return new Model(200,"添加成功");
+		}
+		return new Model(500,"添加失败");
+	}
+
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.DELETE_BANNER, method = RequestMethod.POST)
+	public Model deleteBanner(BannerData bannerData){
+		boolean bool = adminBannerService.deleteBanner(bannerData);
+		if(bool){
+			return new Model(200,"删除成功");
+		}
+		return new Model(500,"删除失败");
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.DELETE_BANNER, method = RequestMethod.POST)
+	public Model updateBanner(BannerData bannerData){
+		boolean updateBanner = adminBannerService.updateBanner(bannerData);
+		if(updateBanner){
+			return new Model(200,"修改成功");
+		}
+		return new Model(500,"修改失败");
+	}
+	
+	
+}

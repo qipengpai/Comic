@@ -1,0 +1,63 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.service.AdminUserEntityService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class AdminUserEntityController {
+	@Autowired
+	private AdminUserEntityService adminUserEntityService;
+	
+	//查询用户
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERENTITY, method = RequestMethod.POST)
+	public Model selectUserEntity(UserEntityData userEntityData){
+		Model model=new Model();
+		System.out.println(userEntityData.getNowPage());
+		int num=0;
+		if(ParaClick.clickString(userEntityData.getNowPage())){
+			userEntityData.setNowPage("1");
+		}
+		if(ParaClick.clickString(userEntityData.getPageNum())){
+			userEntityData.setPageNum("10");
+		}
+		List<UserEntity> userList = adminUserEntityService.selectUser(userEntityData);
+		num=adminUserEntityService.getCount(userEntityData);
+		if(!ParaClick.clickList(userList)){
+			return new Model(500,"无用户数据");
+		}else{
+			for(int i=0;i<userList.size();i++){
+				userList.get(i).setCountry(StringToInt.toString(userList.get(i).getCountry()));
+				userList.get(i).setCity(StringToInt.toString(userList.get(i).getCity()));
+				try {
+					userList.get(i).setNickname(StringToInt.toString(userList.get(i).getNickname()));
+				} catch (Exception e) {
+					userList.get(i).setNickname("潮人用户");
+				}
+			}
+		}
+		
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(userEntityData.getNowPage()));
+		System.out.println("后台传给前台当前页："+Integer.parseInt(userEntityData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(userEntityData.getPageNum()) - 1) / Integer.parseInt(userEntityData.getPageNum()));
+		model.setObj(userList);
+		return model;
+	}
+	
+	
+	
+}

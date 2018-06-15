@@ -1,0 +1,30 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.FriendsComment;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.FriendsCircleData;
+import com.qin.crxl.comic.entity.vo.FriendsCommentData;
+
+@Service
+@Transactional
+public interface FriendsCommentService extends BaseService<FriendsComment>{
+
+	boolean deleteByFriendsCircleId(FriendsCircleData friendsCircleData);
+
+	List<FriendsComment> getByFriendsCircleId();
+
+	int getFriendsCommentCount(FriendsCommentData friendsCommentData);
+
+	List<FriendsComment> getALLFriendsCommentByCommentId(
+			FriendsCommentData friendsCommentData);
+
+	boolean addFriendCircleComment(FriendsCommentData friendsCommentData,
+			UserEntity userEntity)throws Exception ;
+
+}

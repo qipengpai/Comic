@@ -1,0 +1,273 @@
+
+$(function(){
+	selectupdata();
+	$("#cartoonSetId").val(GetQueryString("id"));
+});
+function selectupdata(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id")
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#updata").empty();
+				$("#width").empty();
+				$("#height").empty();
+				$("#url_data").empty();
+				for(var int=0;int<data.obj.length;int++){
+					var str ="";
+					var data_url = "";
+					var data_height = "";
+					var data_width = "";
+					$("#cartoonSetId").val(GetQueryString("id"));
+					/*str += "<div><p>第"+parseInt(int+1)+"张</p><img src='"+data.obj[int].photoUrl+"'></div>";*/
+					str += "<form id='form"+int+"' method='post' class='uploadForm' enctype=''multipart/form-data'>" +
+					"<div class='form-group'>" +
+					"<div class='form-group_input'>" +
+					"<h2>第" +
+					parseInt(int+1) +
+					"张</h2>" +
+					"<span onclick='deleter(&quot;"+int+"&quot;)' class='deletebtn'>X</span>" +
+					"<input type='file' name='file' onchange='doUpload("+int+")' id='filename"+int+"'>" +
+					"<img alt='image' class='showPhoto'  src='"+data.obj[int].photoUrl+"'>" +
+					"</div>"+
+					"</div>" +
+					"</form>";
+					$("#updata").append(str);
+					data_url += "<input type='hidden' value='"+data.obj[int].photoUrl+"' class='urlurl urlurl"+int+"'>";
+					$("#url_data").append(data_url);
+					data_width += "<input type='hidden' value='"+data.obj[int].photoWidth+"' class='urlwidth urlwidth"+int+"'>";
+					data_height += "<input type='hidden' value='"+data.obj[int].photoHeight+"' class='urlheight urlheight"+int+"'>";
+					$("#width").append(data_width);
+					$("#height").append(data_height);
+					$("#spare").val(data.spare);
+					
+				}
+				
+				
+			}else{
+				$("#cartoonSetId").val(GetQueryString("id"));
+				var str ="暂无数据";
+				$("#updata").append(str);
+				/*window.location.href="table_basic_updata.html?id="+GetQueryString("id")+"&cartoonid="+GetQueryString("cartoonid");*/
+				$("#submitbtn").css("display","none");
+			}
+		}
+	});
+}
+function addup(){
+	window.location.href="table_basic_updata.html?id="+$("#cartoonSetId").val()+"&cartoonid="+GetQueryString("cartoonid")+"&nowpagew="+GetQueryString("nowpagew")+"&pageNumw="+GetQueryString("pageNumw")+"&search="+GetQueryString("search")+"&nowpage="+GetQueryString("nowpage")+"&pageNum="+GetQueryString("pageNum")+"&back="+GetQueryString("back");
+}
+function deleter(id){
+	$("#deletecz").val(id);
+	$('#myModal').modal('show');
+	$('#myModalLabel').html('系统提示');
+	$('#textcontent').html('是否删除当前内容');
+	$('#btngroup').html('<button type="button" class="btn btn-default" onclick="del()" id="delbtn" data-val=idid>删除</button><button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');			
+	
+}
+function del(){
+	var id = $("#deletecz").val();
+	$("#form"+id).remove();
+	$(".urlwidth"+id).remove();
+	$(".urlheight"+id).remove();
+	$(".urlurl"+id).remove();
+	$('#myModal').modal('show');
+	$('#myModalLabel').html('系统提示');
+	$('#textcontent').html("删除成功");
+	$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="confirmbtn">关闭</button>');		
+}
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+
+function doUpload(id) {
+		var objfile = document.getElementById("filename"+id);
+	    lrz(objfile.files[0]).then(function(data) {
+	        return upload(id,data.formData);
+	       
+	    });
+}
+function upload(id,formData){
+    $.ajax({    
+         url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+         type: 'POST',    
+         data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		  $("#form"+id ).find("img").attr("src",returndata.obj[0].src);
+       		  $(".urlurl"+id).val(returndata.obj[0].src);
+       		  $(".urlwidth"+id).val(returndata.obj[0].w);
+       		  $(".urlheight"+id).val(returndata.obj[0].h);
+           	  
+       	  }
+       	  
+         },    
+         error: function (returndata) {    
+            $('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+         }    
+    }); 
+}
+function sure(){
+	var addurl ="";
+	var addwidth ="";
+	var addheight ="";
+	$(".urlurl").each(function (i){
+		addurl += $(this).val() + "," ;
+	});
+	$(".urlheight").each(function (i){
+		addheight += $(this).val() + "," ;
+		
+	});
+	$(".urlwidth").each(function (i){
+		addwidth += $(this).val() + "," ;
+		
+	});
+	$.ajax({
+		url : "/Comic/qpp/comic/update/cartoonPhotoById.do",
+		type:"post",
+		data:{
+			"cartoonSetId":$("#cartoonSetId").val(),
+			"cartoonId":GetQueryString("cartoonid"),
+			"photoUrl":addurl,
+			"photoHeight" :addheight,
+			"photoWidth" :addwidth
+		},
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html("修改成功");
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+				$("#updata").empty();
+				selectupdata();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+			
+		}
+	});
+}
+function back(){
+	window.location.href = "table_basic_watch.html?id="+GetQueryString("cartoonid")+"&nowpagew="+GetQueryString("nowpagew")+"&pageNumw="+GetQueryString("pageNumw")+"&search="+GetQueryString("search")+"&nowpage="+GetQueryString("nowpage")+"&pageNum="+GetQueryString("pageNum")+"&back="+GetQueryString("back");
+}
+function btntop(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhotoUpAndDown.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"sort" : $("#spare").val()-1 
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#updata").empty();
+				$("#cartoonSetId").val(data.obj[0].cartoonSetId);
+				for(var int=0;int<data.obj.length;int++){
+					var str ="";
+					var data_url = "";
+					var data_height = "";
+					var data_width = "";
+					
+					/*str += "<div><p>第"+parseInt(int+1)+"张</p><img src='"+data.obj[int].photoUrl+"'></div>";*/
+					str += "<form id='form"+int+"' method='post' class='uploadForm' enctype=''multipart/form-data'>" +
+					"<div class='form-group'>" +
+					"<div class='form-group_input'>" +
+					"<h2>第" +
+					parseInt(int+1) +
+					"张</h2>" +
+					"<span onclick='deleter(&quot;"+int+"&quot;)' class='deletebtn'>X</span>" +
+					"<input type='file' name='file' onchange='doUpload("+int+")'>" +
+					"<img alt='image' class='showPhoto'  src='"+data.obj[int].photoUrl+"'>" +
+					"</div>"+
+					"</div>" +
+					"</form>";
+					$("#updata").append(str);
+					data_url += "<input type='hidden' value='"+data.obj[int].photoUrl+"' class='urlurl urlurl"+int+"'>";
+					$("#url_data").append(data_url);
+					data_width += "<input type='hidden' value='"+data.obj[int].photoWidth+"' class='urlwidth urlwidth"+int+"'>";
+					data_height += "<input type='hidden' value='"+data.obj[int].photoHeight+"' class='urlheight urlheight"+int+"'>";
+					$("#width").append(data_width);
+					$("#height").append(data_height);
+					$("#spare").val(data.spare);
+					
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}
+function btnbottom(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhotoUpAndDown.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"sort" : parseInt($("#spare").val())+parseInt(1)
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#updata").empty();
+				$("#cartoonSetId").val(data.obj[0].cartoonSetId);
+				for(var int=0;int<data.obj.length;int++){
+					var str ="";
+					var data_url = "";
+					var data_height = "";
+					var data_width = "";
+					/*str += "<div><p>第"+parseInt(int+1)+"张</p><img src='"+data.obj[int].photoUrl+"'></div>";*/
+					str += "<form id='form"+int+"' method='post' class='uploadForm' enctype=''multipart/form-data'>" +
+					"<div class='form-group'>" +
+					"<div class='form-group_input'>" +
+					"<h2>第" +
+					parseInt(int+1) +
+					"张</h2>" +
+					"<span onclick='deleter(&quot;"+int+"&quot;)' class='deletebtn'>X</span>" +
+					"<input type='file' name='file' onchange='doUpload("+int+")'>" +
+					"<img alt='image' class='showPhoto'  src='"+data.obj[int].photoUrl+"'>" +
+					"</div>"+
+					"</div>" +
+					"</form>";
+					$("#updata").append(str);
+					data_url += "<input type='hidden' value='"+data.obj[int].photoUrl+"' class='urlurl urlurl"+int+"'>";
+					$("#url_data").append(data_url);
+					data_width += "<input type='hidden' value='"+data.obj[int].photoWidth+"' class='urlwidth urlwidth"+int+"'>";
+					data_height += "<input type='hidden' value='"+data.obj[int].photoHeight+"' class='urlheight urlheight"+int+"'>";
+					$("#width").append(data_width);
+					$("#height").append(data_height);
+					$("#spare").val(data.spare);
+					
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}

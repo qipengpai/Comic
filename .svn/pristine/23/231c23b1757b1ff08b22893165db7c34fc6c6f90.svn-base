@@ -1,0 +1,54 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+
+@Service
+@Transactional
+public interface UserService extends BaseService<UserEntity>{
+
+	UserEntity updateUser(UserEntity entity, String wxqd) throws Exception;
+
+	boolean addUserEntity(UserEntityData userEntityData);
+
+	List<UserEntity>   getByPhone(UserEntityData userEntityData);
+
+	List<UserEntity> getUserEntityByLogin(UserEntityData userEntityData);
+
+	boolean userProfectInfo(UserEntityData userEntityData);
+
+	boolean userUpdateHeadPortrict(
+			UserEntityData userEntityData);
+
+	UserEntity getByOpenId(String openid);
+
+	boolean updateVipState(String id, Integer integer);
+
+	UserEntity updateMoney(String userid, Integer orderCurrency);
+
+	UserEntity getUserInfoById(String string);
+
+	UserEntity updateUserPhone(UserEntity user, String phone)throws Exception ;
+
+	boolean deductTheIntegral(CartoonPhotoData cartoonPhotoData,
+			UserEntity userEntity);
+
+	boolean updateVipState2(UserEntity userEntity);
+
+	boolean updateUserIntegral(String userId, int integral);
+
+	boolean chackVip();
+
+}

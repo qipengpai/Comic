@@ -1,0 +1,24 @@
+package com.qin.crxl.comic.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.SearchHistoryService;
+import com.qin.crxl.comic.tool.Model;
+
+@Controller
+public class SearchAction {
+	@Autowired
+	private CartoonService cartoonService;
+	
+	@Autowired
+	private SearchHistoryService searchHistoryService;
+	
+	
+	public Model getSearchHot(){
+		return null;
+		
+	}
+
+}

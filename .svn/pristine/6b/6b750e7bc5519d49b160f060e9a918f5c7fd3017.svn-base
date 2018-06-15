@@ -1,0 +1,164 @@
+package com.qin.crxl.comic.system;
+
+public class ActionUrl {
+	// 用户上传文件
+	public static final String USER_UPLOD_PORTRACT = "/app/uplod/multipartFile";
+	// 定时更细数据
+	public static final String BACKSUPS_CARTOON_DATA="/backups/cartoon/data";
+
+
+	
+	// 微信登录
+	public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// APP用户注册
+	public static final String USER_REGISTER = "/app/user/register";
+	// 发送验证码
+	public static final String SEND_REGISTER_CODE = "/app/send/register/code";
+	// 用户登录
+	public static final String USER_LOGIN = "/app/user/login/bypwd";
+	// 退出登录
+	public static final String USER_LOGIN_OUT = "/app/user/loginout";
+	// 用户完善资料
+	public static final String USER_PERFECT_INFO = "/app/user/perfect/info";
+	// 用户更换头像
+	public static final String USER_PERFECT_INFO_HEADPORTRACT = "/app/user/perfect/info/update/headportrait";
+	/*更新用户手机号码*/
+	public static final String GET_UPDATE_PHONE="/app/user/update/phone";	
+	/*更新用户信息*/
+	public static final String GET_USER_INFO="/app/user/get/userinfo";
+	
+	
+	
+	// 获取banner图
+	public static final String GET_BANNER = "/qpp/comic/get/banner";
+
+	
+	
+	
+	// 根据id查询漫画集数
+	public static final String GET_CARTOONSET_BYID = "/qpp/comic/get/cartoon/byid";
+	// 根据id查询漫画集数>点赞
+	public static final String GET_CARTOONSET_BYID_OKCOUNT = "/qpp/comic/bysetid/okcount";
+	// 首頁查询漫画列表
+	public static final String GET_ALL_CARTOON = "/qpp/comic/get/allcartoon";
+	// 查询热门漫画
+	public static final String GET_ALL_HOT_CARTOON = "/qpp/comic/get/hot/cartoon";
+	// 发现>热门漫画>查看更多>全部
+	public static final String GET_ALL_HOT_CARTOON_MORE = "/qpp/comic/get/more/cartoon";
+	// 发现>热门漫画>查看更多>热门
+	public static final String GET_CARTOON_MORE_HOT = "/qpp/comic/get/more/hot";
+	// 发现>热门漫画>查看更多>分类查询
+	public static final String GET_CARTOON_MORE_BYTYPE = "/qpp/comic/get/more/bytype";
+	// 二级页面查询表头
+	public static final String GET_CARTOON_HEAD_BYID = "/qpp/comic/get/cartoon/head";
+	// 漫画详情
+	public static final String GET_CARTOONPHOTO_INFO_BYID = "/qpp/comic/get/info";
+	// 发现>热门漫画>详细排行榜
+	public static final String GET_ALL_CARTOON_RANKING = "/qpp/comic/get/more/cartoon/rankinglist";
+	// 发现>热门漫画>排行前三
+	public static final String GET_ALL_CARTOON_RANKING_THREE = "/qpp/comic/get/cartoon/rankinglist/three";
+	
+	
+	
+	
+	// 每个漫画集数>看漫画
+	public static final String GET_ALL_CARTOON_PHOTO_BYCARTOONSET = "/qpp/comic/get/cartoonphoto";
+	// 每个漫画集数>購買此集漫畫（不重複購買）
+	public static final String BUY_THIS_CARTOONSET = "/qpp/comic/buy/this/cartoonset";
+		
+	
+	
+	
+	// 获取该剧所有评论
+	public static final String GET_ALL_CARTOOMCOMMENT = "/qpp/comic/get/allcomment";
+	// 评论该剧
+	public static final String ADD_CARTOOMCOMMENT = "/qpp/comic/add/allcomment";
+	// 查看評論的所有評論
+	public static final String GET_ALL_CARTOOMCOMMENTSET = "/qpp/comic/get/comment/allcomment";
+	// 評論 評論
+	public static final String ADD_CARTOOMCOMMENTSET = "/qpp/comic/add/comment/comment";
+	// 点赞
+	public static final String ADD_CARTOOMCOMMENT_OK = "/qpp/comic/add/okcount";
+
+	
+	
+	// 获取该话所有评论
+	public static final String GET_ALL_CARTOOMCOMMENT_SON = "/qpp/comic/get/allcomment/son";
+	// 评论该话
+	public static final String ADD_CARTOOMCOMMENT_SON = "/qpp/comic/add/allcomment/son";
+	// 查看評論的所有評論
+	public static final String GET_ALL_CARTOOMCOMMENTSET_SON = "/qpp/comic/get/comment/allcomment/son";
+	// 評論 評論
+	public static final String ADD_CARTOOMCOMMENTSET_SON = "/qpp/comic/add/comment/comment/son";
+	// 点赞
+	public static final String ADD_CARTOOMCOMMENT_OK_SON = "/qpp/comic/add/okcount/son";
+
+	
+	
+	// app>詳情>关注漫画
+	public static final String FOLLOW_CARTOON = "/qpp/comic/follow/cartoon";
+	// app>書架 >我的書架我的書架取消关注漫画
+	public static final String CANCEL_FOLLOW_CARTOON = "/qpp/comic/cancel/follow/cartoon";
+	// app>書架 >我的書架
+	public static final String GET_MY_FOLLOW_CARTOON = "/qpp/comic/get/myBookshelf";
+			
+	
+	
+	
+	
+	// app>搜索页面初始化
+	public static final String GET_SEARCH_INITIALIZATION = "/app/search/initialization";
+	// app>搜索
+	public static final String GET_SEARCH = "/app/search";
+	
+	
+	
+	
+	
+	// app>個人中心>歷史紀錄
+	public static final String GET_HISTORY_RECORD = "/qpp/comic/get/myhistoryRecord";
+	// app>個人中心>我的朋友圈
+	public static final String GET_MY_ALL_FRIENDSCIRCLE_INFO = "/qpp/comic/get/my/allfriendcircle";
+	// app>個人中心>意見反饋
+	public static final String ADD_FEEDBACK_INFO = "/qpp/comic/add/my/feedback";
+	// app>個人中心>我的消息
+	public static final String USER_MY_SENDCODE="/qpp/comic/get/allNews";
+	
+	
+	
+	
+	// app>混圈>发布朋友圈
+	public static final String RELEASE_FRIENDSCIRCLE_INFO = "/qpp/comic/release/friendcircle";
+	// app>混圈>删除朋友圈
+	public static final String DELETE_FRIENDSCIRCLE_INFO ="/qpp/comic/delete/friendcircle/byid";
+	// app>混圈>查看广场朋友圈>最新
+	public static final String GET_ALL_FRIENDSCIRCLE_INFO = "/qpp/comic/get/allfriendcircle";
+	// app>混圈>查看评论
+	public static final String GET_ALL_FRIENDS_CARTOONCOMMENTSET = "/qpp/comic/get/this/comments";
+	// app>混圈>评论该条朋友圈
+	public static final String 	COMMENT_FRIENDS_CARTOONCOMMENT = "/qpp/comic/comment/friendsCircle/";
+	// app>混圈>发表评论
+	public static final String RELEASE_FRIENDSCIRCLE_COMMENT = "/qpp/comic/release/friendscomment";
+	// app>混圈>点赞朋友圈
+	public static final String ADD_FRIENDSCIRCLE_VERYOK = "/qpp/comic/add/friendscomment/veryOk";
+	
+	
+	
+	
+	
+	
+	
+	
+	// pc>添加消息
+	public static final String ADD_SENDCODE ="/qpp/pc/comic/add/sendcode";
+	// 微信登录
+	// public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 微信登录
+	// public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	// public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	// public static final String GET_CARTOON_BYID = "/qpp/get/cartoon/byid";
+	// 微信登录
+	// public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+}

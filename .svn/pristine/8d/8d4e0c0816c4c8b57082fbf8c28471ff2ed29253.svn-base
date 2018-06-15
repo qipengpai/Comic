@@ -1,0 +1,41 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonVo;
+/**
+ * 漫画接口
+ * @author cui
+ *
+ */
+@Service
+@Transactional
+public interface AdminCartoonService {
+	//增加漫画
+	boolean addAdminCartoon(CartoonVo cartoonData);
+	
+	//对漫画排排序
+	int getSortMax();
+	
+	//删除漫画
+	boolean deleteAdminCartoon(String id);
+	
+	//修改漫画
+	boolean updateAdminCartoon(CartoonVo cartoonData);
+	
+	//查询漫画（id）
+	Cartoon selectByIdCartoon(String id);
+	
+	
+	//查询所有漫画(分页)
+	List<Cartoon> selectAllCartoon(CartoonVo cartoonData);
+	
+	
+	//查询漫画数量
+	int getCount(CartoonVo cartoonData);
+	
+}

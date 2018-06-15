@@ -1,0 +1,80 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonAllModel;
+import com.qin.crxl.comic.entity.vo.CartoonAllModelData;
+import com.qin.crxl.comic.service.CartoonAllModelService;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.game.entity.redis.JedisUtil;
+
+@Service
+public class CartoonAllModelServiceImpl extends BaseServiceImpl<CartoonAllModel> implements CartoonAllModelService{
+
+	@Override
+	public List<CartoonAllModel> getThisCartoonModel(String cartoonId) {
+		// 查询该漫画所有
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonId='"+cartoonId+"'");
+		return SQL("CartoonAllModel-"+cartoonId, 3600 ,sb.toString(), CartoonAllModel.class);
+	}
+
+	@Override
+	public boolean deleteThisCartoonModel(String id) {
+		// 删除漫画的漫画模块
+		boolean flag=false;
+		try {
+			CartoonAllModel cartoonAllModel=get(id);
+			if (cartoonAllModel==null) {
+				return flag;
+			}
+			super.delete(id);
+			JedisUtil.del("CartoonAllModel-"+cartoonAllModel.getCartoonId());
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	
+	@Override
+	public boolean addThisCartoonModel(String cartoonId, String cartoonModelId) {
+		// 增加该漫画 漫画模块
+		List<CartoonAllModel> list =getThisCartoonModelBycartoonModelId(cartoonModelId);
+		boolean flag=false;
+		try {
+			CartoonAllModel cartoonAllModel=new CartoonAllModel();
+			if (!ParaClick.clickList(list)) {
+				cartoonAllModel.setSort(10000);
+			}else{
+				cartoonAllModel.setSort(list.get(0).getSort()+1);
+			}
+			cartoonAllModel.setCartoonId(cartoonId);
+			cartoonAllModel.setCartoonModelId(cartoonModelId);
+			super.save(cartoonAllModel);
+			JedisUtil.del("CartoonAllModel-"+cartoonId);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	@Override
+	public List<CartoonAllModel> getThisCartoonModelBycartoonModelId(String cartoonModelId) {
+		// 查询该模块所有漫画所有
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+cartoonModelId+"' ORDER BY sort DESC");
+		return SQL("CartoonAllModelByModelId-"+cartoonModelId,3600,sb.toString(), CartoonAllModel.class);
+	}
+
+	@Override
+	public boolean updateSortByModel(CartoonAllModelData cartoonAllModelData) {
+		// 升降序置顶
+		return false;
+	}
+}

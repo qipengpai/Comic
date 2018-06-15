@@ -1,0 +1,81 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+import com.qin.crxl.comic.service.AdminUserOrderService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+/**
+ * 用户订单
+ * @author cui
+ *
+ */
+@Controller
+public class AdminUserOrderController {
+	@Autowired
+	private AdminUserOrderService adminUserOrderService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERORDER, method = RequestMethod.POST)
+	public Model selectUserOrder(UserOrderData userOrderData){
+		if(!ParaClick.clickString(userOrderData.getStarTime())&&!ParaClick.clickString(userOrderData.getEndTime())){
+			Long start = 0L;
+			Long end = 0L;
+			//开始时间
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					userOrderData.getStarTime() + " 00:00:00").getTime();
+			// 结束时间
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					userOrderData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间不能大于结束时间");
+			}
+		}
+		
+		int num=0;
+		double moneyWater=0.0;
+		if(ParaClick.clickString(userOrderData.getNowPage())){
+			userOrderData.setNowPage("1");
+		}
+		if(ParaClick.clickString(userOrderData.getPageNum())){
+			userOrderData.setPageNum("10");
+		}
+		List<Object[]> userOrderList = adminUserOrderService.selectUserOrder(userOrderData);
+		if(!ParaClick.clickList(userOrderList)){
+			return new Model(500,"查询失败");
+		}
+		num=adminUserOrderService.getCountUserOrder(userOrderData);
+		moneyWater=adminUserOrderService.moneyWater(userOrderData);
+		if(ParaClick.clickList(userOrderList)){
+			for(int i=0;i<userOrderList.size();i++){
+				try {
+					userOrderList.get(i)[3]=StringToInt.toString((String)userOrderList.get(i)[3]);
+					userOrderList.get(i)[4]=StringToInt.toString((String)userOrderList.get(i)[4]);
+				} catch (Exception e) {
+					userOrderList.get(i)[3]="潮人用户";
+					userOrderList.get(i)[4]="用户名不详";
+				}
+			}
+			Model model=new Model();
+			model.setError(200);
+			model.setMsg(String.valueOf(moneyWater));
+			model.setNowpage(Integer.parseInt(userOrderData.getNowPage()));
+			model.setTotalpage((num + Integer.parseInt(userOrderData.getPageNum()) - 1) / Integer.parseInt(userOrderData.getPageNum()));
+			model.setObj(userOrderList);
+			model.setTotalNum(num);
+			return model;
+		}
+		return new Model(500,"无数据");
+	}
+}

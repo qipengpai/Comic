@@ -1,0 +1,96 @@
+package com.qin.crxl.comic.action;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Product;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.ProductData;
+import com.qin.crxl.comic.service.ProductService;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class PayByIos {
+
+	@Autowired
+	private UserOrderService userOrderService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * Ios支付 pp
+	 * 
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.APP_IOS_PAY, method = RequestMethod.POST)
+	public Model getALL(ProductData productData) throws Exception {
+		productData.clickUser();
+		UserEntity userEntity = null;
+		if (!ParaClick.clickString(productData.getUuid())) {
+			productData.clickUser();
+			userEntity = userService.getUserInfoByAPP(productData.getUserId(),
+					productData.getUuid());
+			if (userEntity == null) {
+				return new Model(700, "无用户");
+			}
+		} else {
+			productData.clickUser();
+			userEntity = userService.getUserInfoById(productData.getUserId());
+			if (userEntity == null) {
+				return new Model(404, "无用户");
+			}
+		}
+		Product product = productService.get(productData.getId());
+		if (product == null) {
+			return new Model(500, "暂无商品");
+		}
+		boolean flag = userOrderService.addUserOrder(product,
+				userEntity.getUserId(), userEntity.getUsername());
+		if (flag) {
+			if ("2".equals(product.getType())) {
+				UserEntity entity = userService.updateMoney(
+						userEntity.getUserId(), product.getCurrency());
+				if (entity != null) {
+					entity.setNickname(StringToInt.toString(entity
+							.getNickname()));
+					System.out
+							.println("---------IOS---------success支付回调:订单---------");
+					return new Model(200, "充值成功");
+				} else {
+					System.out.println("-------IOS---------error---------");
+					return new Model(500, "充值失败");
+				}
+			} else if ("1".equals(product.getType())) {
+				boolean flag2 = userService.updateVipStateByIOS(
+						userEntity.getUserId(), product.getCurrency());
+				if (flag2) {
+					System.out.println("---------IOS---------success支付回调:订单---------");
+					return new Model(200, "充值成功");
+				} else {
+					System.out.println("-------IOS---------error---------");
+					return new Model(500, "充值失败");
+				}
+			}
+		}
+		return new Model(500, "充值失败");
+	}
+}

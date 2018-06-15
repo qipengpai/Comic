@@ -1,0 +1,124 @@
+package com.qin.crxl.comic.action;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.FollowCartoon;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class FollowCartoonController {
+
+	@Autowired
+	private FollowCartoonService followCartoonService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private CartoonService cartoonService;
+	/**
+	 * pp 关注
+	 * 
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.FOLLOW_CARTOON, method = RequestMethod.POST)
+	public Model getCartoonInfoById( CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.get(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (!ParaClick.clickString(cartoonData.getId())) {
+			return new Model(500, "ID为空 ");
+		}
+		boolean flag= followCartoonService.followCartoon(cartoonData,userEntity);
+		if (!flag) {
+			return new Model(500, "关注失败 ");
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<FollowCartoon> followCartoon =followCartoonService.getFollowByid(cartoonData,userEntity);
+		if (!ParaClick.clickList(followCartoon)) {
+			map.put("followCartoon", 0);
+		} else {
+			map.put("followCartoon", 1);
+		}
+		return new Model(200, map);
+	}
+	/**
+	 * pp 
+	 * app>書架 >取消關注
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.CANCEL_FOLLOW_CARTOON, method = RequestMethod.POST)
+	public Model deleteCartoonInfoById( CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.get(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (!ParaClick.clickString(cartoonData.getId())) {
+			return new Model(500, "ID为空 ");
+		}
+		boolean flag= followCartoonService.deleteFollowCartoon(cartoonData,userEntity);
+		if (!flag) {
+			return new Model(500, "取消关注失败 ");
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<FollowCartoon> followCartoon =followCartoonService.getFollowByid(cartoonData,userEntity);
+		if (!ParaClick.clickList(followCartoon)) {
+			map.put("followCartoon", 0);
+		} else {
+			map.put("followCartoon", 1);
+		}
+		return new Model(200, map);
+	}
+	/**
+	 * pp 
+	 * app>書架 >我的書架
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_MY_FOLLOW_CARTOON, method = RequestMethod.POST)
+	public Model getCartoonByBookshelf(CartoonData cartoonData)
+			throws Exception {
+		cartoonData.clickUser();
+		UserEntity userEntity = userService.get(cartoonData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		Model model =new Model();
+		int num =followCartoonService.getCartoonByBookshelfCount(cartoonData,userEntity);
+		if (num==0) {
+			return new Model(500, "暫無收藏");
+		}
+		List<FollowCartoon> list= followCartoonService.getCartoonByBookshelf(cartoonData,userEntity);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "暫無收藏");
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list);
+		return model;
+	}
+}

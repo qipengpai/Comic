@@ -1,0 +1,52 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.Barrage;
+import com.qin.crxl.comic.entity.vo.BarrageData;
+import com.qin.crxl.comic.service.BarrageService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class BarrageServiceImpl extends BaseServiceImpl<Barrage> implements
+		BarrageService {
+
+	@Override
+	public boolean addComicBarrage(BarrageData bannerData) {
+		// 增加弹幕
+		boolean flag = false;
+		try {
+			Barrage barrage = new Barrage();
+			barrage.setCartoonId(bannerData.getCartoonId());
+			barrage.setCartoonSetId(bannerData.getCartoonSetId());
+			barrage.setContentDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			barrage.setContentInfo(bannerData.getContentInfo());
+			barrage.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			barrage.setCartoonPhotoId(bannerData.getCartoonPhotoId());
+			barrage.setUserId(bannerData.getUserId());
+			barrage.setState(1);
+			save(barrage);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	@Override
+	public List<Barrage> getComicBarrage(BarrageData bannerData) {
+		// 查看barrrage
+		List<Barrage> list = SQL(
+				"SELECT * from Barrage WHERE state=1 AND cartoonId='"
+						+ bannerData.getCartoonId() + "' AND cartoonSetId='"
+						+bannerData.getCartoonSetId()+"' AND cartoonPhotoId='"
+						+bannerData.getCartoonPhotoId()+"'", Barrage.class);
+		return list;
+	}
+
+}

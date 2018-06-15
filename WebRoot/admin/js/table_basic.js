@@ -1,0 +1,575 @@
+/*定义搜索条件*/
+var search;
+/*定义页面容量*/
+var pageNum;
+/*定义页数*/
+var nowpage;
+
+$(function(){
+	/*页面开始调用接口*/
+	if (GetQueryString("nowpage")){
+		nowpage = GetQueryString("nowpage");
+	}else{
+		nowpage = $(".pagination-num").val();
+	}
+	/*判断页面容量*/
+	if(GetQueryString("pageNum")){
+		pageNum = GetQueryString("pageNum");
+		/*$(".pagination-page-list").find("option[text='pageNum']").attr("selected",true); */
+		$(".pagination-page-list").val(pageNum);
+	}else{
+		pageNum = $(".pagination-page-list").val();
+	}
+	/*判断搜索条件*/
+	if(GetQueryString("search")){
+		search = GetQueryString("search");
+	}else{
+		search = $("#select").val();
+	}
+
+	tablebasic();
+	
+});
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+/*页面进行时渲染数据*/
+function tablebasic(){
+	/*判断页数*/
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"condition":search ,
+			"pageNum" : pageNum ,
+			"nowpage" : nowpage
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-page-list").val(pageNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				$("#select").val(search);
+				$("#jilu").html(data.totalNum);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoonAllModel == ""){
+						var cartoonAllModel = "空";
+					}else{
+						var cartoonAllModel = data.obj[i].cartoonAllModel;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+					
+					if(data.obj[i].cartoon.serialState == 1){
+						var updateType = "连载中";
+					}else if(data.obj[i].cartoon.serialState == 0){
+						var updateType = "已完结";
+					}
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.anroidState == 1){
+						var anroidState = "<a onclick='android(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.anroidState == 0){
+						var anroidState = "<a onclick='android(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.iosState == 1){
+						var iosState = "<a onclick='ios(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.iosState == 0){
+						var iosState = "<a onclick='ios(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.distributorState == 1){
+						var distributorState = "<a onclick='distributor(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.distributorState == 0){
+						var distributorState = "<a onclick='distributor(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					cartoonAllModel + 
+					"<a class='collapse-link' onclick='selectemodule(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td><input type='number' class='gzrs gzrs"+i+"' value='"+data.obj[i].cartoon.followCount+"'>" +
+					"<a class='collapse-link' onclick='gzrs(&quot;"+i+"&quot;,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-chevron-up'></i></a>"+
+					"</td>" +
+					"<td><input type='number' class='bfl bfl"+i+"' value='"+data.obj[i].cartoon.playCount+"'>" +
+					"<a class='collapse-link' onclick='bfl(&quot;"+i+"&quot;,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-chevron-up'></i></a>"+
+					"</td>" +
+					"<td><input type='number' class='pl pl"+i+"' value='"+data.obj[i].cartoon.commentCount+"'>" +
+					"<a class='collapse-link' onclick='pl(&quot;"+i+"&quot;,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-chevron-up'></i></a>"+
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					iosState +
+					"</td>" +
+					"<td>" +
+					anroidState +
+					"</td>" +
+					"<td>" +
+					distributorState +
+					"</td>" +
+					"<td><input type='number' class='tjzs tjzs"+i+"' value='"+data.obj[i].cartoon.recommendationIndex+"'>" +
+					"<a class='collapse-link' onclick='tjzs(&quot;"+i+"&quot;,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-chevron-up'></i></a>"+
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td>"+
+						"<span onclick='lianjie(&quot;"+data.obj[i].cartoon.id+"&quot;)'>生成链接</span>"+
+					"</td>"+
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span>" +
+					/*"<span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>"+*/
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+            
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+
+/* 删除    */
+function deleter(id){   
+	$("#cunzhi").val(id);
+	$('#myModal').modal('show');
+	$('#myModalLabel').html('系统提示');
+	$('#textcontent').html('是否删除当前内容');
+	$('#btngroup').html('<button type="button" class="btn btn-default" onclick="del()" id="delbtn">删除</button><button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');			
+}
+/* 删除当前 */
+function del(){
+	var id=$("#cunzhi").val();
+	$.ajax({
+			url:"/Comic/qpp/comic/delete/cartoon.do",
+			type:"post",
+			data:{
+				"id":id
+			},
+			success:function(data){
+				if(data.error == 200){
+					$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" onclick="off()" id="confirmbtn">关闭</button>');			
+					
+				}
+				
+				
+				
+			}
+		
+		});
+}
+function off(){
+	$("#tbody").empty();
+	tablebasic();
+}
+function btnbtn(){
+	top.location.href="http://192.168.1.20:8080/index?userId=1";
+}
+/*页码的第一个*/
+function leftbottom(){
+	nowpage = 1;
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+/*页码的上一个*/
+function leftcenter(){
+	nowpage = ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1;
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+
+/*页码的最后一个*/
+function rightbottom(){
+	nowpage = $(".pagination-data").html();
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+/*页码的后一个*/
+function rightcenter(){
+	nowpage = (parseInt($(".pagination-num").val())<parseInt($(".pagination-data").html()))?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html();
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+/*修改页面*/
+function edit(id){
+	window.location.href = "table_basic_edit.html?id="+id+"&search="+$("#select").val()+"&pageNum="+$(".pagination-page-list").val()+"&nowpage="+$(".pagination-num").val();
+}
+/*查看画*/
+function watch(id){
+	window.location.href = "table_basic_watch.html?id="+id+"&search="+$("#select").val()+"&pageNum="+$(".pagination-page-list").val()+"&nowpage="+$(".pagination-num").val();
+}
+/*查询所有类型*/
+function selecter(id){
+	window.location.href = "table_basic_select.html?id="+id+"&search="+$("#select").val()+"&pageNum="+$(".pagination-page-list").val()+"&nowpage="+$(".pagination-num").val();
+}
+/*查询模块*/
+function selectemodule(id){
+	window.location.href = "module_select.html?id="+id+"&search="+$("#select").val()+"&pageNum="+$(".pagination-page-list").val()+"&nowpage="+$(".pagination-num").val();
+}
+/*修改热度*/
+function hot(hot,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"hot":hot,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+/*修改上架状态*/
+function grounding(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+/*上*/
+function topp(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot" :hot 
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}	
+		}
+	});
+}
+/*下*/
+function bottomm(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot":hot
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}	
+		}
+	});
+}
+/*置顶*/
+function stick(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot":hot
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}	
+		}
+	});
+}
+/*页码数量时*/
+function change(){
+	nowpage = (parseInt($(".pagination-num").val())<parseInt($(".pagination-data").html()))?(parseInt($(".pagination-num").val())):$(".pagination-data").html();
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+/*搜索条件时*/
+function sousuo(){
+	nowpage = 1;
+	search = $("#select").val();
+	pageNum = $(".pagination-page-list").val();
+	tablebasic()
+}
+/*关注人数*/
+function gzrs(i,id){
+	$.ajax({
+		url:"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"id":id,
+			"followCount" : $(".gzrs"+i).val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}
+// 播放量
+function bfl(i,id){
+	$.ajax({
+		url:"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"id":id,
+			"playCount" : $(".bfl"+i).val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}
+//评论
+function pl(i,id){
+	$.ajax({
+		url:"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"id":id,
+			"commentCount" : $(".pl"+i).val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}
+//推荐指数
+function tjzs(i,id){
+	$.ajax({
+		url:"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"id":id,
+			"recommendationIndex" : $(".tjzs"+i).val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+			
+		}
+	})
+}
+//安卓上下架
+function android(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"anroidState":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+//ios上下架
+function ios(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"iosState":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+//分销商上下架
+function distributor(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"distributorState":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	});
+}
+//生成链接
+function lianjie(id){
+	$.ajax({
+		type:"post",
+		data:{
+			"cartoonId":id
+		},
+		url:"/Comic/qpp/comic/add/cartoon/tuiwen/lianjie.do",
+		success:function(data){
+			if(data.error == 200){
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+//				tablebasic();
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+			}
+		}
+	})
+}

@@ -1,0 +1,88 @@
+package com.qin.crxl.comic.timer;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.TimerTask;
+
+import javax.servlet.ServletContext;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import test.HttpRequest;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+
+public class UpdateDatabases extends TimerTask {
+	@Autowired
+	private CartoonService cartoonService;
+	@Autowired
+	private CartoonSetService cartoonSetService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private FollowCartoonService followCartoonService;
+	@Autowired
+	private CartoonCommentService cartoonCommentService;
+
+	private static boolean isRunning = false;
+	@SuppressWarnings("unused")
+	private ServletContext context = null;
+
+	public UpdateDatabases(ServletContext servletContext) {
+		this.context = servletContext;
+	}
+
+	@Override
+	public void run() {
+		// 查询
+//		System.out.println("备份漫画参数");
+//		System.out.println("###################更新数据");
+//		String url = "http://192.168.1.39:8080/Comic/backups/cartoon/data.do";
+//		try {
+//			String model = HttpRequest.sendPost(url, "");
+//			JSONObject json = JSONObject.fromObject(model);
+//			System.out.println(json.toString());
+//			@SuppressWarnings({ "unchecked", "rawtypes" })
+//			Map<String, Object> m = (Map) json;
+//			System.out.println(m.get("msg"));
+//			if ("200".equals(m.get("msg"))) {
+//				System.out.println("更新数据成功");
+//			} else {
+//				System.out.println("更新数据失败");
+//			}
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//			e.printStackTrace();
+//			System.out.println("更新数据失败");
+//		}
+		System.out.println("备份漫画参数");
+		System.out.println("###################更新数据");
+		String url = "http://192.168.1.39:8080/Comic/app/Check/vip.do";
+		try {
+			String model = HttpRequest.sendPost(url, "");
+			JSONObject json = JSONObject.fromObject(model);
+			System.out.println(json.toString());
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Map<String, Object> m = (Map) json;
+			System.out.println(m.get("msg"));
+			if ("200".equals(m.get("msg"))) {
+				System.out.println("更新数据成功");
+			} else {
+				System.out.println("更新数据失败");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("更新数据失败");
+		}
+	}
+
+}

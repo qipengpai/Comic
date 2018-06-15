@@ -1,0 +1,36 @@
+package com.qin.crxl.comic.tool;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DateUtil {
+
+	public static String getdate(){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		return df.format(new Date());
+	}
+	
+	public static String getdate_yyyy_MM_dd(){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+		return df.format(new Date());
+	}  
+	public static String dateToTimeStamp(Date date){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+		return df.format(date);
+    }
+	public static String getdate_yyyy_MM_dd_Hms(Date date){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		return df.format(date);
+	}
+	public static Date getdate_yyyy_MM_dd_00_00_00(String startDate){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+		Date date = null;
+		try {
+			date = df.parse(startDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return date;
+	}
+}

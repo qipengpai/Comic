@@ -1,0 +1,138 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.News;
+import com.qin.crxl.comic.entity.vo.NewsData;
+import com.qin.crxl.comic.service.AdminNewsService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminNewsServiceImpl extends BaseServiceImpl<News> implements AdminNewsService{
+
+	@Override
+	public boolean addNews(NewsData newsData) {
+		
+		try {
+			News news=new News();
+			news.setContent(newsData.getContent());//消息内容
+			news.setTitle(newsData.getTitle());//消息标题
+			news.setType(newsData.getType());//消息类型
+			String time=DateUtil.getdate();
+			news.setSendDate(time);//发送时间
+			news.setImplDate(time);//操作时间
+			super.save(news);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteNews(NewsData newsData) {
+		News news=null;
+		try {
+			news=super.get(newsData.getId());
+			if(ParaClick.clickObj(news)){
+				super.delete(newsData.getId());
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateNews(NewsData newsData) {
+		News news=null;
+		try {
+			news=super.get(newsData.getId());
+			if(ParaClick.clickObj(news)){
+				if (!ParaClick.clickString(newsData.getContent())) {
+					news.setContent(newsData.getContent());
+				}
+				if (!ParaClick.clickString(newsData.getContent())) {
+					news.setContent(newsData.getContent());
+				}
+				if (!ParaClick.clickString(newsData.getTitle())) {
+					news.setTitle(newsData.getTitle());
+				}
+				if (!ParaClick.clickString(newsData.getType())) {
+					news.setType(newsData.getType());
+				}
+				if (!ParaClick.clickString(newsData.getSendDate())) {
+					news.setSendDate(newsData.getSendDate());
+				}
+				if (!ParaClick.clickString(newsData.getState())) {
+					news.setState(Integer.parseInt(newsData.getState()));
+				}
+				news.setImplDate(DateUtil.getdate());
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public List<News> selectNews(NewsData newsData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from News where 1=1");
+		if (!ParaClick.clickString(newsData.getContent())) {
+			sb.append(" AND ((content like '%"+ newsData.getContent()+"%') or"
+							+ "(title like '%"+ newsData.getContent()+"%')  or"
+							+ "(type like '%"+  newsData.getContent()+"%'))");
+		}
+		if(!ParaClick.clickString(newsData.getState())){
+			sb.append(" and state="+newsData.getState());
+		}
+		if(!ParaClick.clickString(newsData.getSendDate())){
+			sb.append(" and sendDate like '"+newsData.getSendDate()+"%'");
+		}
+		sb.append(" order by sendDate DESC,implDate DESC LIMIT "
+				+ (Integer.parseInt(newsData.getNowPage()) - 1) * Integer.parseInt(newsData.getPageNum()) + ","
+				+ Integer.parseInt(newsData.getPageNum()));
+		List<News> sql = SQL(sb.toString(),News.class);
+		return sql;
+	}
+	
+	
+	@Override
+	public int getCountNews(NewsData newsData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select count(*) from News where 1=1");
+		if (!ParaClick.clickString(newsData.getContent())) {
+			sb.append(" AND (content like '%"+ newsData.getContent()+"%' or title like '%"+newsData.getContent()+"%')");
+		}
+		if(!ParaClick.clickString(newsData.getType())){
+			sb.append(" and type="+newsData.getType());
+		}
+		if(!ParaClick.clickString(newsData.getState())){
+			sb.append(" and state="+newsData.getState());
+		}
+		if(!ParaClick.clickString(newsData.getSendDate())){
+			sb.append(" and sendDate like '"+newsData.getSendDate()+"%'");
+		}
+		int gettotalpage=0;
+		try {
+			gettotalpage = super.gettotalpage(sb.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return gettotalpage;
+	}
+
+	@Override
+	public News selectNewsById(NewsData newsData) {
+		return super.get(newsData.getId());
+	}
+
+	
+
+}

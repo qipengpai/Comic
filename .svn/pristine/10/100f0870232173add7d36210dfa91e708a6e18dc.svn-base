@@ -1,0 +1,22 @@
+package com.qin.crxl.comic.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.CartoonTask;
+import com.qin.crxl.comic.entity.UserEntity;
+
+@Service
+@Transactional
+public interface CartoonTaskServcie extends BaseService<CartoonTask>{
+
+	CartoonTask updateQianDao(UserEntity entity, String newTime);
+
+	CartoonTask updateQianDao2(UserEntity entity);
+
+	boolean addCartoonTask(UserEntity entity);
+
+	boolean addCartoonTask2(UserEntity entity, CartoonTask cartoonTask2);
+
+}

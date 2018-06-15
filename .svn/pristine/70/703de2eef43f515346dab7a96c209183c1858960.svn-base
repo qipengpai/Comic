@@ -1,0 +1,298 @@
+ package com.qin.crxl.comic.action;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonComment;
+import com.qin.crxl.comic.entity.CartoonCommentVeryOk;
+import com.qin.crxl.comic.entity.CartoonSetComment;
+import com.qin.crxl.comic.entity.CommentVeryOk;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonCommentData;
+import com.qin.crxl.comic.entity.vo.CartoonSetCommentData;
+import com.qin.crxl.comic.entity.vo.User;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.service.CartoonCommentVeryOkService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Controller
+public class CartoonCommentController {
+
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private CartoonCommentService cartoonCommenService;
+	@Autowired
+	private CartoonCommentVeryOkService cartoonCommentVeryOkService;
+
+	/**
+	 * pp
+	 * @Remarks 发现>详情>查看评论>  + + + - 
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOOMCOMMENT, method = RequestMethod.POST)
+	public Model getAllCartoonComment(CartoonCommentData cartoonCommentData) throws Exception {
+		Model model = new Model();
+		List<Map<String, Object>> list2 = new ArrayList<Map<String, Object>>();
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		int num = cartoonCommenService
+				.getAllCartoonCommentCount(cartoonCommentData);
+		if (num == 0) {
+			return new Model(500, "查询信息数量异常");
+		}
+		List<CartoonComment> list = cartoonCommenService
+				.getALLCartoonComment(cartoonCommentData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询评论集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<CartoonComment> cartoonComment = cartoonCommenService
+					.getCartoonCommentTwo(list.get(i).getId());
+			List<Object> list4 = new ArrayList<Object>();
+			for (int j = 0; j < cartoonComment.size(); j++) {
+				Map<String, Object> map2 = new HashMap<String, Object>();
+				UserEntity userentity = userService.get(cartoonComment.get(j)
+						.getUserId());
+				map2.put("user", userentity);
+				map2.put("cartoonCommentson", cartoonComment.get(j));
+				list4.add(map2);
+			}
+			map.put("list", list4);
+			UserEntity user = userService.get(list.get(i).getUserId());
+			map.put("user", user);
+			List<CartoonCommentVeryOk> list3 = cartoonCommentVeryOkService
+					.getUserCartoonCommentVeryOk(list.get(i).getId(),
+							userEntity);
+			if (!ParaClick.clickList(list3)) {
+				map.put("veryOk", 0);
+			} else {
+				map.put("veryOk", 1);
+			}
+			map.put("cartoonComment", list.get(i));
+			list2.add(map);
+		}
+	/*	if (Integer.parseInt(cartoonCommentData.getBestNew()) == 0) {
+			Collections.sort(list2, new Comparator<Map<String, Object>>() {
+				@Override
+				public int compare(Map<String, Object> o1,
+						Map<String, Object> o2) {
+					// 排序
+					CartoonComment ca = (CartoonComment) o1
+							.get("cartoonComment");
+					CartoonComment ca2 = (CartoonComment) o2
+							.get("cartoonComment");
+					Integer tag1 = new Integer(ca.getOkCount());
+					Integer tag2 = new Integer(ca2.getOkCount());
+					return tag1.compareTo(tag2);
+				}
+			});
+		}*/
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonCommentData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+	/**
+	 * pp
+	 * 
+	 * @Remarks 漫畫>查看评论> 根據id查詢評論
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOOMCOMMENT_BYID, method = RequestMethod.POST)
+	public Model getAllCartoonCommentById(
+			CartoonCommentData cartoonCommentData) throws Exception {
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService
+				.getUserInfoById(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		CartoonComment cartoonComment = cartoonCommenService
+				.get(cartoonCommentData.getId());
+		UserEntity userEntity2 = userService.get(cartoonComment.getUserId());
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<CartoonCommentVeryOk> list3 = cartoonCommentVeryOkService
+				.getUserCartoonCommentVeryOk(cartoonComment.getId(),
+						userEntity);
+		if (!ParaClick.clickList(list3)) {
+			map.put("veryOk", 0);
+		} else {
+			map.put("veryOk", 1);
+		}
+		map.put("cartoonSetComment", cartoonComment);
+		map.put("userEntity", userEntity2);
+		return new Model(200,map);
+	}
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>发表评论> +   +  +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOOMCOMMENT, method = RequestMethod.POST)
+	public Model addCartoonComment(CartoonCommentData cartoonCommentData) throws Exception {
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (ParaClick.clickString(cartoonCommentData.getCartoonId())) {
+			return new Model(404, "漫画id为空");
+		}
+		if (ParaClick.clickString(cartoonCommentData.getCommentInfo())) {
+			return new Model(404, "内容为空");
+		}
+		boolean flag = cartoonCommenService.addCartoonComment(
+				cartoonCommentData, userEntity);
+		if (!flag) {
+			return new Model(500, "评论异常");
+		}
+		return new Model(200, "评论成功");
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>查看评论>查看评论的评论 +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_ALL_CARTOOMCOMMENTSET, method = RequestMethod.POST)
+	public Model getAllCartoonCommentSetConmment(HttpSession session,
+			CartoonCommentData cartoonCommentData) throws Exception {
+		Model model = new Model();
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService.get(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (ParaClick.clickString(cartoonCommentData.getNowPage())) {
+			cartoonCommentData.setNowPage("1");
+		}
+		List<Object> list2 = new ArrayList<Object>();
+		int num = cartoonCommenService
+				.getCartoonComment2Count(cartoonCommentData);
+		if (num == 0) {
+			return new Model(500, "查询信息数量异常");
+		}
+		List<CartoonComment> list = cartoonCommenService
+				.getALLCartoonCommentByCommentId(cartoonCommentData);
+		if (!ParaClick.clickList(list)) {
+			return new Model(500, "查询话集异常");
+		}
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("cartoonComment", list.get(i));
+			UserEntity user = userService.get(list.get(i).getUserId());
+			map.put("user", user);
+			list2.add(map);
+		}
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonCommentData.getNowPage()));
+		model.setTotalpage((num + 10 - 1) / 10);
+		model.setObj(list2);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>发表评论>评论评论 + +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOOMCOMMENTSET, method = RequestMethod.POST)
+	public Model addCartoonCommentSetConmment(HttpSession session,
+			CartoonCommentData cartoonCommentData) throws Exception {
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		/*if (userEntity.getUserId() == cartoonCommentData.getUserId()) {
+			return new Model(403, "不能给自己评论");
+		}*/
+		if (ParaClick.clickString(cartoonCommentData.getId())) {
+			return new Model(404, "评论id为空");
+		}
+		if (ParaClick.clickString(cartoonCommentData.getCommentInfo())) {
+			return new Model(404, "内容为空");
+		}
+		boolean flag = cartoonCommenService.addCartoonCommentSetConmment(
+				cartoonCommentData, userEntity);
+		if (!flag) {
+			return new Model(500, "评论异常");
+		}
+		return new Model(200, "评论成功");
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks 发现>详情>发表评论>点赞评论 +  +
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOOMCOMMENT_OK, method = RequestMethod.POST)
+	public Model addCartoonCommentOkCount(HttpSession session,
+			CartoonCommentData cartoonCommentData) throws Exception {
+		cartoonCommentData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(cartoonCommentData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (ParaClick.clickString(cartoonCommentData.getCommentId())) {
+			return new Model(404, "评论id为空");
+		}
+		boolean flag = cartoonCommentVeryOkService.addVeryOK(
+				cartoonCommentData, userEntity);
+		if (!flag) {
+			return new Model(500, "点赞异常");
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		CartoonComment cartoonComment = cartoonCommenService
+				.get(cartoonCommentData.getCommentId());
+		if (cartoonComment == null) {
+			return new Model(500, "评论為空");
+		}
+		List<CartoonCommentVeryOk> list3 = cartoonCommentVeryOkService
+				.getUserCartoonCommentVeryOk(cartoonComment.getId(), userEntity);
+		if (!ParaClick.clickList(list3)) {
+			map.put("veryOk", 0);
+		} else {
+			map.put("veryOk", 1);
+		}
+		/*
+		 * int
+		 * count=cartoonCommentVeryOkService.getUserVseryOkCount(cartoonComment
+		 * .getId()); cartoonComment.setOkCount(count);
+		 */
+		map.put("cartoonComment", cartoonComment);
+		return new Model(200, map);
+	}
+}

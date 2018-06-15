@@ -1,0 +1,79 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class MallCartoonOrder extends BaseEntity implements Serializable{
+
+	@SuppressWarnings("static-access")
+	@Id
+	@Column(nullable=false,columnDefinition="VARCHAR(32) default 0") 
+	private String id = ran.generateString(32);
+	private String userId="";
+	private String cartoonId="";
+	private String cartoonSetId="";
+	private String orderNum="";
+	private int orderMoney=0;
+	private int orderState=0;
+	private String orderDate="";
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getCartoonId() {
+		return cartoonId;
+	}
+	public void setCartoonId(String cartoonId) {
+		this.cartoonId = cartoonId;
+	}
+	public String getCartoonSetId() {
+		return cartoonSetId;
+	}
+	public void setCartoonSetId(String cartoonSetId) {
+		this.cartoonSetId = cartoonSetId;
+	}
+	public String getOrderNum() {
+		return orderNum;
+	}
+	public void setOrderNum(String orderNum) {
+		this.orderNum = orderNum;
+	}
+	public int getOrderMoney() {
+		return orderMoney;
+	}
+	public void setOrderMoney(int orderMoney) {
+		this.orderMoney = orderMoney;
+	}
+	public int getOrderState() {
+		return orderState;
+	}
+	public void setOrderState(int orderState) {
+		this.orderState = orderState;
+	}
+	public String getOrderDate() {
+		return orderDate;
+	}
+	public void setOrderDate(String orderDate) {
+		this.orderDate = orderDate;
+	}
+
+
+}

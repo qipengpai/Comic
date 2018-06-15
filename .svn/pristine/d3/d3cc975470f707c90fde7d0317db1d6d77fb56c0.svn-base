@@ -1,0 +1,192 @@
+
+function mall(){
+	if($(".byname").val()!== ""){
+		$.ajax({
+			type:"post",
+			url:"/Comic/qpp/comic/add/cartoon.do",
+			data:{
+				"firsrtType": $("#firstclass").val(),
+				"cartoonName":$("#byname").val(),
+				"cartoonAuthor":$("#author").val(),
+				"updateTile":$("#title").val(),
+				"updateType":$("#type").val(),
+				"mainPhoto":$("#mainPhoto").val(),
+				"introduction":$("#introduction").val(),
+				"midelPhoto":$("#midelPhoto").val(),
+				"smallPhoto":$("#smallPhoto").val(),
+				"introduc":$("#introduc").val(),
+				"cartoonAuthorPic":$("#authorPhoto").val()
+			},
+			success:function(data){
+//				alert(1);
+				if(data.error == 200){
+					window.location.href='mallinfoadd_add.html?id='+data.msg;
+				}
+				
+			}
+		});
+	}else{
+		alert("请填写所有信息");
+	}
+	
+};
+ 
+/*function showPreview(source) {
+	var file = source.files[0];
+	if(window.FileReader) {
+		var fr = new FileReader();
+		          console.log(fr);
+		          var portrait = document.getElementById('portrait');
+		          fr.onloadend = function(e) {
+		            portrait.src = e.target.result;
+		          };
+		          fr.readAsDataURL(file);
+		          portrait.style.display = 'block';
+	 }
+}*/
+/*function showPreview(source) {
+	
+	var file = source.files[0].name;
+	alert(file)
+	$.ajax({
+		type:"post",
+		url:"/Comic/app/uplod/multipartFile.do",
+		data: {
+			"file":file
+			}
+		
+	});
+}*/
+  
+function mainphoto(){
+	var formData = new FormData($(".uploadForm" )[0]); 
+//  console.log(formData)
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		  $(".form-group_input .filename01").css("max-width","100%");
+     		  lujing01 = returndata.obj[0];
+         	 $("#mainPhoto").val(lujing01);
+         	 $(".mainPhoto").attr("src",lujing01);
+         	  
+     	  }
+     	  
+       },    
+       error: function (returndata) {    
+           alert(returndata);    
+       }    
+  }); 
+	
+}
+function introduction(){
+	var formData = new FormData($(".uploadForm" )[1]); 
+//  console.log(formData)
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		 $(".form-group_input .filename02").css("max-width","100%");
+     		  lujing01 = returndata.obj[0];
+         	 $("#introduction").val(lujing01);
+         	 $(".introduction").attr("src",lujing01);
+         	  
+     	  };
+     	  
+       },
+       error: function (returndata) {    
+           alert(returndata);    
+       }  
+  })
+      
+}
+function midelPhoto(source){
+	var formData = new FormData($(".uploadForm" )[2]); 
+//  console.log(formData)
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		 $(".form-group_input .filename03").css("max-width","100%");
+     		  lujing01 = returndata.obj[0];
+         	 $("#midelPhoto").val(lujing01);
+         	 $(".midelPhoto").attr("src",lujing01);
+         	  
+     	  };
+     	  
+       },
+       error: function (returndata) {    
+           alert(returndata);    
+       }  
+  })
+}
+function smallPhoto(source){
+	var formData = new FormData($(".uploadForm" )[3]); 
+//  console.log(formData)
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		 $(".form-group_input .filename04").css("max-width","100%");
+     		  lujing01 = returndata.obj[0];
+         	 $("#smallPhoto").val(lujing01);
+         	 $(".smallPhoto").attr("src",lujing01);
+         	  
+     	  };
+     	  
+       },
+       error: function (returndata) {    
+           alert(returndata);    
+       }  
+  })
+}
+function authorPhoto(){
+	var formData = new FormData($(".uploadForm" )[4]); 
+//  console.log(formData)
+  $.ajax({    
+       url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+       type: 'POST',    
+       data: formData,    
+       async: false,    
+       cache: false,    
+       contentType: false,    
+       processData: false,    
+       success: function (returndata) {  
+     	  if(returndata.error==200){
+     		 $(".form-group_input .filename05").css("max-width","100%");
+     		  lujing01 = returndata.obj[0];
+         	 $("#authorPhoto").val(lujing01);
+         	 $(".authorPhoto").attr("src",lujing01);
+         	  
+     	  };
+     	  
+       },
+       error: function (returndata) {    
+           alert(returndata);    
+       }  
+  })
+}

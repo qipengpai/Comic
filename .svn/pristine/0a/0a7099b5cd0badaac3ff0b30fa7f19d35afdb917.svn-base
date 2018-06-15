@@ -1,0 +1,89 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonCommentVeryOk;
+import com.qin.crxl.comic.entity.FriendsCircle;
+import com.qin.crxl.comic.entity.FriendsVeryOk;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.FriendsCircleData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.FriendsCircleService;
+import com.qin.crxl.comic.service.FriendsVeryOkService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class FriendsVeryOkServiceImpl extends BaseServiceImpl<FriendsVeryOk>
+		implements FriendsVeryOkService {
+	/*@Autowired
+	private FriendsCircleService friendCircleService;
+	*/
+	@Override
+	public boolean deleteByFriendsCircleVeryOkId(
+			FriendsCircleData friendsCircleData) {
+		// 删除该朋友圈的所有点赞记录
+		boolean flag=true;
+		try {
+			List<FriendsVeryOk> list= SQL("SELECT * FROM FriendVeryOk WHERE friendCommentId='"+friendsCircleData.getId()+"'",FriendsVeryOk.class);
+			if (!ParaClick.clickList(list)) {
+				flag=true;
+				return flag;
+			}
+			for (int i = 0; i < list.size(); i++) {
+				FriendsVeryOk friendVeryOk=super.get(list.get(i).getId());
+				if (friendVeryOk==null) {
+					return flag;
+				}
+				super.delete(list.get(i).getId());
+			}
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addVeryOK(FriendsCircleData friendsCircleData,
+			UserEntity userEntity) throws Exception {
+		// 给朋友圈点赞 
+		boolean flag=false;
+		try {
+			FriendsVeryOk friendsVeryOk=new FriendsVeryOk();
+			friendsVeryOk.setUserId(userEntity.getUserId());
+			friendsVeryOk.setOkState(1);
+			friendsVeryOk.setFriendCircleId(friendsCircleData.getId());
+			friendsVeryOk.setOkDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			save(friendsVeryOk);
+		/*	boolean flag2=friendCircleService.addFriendVeryOkCount(friendsCircleData);
+			if(!flag2){
+				throw new BusinessException("增加點贊次數");
+			}*/
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		super.SQL("UPDATE FriendsCircle SET okCount=(okCount+1) WHERE id='"+friendsCircleData.getId()+"'");
+		return flag;
+	}
+
+	@Override
+	public List<FriendsVeryOk> getUserFriendsCircleVeryOk(String id,
+			UserEntity userEntity) {
+		// 查看该用户是否给本条朋友圈点赞
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT * FROM CartoonCommentVeryOk WHERE userId='"+userEntity.getUserId()+"' and friendCircleId = '"+id+"' ");
+		List<FriendsVeryOk> list=SQL(sb.toString(),FriendsVeryOk.class);
+		return list;
+	}
+
+}

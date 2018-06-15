@@ -1,0 +1,132 @@
+package com.qin.crxl.comic.action;
+
+import java.text.DecimalFormat;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.vo.MallCartoonOrderData;
+import com.qin.crxl.comic.service.AdminMallCartoonOrderService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+/**
+ * 用户用咔咔豆充值漫画
+ * @author cui
+ *
+ */
+@Controller
+public class AdminMallCartoonOrderController {
+	@Autowired
+	private AdminMallCartoonOrderService adminMallCartoonOrderService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_MALLCARTOONORDER, method = RequestMethod.POST)
+	public Model selectAdminMallCartoonOrder(MallCartoonOrderData mallCartoonOrderData){
+		if(!ParaClick.clickString(mallCartoonOrderData.getStarTime())&&!ParaClick.clickString(mallCartoonOrderData.getEndTime())){
+			Long start = 0L;
+			Long end = 0L;
+			//开始时间
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getStarTime() + " 00:00:00").getTime();
+			// 结束时间
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间不能大于结束时间");
+			}
+		}
+		int num=0;
+		if(ParaClick.clickString(mallCartoonOrderData.getNowPage())){
+			mallCartoonOrderData.setNowPage("1");
+		}
+		if(ParaClick.clickString(mallCartoonOrderData.getPageNum())){
+			mallCartoonOrderData.setPageNum("10");
+		}
+		List<Object[]> mallCartoonOrderList = adminMallCartoonOrderService.selectMallCartoonOrder(mallCartoonOrderData);
+		if(!ParaClick.clickList(mallCartoonOrderList)){
+			return new Model(500,"查询失败");
+		}
+		num=adminMallCartoonOrderService.getCount(mallCartoonOrderData);
+		//总收益
+		double moneyAll = adminMallCartoonOrderService.moneyAll(mallCartoonOrderData);
+		double allMoney=0.0;
+		DecimalFormat    df   = new DecimalFormat("######0.00");
+		for(int i=0;i<mallCartoonOrderList.size();i++){
+			try {
+				double money = Double.parseDouble(String.valueOf(mallCartoonOrderList.get(i)[5]));
+				double cartoonWater=money;
+				allMoney+=cartoonWater;
+				mallCartoonOrderList.get(i)[2]=StringToInt.toString((String)mallCartoonOrderList.get(i)[2]);
+			} catch (Exception e) {
+				mallCartoonOrderList.get(i)[2]="潮人用户";
+			}
+		}
+		Model model=new Model();
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(mallCartoonOrderData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(mallCartoonOrderData.getPageNum()) - 1) / Integer.parseInt(mallCartoonOrderData.getPageNum()));
+		model.setObj(mallCartoonOrderList);
+		model.setTotalNum(num);
+		model.setMsg(String.valueOf(df.format(allMoney)));
+		model.setSpare(df.format(moneyAll));
+		return model;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_MALLCARTOONORDER_MONEYWATER, method = RequestMethod.POST)
+	public Model getMallCartoonOrder(MallCartoonOrderData mallCartoonOrderData){
+		if(!ParaClick.clickString(mallCartoonOrderData.getStarTime())&&!ParaClick.clickString(mallCartoonOrderData.getEndTime())){
+			Long start = 0L;
+			Long end = 0L;
+			//开始时间
+			start = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getStarTime() + " 00:00:00").getTime();
+			// 结束时间
+			end = DateUtil.getdate_yyyy_MM_dd_00_00_00(
+					mallCartoonOrderData.getEndTime() + " 23:59:59").getTime();
+			if (start > end) {
+				return new Model(500, "开始时间不能大于结束时间");
+			}
+		}
+		if(ParaClick.clickString(mallCartoonOrderData.getNowPage())){
+			mallCartoonOrderData.setNowPage("1");
+		}
+		if(ParaClick.clickString(mallCartoonOrderData.getPageNum())){
+			mallCartoonOrderData.setPageNum("10");
+		}
+		int num=0;
+		List<Object[]> cartoonMoneyWater = adminMallCartoonOrderService.cartoonMoneyWater(mallCartoonOrderData);
+		if(!ParaClick.clickList(cartoonMoneyWater)){
+			return new Model(500,"暂无数据");
+		}
+		num=adminMallCartoonOrderService.getNum(mallCartoonOrderData);
+		//总收益
+		double moneyAll = adminMallCartoonOrderService.moneyAll(mallCartoonOrderData);
+		double allMoney=0.0;
+		DecimalFormat    df   = new DecimalFormat("######0.00");
+		for(int i=0;i<cartoonMoneyWater.size();i++){
+			double money = Double.parseDouble(String.valueOf(cartoonMoneyWater.get(i)[2]));
+			double cartoonWater=money;
+			cartoonMoneyWater.get(i)[2]=cartoonWater;
+			allMoney+=cartoonWater;
+		}
+		Model model=new Model();
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(mallCartoonOrderData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(mallCartoonOrderData.getPageNum()) - 1) / Integer.parseInt(mallCartoonOrderData.getPageNum()));
+		model.setObj(cartoonMoneyWater);
+		model.setTotalNum(num);
+		model.setMsg(String.valueOf(df.format(allMoney)));
+		model.setSpare(df.format(moneyAll));
+		return model;
+	}
+	
+}

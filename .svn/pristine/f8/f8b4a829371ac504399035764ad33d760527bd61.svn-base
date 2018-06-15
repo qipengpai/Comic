@@ -1,0 +1,41 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonTask;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.CartoonTaskServcie;
+
+@Service
+public class CartoonTaskServcieImpl extends BaseServiceImpl<CartoonTask>
+		implements CartoonTaskServcie {
+
+	@Override
+	public CartoonTask updateQianDao(UserEntity entity, String newTime) {
+		// 根据用户的openId查找用户的任务详单
+		List<CartoonTask> list = SQL(
+				"SELECT * FROM CartoonTask WHERE userId='" + entity.getUserId()
+						+ "' AND ImplDate LIKE '" + newTime + "%'",
+				CartoonTask.class);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public CartoonTask updateQianDao2(UserEntity entity) {
+		// 查询用户最近一天做的任务详单
+		List<CartoonTask> list = SQL("SELECT * FROM CartoonTask WHERE openId='"
+				+ entity.getUserId() + "' ORDER BY ImplDate DESC ",CartoonTask.class);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+
+	}
+
+}

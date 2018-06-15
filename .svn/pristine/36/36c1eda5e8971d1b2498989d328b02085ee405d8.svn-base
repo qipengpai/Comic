@@ -1,0 +1,15 @@
+package com.qin.crxl.comic.system;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.DistributorUserStatistics;
+
+@Service
+@Transactional
+public interface DistributorUserStatisticsServcie extends BaseService<DistributorUserStatistics>{
+
+	
+
+}

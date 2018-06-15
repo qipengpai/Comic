@@ -1,0 +1,78 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class TaskReward  extends BaseEntity implements Serializable{
+	@SuppressWarnings("static-access")
+    @Id
+    private String id=ran.generateString(32);
+	private int payFirstRewar=0;        //每日首充给的平台币数量
+	private int payExchangeReward=0;    //每日首兑给的平台币数量
+	private int seeMeReward=0;          //关注公众号给的平台币数量
+	private int boundPhoneReward=0;     //绑定手机号给奖励
+	private int signReward=0;		    //连续签到7天给的奖励
+	private int shareDayReward=0;       //每日分享
+	private int shareComicReward=0;     //每日分享漫画
+	
+	
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public int getPayFirstRewar() {
+		return payFirstRewar;
+	}
+	public void setPayFirstRewar(int payFirstRewar) {
+		this.payFirstRewar = payFirstRewar;
+	}
+	public int getPayExchangeReward() {
+		return payExchangeReward;
+	}
+	public void setPayExchangeReward(int payExchangeReward) {
+		this.payExchangeReward = payExchangeReward;
+	}
+	public int getSeeMeReward() {
+		return seeMeReward;
+	}
+	public void setSeeMeReward(int seeMeReward) {
+		this.seeMeReward = seeMeReward;
+	}
+	public int getBoundPhoneReward() {
+		return boundPhoneReward;
+	}
+	public void setBoundPhoneReward(int boundPhoneReward) {
+		this.boundPhoneReward = boundPhoneReward;
+	}
+	public int getSignReward() {
+		return signReward;
+	}
+	public void setSignReward(int signReward) {
+		this.signReward = signReward;
+	}
+	public int getShareDayReward() {
+		return shareDayReward;
+	}
+	public void setShareDayReward(int shareDayReward) {
+		this.shareDayReward = shareDayReward;
+	}
+	public int getShareComicReward() {
+		return shareComicReward;
+	}
+	public void setShareComicReward(int shareComicReward) {
+		this.shareComicReward = shareComicReward;
+	}
+	
+	
+}

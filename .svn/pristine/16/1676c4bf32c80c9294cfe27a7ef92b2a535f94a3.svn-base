@@ -1,0 +1,73 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.DistributorOrder;
+import com.qin.crxl.comic.service.DistributorOrderService;
+import com.qin.crxl.comic.service.DistributorService;
+import com.qin.crxl.comic.service.DistributorTotalYmdService;
+
+@Service
+public class DistributorOrderImpl extends BaseServiceImpl<DistributorOrder>
+		implements DistributorOrderService {
+
+	@Autowired
+	private DistributorService distributorService;
+
+	@Autowired
+	private DistributorTotalYmdService distributorTotalYmdService;
+
+	@Override
+	public boolean addDistributorOrderTotal(List<Object[]> numSum, String id) {
+		// 增加统计
+		boolean flag = false;
+		DecimalFormat df = new DecimalFormat("#.00");
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -1);
+		String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal
+				.getTime());
+		try {
+			DistributorOrder distributorOrderTotal = new DistributorOrder();
+			distributorOrderTotal.setDistridutionId(id);
+			distributorOrderTotal.setImplDate(yesterday);
+			distributorOrderTotal.setOrdinaryRecharge(Double.parseDouble(numSum
+					.get(0)[0].toString()));
+			distributorOrderTotal.setOrdinaryRechargeNum(Integer
+					.parseInt(numSum.get(0)[1].toString()));
+			distributorOrderTotal.setVipRecharge(Double.parseDouble(numSum
+					.get(1)[0].toString()));
+			distributorOrderTotal.setVipRechargeNum(Integer.parseInt(numSum
+					.get(1)[1].toString()));
+			distributorOrderTotal.setRechargePersonNum(Integer.parseInt(numSum
+					.get(0)[2].toString())
+					+ Integer.parseInt(numSum.get(1)[2].toString()));
+			distributorOrderTotal
+					.setPerCapitaRecharge(Double.parseDouble(df
+							.format(((Integer.parseInt(numSum.get(0)[0]
+									.toString())) + (Integer.parseInt(numSum
+									.get(1)[0].toString())))
+									/ (Integer.parseInt(numSum.get(0)[2]
+											.toString()) + Integer
+											.parseInt(numSum.get(1)[2]
+													.toString())))));
+			distributorOrderTotal.setTotalType(1);
+			distributorOrderTotal
+					.setRecharge(Double.parseDouble(numSum.get(0)[0].toString())
+							+ Double.parseDouble(numSum.get(1)[0].toString()));
+			save(distributorOrderTotal);
+			flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

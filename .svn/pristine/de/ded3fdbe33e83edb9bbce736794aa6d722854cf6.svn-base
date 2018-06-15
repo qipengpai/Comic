@@ -1,0 +1,193 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.CartoonPhotoService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.tool.Model;
+
+@Service
+public class CartoonPhotoServiceImpl extends BaseServiceImpl<CartoonPhoto>
+		implements CartoonPhotoService {
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private CartoonService cartoonService;
+	@Autowired
+	private CartoonSetService cartoonSetService;
+
+	@Override
+//	@Cacheable(value = "CartoonPhoto", key = "#root.methodName.concat(#cartoonId).concat(#id)")
+	public int getCartoonPhotoNum(String cartoonId, String id) {
+		// 查詢此話所有圖片數量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM CartoonPhoto WHERE 1=1  AND cartoonId='"
+				+ cartoonId + "' AND cartoonSetId='" + id + "' ");
+		int num = super.gettotalpage("MHPhoto"+cartoonId+id+"Num",0,sb.toString());
+		return num;
+	}
+
+	// 查詢此話所有圖片
+	@Override
+//	@Cacheable(value = "CartoonPhoto", key = "#cartoonId.concat(#id).concat(#nowPage)")
+	public List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId(
+			String cartoonId, String id, String nowPage) {
+		// fenye查詢此話所有圖片
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1 AND cartoonId='"
+				+ cartoonId + "' AND cartoonSetId='" + id + "' ");
+		sb.append("ORDER BY sort ASC LIMIT " + (Integer.parseInt(nowPage) - 1)
+				* 3 + " ,3");
+		List<CartoonPhoto> list = super.SQL("MHPhoto"+cartoonId+id+nowPage,0,sb.toString(), CartoonPhoto.class);
+		return list;
+	}
+
+	@Override
+	public List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId2(
+			String cartoonId, String cartoonSetId) {
+		// 查詢此話所有圖片
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1 AND cartoonId='"
+				+ cartoonId + "' AND cartoonSetId='" + cartoonSetId + "' ");
+		sb.append("ORDER BY sort ASC ");
+		List<CartoonPhoto> list = super.SQL("MHPhoto"+cartoonId+cartoonSetId,0,sb.toString(), CartoonPhoto.class);
+		return list;
+	}
+
+	@Override
+	public boolean addAllParameter(CartoonPhotoData cartoonPhotoData,
+			String userId) {
+		// 增加所喲有參數屬性
+		boolean fl = false;
+		try {
+			boolean flag3 = historyRecordService.updateState(
+					cartoonPhotoData.getCartoonId(), userId);
+			if (!flag3) {
+				throw new BusinessException("修改狀態異常");
+			}
+			boolean flag = historyRecordService.addhistoryRecord(
+					cartoonPhotoData.getCartoonId(),
+					cartoonPhotoData.getCartoonSetId(), userId);
+			if (!flag) {
+				throw new BusinessException("增加歷史紀錄失敗");
+			}
+			boolean flag2 = cartoonService.addPlayCount(cartoonPhotoData
+					.getCartoonId());
+			if (!flag2) {
+				throw new BusinessException("增加歷史紀錄次數失敗");
+			}
+			boolean flag4 = cartoonSetService.addPlayCount3(cartoonPhotoData
+					.getCartoonSetId());
+			if (!flag4) {
+				throw new BusinessException("增加每话紀錄次數失敗");
+			}
+			fl = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return fl;
+		}
+		return fl;
+	}
+
+	@Override
+	public boolean addAllParameter2(CartoonSet cartoonSet, UserEntity userEntity) {
+		// 增加所喲有參數屬性
+		boolean fl = false;
+		try {
+			boolean flag3 = historyRecordService.updateState2(cartoonSet,
+					userEntity);
+			if (!flag3) {
+				throw new BusinessException("修改狀態異常");
+			}
+			boolean flag = historyRecordService.addhistoryRecord(
+					cartoonSet.getCartoonId(), cartoonSet.getId(),
+					userEntity.getUserId());
+			if (!flag) {
+				throw new BusinessException("增加歷史紀錄失敗");
+			}
+			boolean flag2 = cartoonService.addPlayCount(cartoonSet
+					.getCartoonId());
+			if (!flag2) {
+				throw new BusinessException("增加歷史紀錄次數失敗");
+			}
+			boolean flag4 = cartoonSetService.addPlayCount(cartoonSet.getId());
+			if (!flag4) {
+				throw new BusinessException("增加每话紀錄次數失敗");
+			}
+			fl = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return fl;
+		}
+		return fl;
+	}
+
+//	/**
+//	 * pp
+//	 * 
+//	 * @Remarks 备用
+//	 * @throws Exception
+//	 * */
+//	@Override
+//	public List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId2(
+//			CartoonSet cartoonSet, CartoonPhotoData cartoonPhotoData) {
+//		// 查詢此話所有圖片
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1 AND cartoonId='"
+//				+ cartoonSet.getCartoonId() + "' AND cartoonSetId='"
+//				+ cartoonSet.getId() + "'  ");
+//		sb.append("ORDER BY sort ASC LIMIT "
+//				+ (Integer.parseInt(cartoonPhotoData.getNowPage()) - 1) * 3
+//				+ " ,3");
+//		List<CartoonPhoto> list = super.SQL(sb.toString(), CartoonPhoto.class);
+//		return list;
+//	}
+//
+//	/**
+//	 * pp
+//	 * 
+//	 * @Remarks 备用
+//	 * @throws Exception
+//	 * */
+//	@Override
+//	public int getCartoonPhotoNum2(CartoonSet cartoonSet) {
+//		// 查詢此話所有圖片數量
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("SELECT * FROM CartoonPhoto WHERE 1=1  AND cartoonId='"
+//				+ cartoonSet.getCartoonId() + "' AND cartoonSetId='"
+//				+ cartoonSet.getId() + "' ");
+//		int num = super.gettotalpage(sb.toString());
+//		return num;
+//
+//	}
+
+	/*
+	 * @Override public List<CartoonPhoto> getALLCartoonPhotoByCartoonSetId(
+	 * CartoonPhotoData cartoonPhotoData) { // 查詢此話所有圖片 StringBuffer sb = new
+	 * StringBuffer();
+	 * sb.append("SELECT * FROM CartoonPhoto WHERE 1=1 AND cartoonId='" +
+	 * cartoonPhotoData.getCartoonId() + "' AND cartoonSetId='" +
+	 * cartoonPhotoData.getCartoonSetId() + "' ");
+	 * sb.append("ORDER BY sort ASC LIMIT " +
+	 * (Integer.parseInt(cartoonPhotoData.getNowPage()) - 1) * 3 + " ,3");
+	 * List<CartoonPhoto> list = super.SQL(sb.toString(), CartoonPhoto.class);
+	 * return list; }
+	 */
+}

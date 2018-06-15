@@ -1,0 +1,82 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonTask;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.CartoonTaskServcie;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class CartoonTaskServcieImpl extends BaseServiceImpl<CartoonTask>
+		implements CartoonTaskServcie {
+
+	@Override
+	public CartoonTask updateQianDao(UserEntity entity, String newTime) {
+		// 根据用户的openId查找用户的任务详单
+		List<CartoonTask> list = SQL(
+				"SELECT * FROM CartoonTask WHERE userId='" + entity.getUserId()
+						+ "' AND ImplDate LIKE '" + newTime + "%'",
+				CartoonTask.class);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public CartoonTask updateQianDao2(UserEntity entity) {
+		// 查询用户最近一天做的任务详单
+		List<CartoonTask> list = SQL("SELECT * FROM CartoonTask WHERE openId='"
+				+ entity.getUserId() + "' ORDER BY ImplDate DESC ",CartoonTask.class);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+
+	}
+
+	@Override
+	public boolean addCartoonTask(UserEntity entity) {
+		// 增加任務表
+		boolean flag =false;
+		try {
+			CartoonTask cartoonTask = new CartoonTask();
+			cartoonTask.setUserId(entity.getUserId());
+			cartoonTask.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			super.save(cartoonTask);
+			flag=true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean addCartoonTask2(UserEntity entity, CartoonTask cartoonTask2) {
+		// 增加用户的任务详单(用户曾经做过任务)
+		boolean flag =false;
+		try {
+			CartoonTask cartoonTask = new CartoonTask();
+			cartoonTask.setUserId(entity.getUserId());
+			cartoonTask.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			cartoonTask.setSeeMe(cartoonTask2.getSeeMe());
+			cartoonTask.setSeeMeContent(cartoonTask2.getSeeMeContent());
+			cartoonTask.setBoundPhone(cartoonTask2.getBoundPhone());
+			cartoonTask.setBoundPhoneContent(cartoonTask2.getBoundPhoneContent());
+			cartoonTask.setSignDay(cartoonTask2.getSignDay());
+			super.save(cartoonTask);
+			flag= true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

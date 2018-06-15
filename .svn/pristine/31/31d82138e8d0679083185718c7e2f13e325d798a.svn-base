@@ -1,0 +1,389 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonVo;
+import com.qin.crxl.comic.service.AdminCartoonService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.game.entity.redis.JedisUtil;
+
+@Service
+public class AdminCartoonServiceImpl extends BaseServiceImpl<Cartoon> implements
+		AdminCartoonService {
+
+	@Override
+	public String addAdminCartoon(CartoonVo cartoonData) {
+		try {
+			Cartoon cartoon = new Cartoon();
+			// cartoon.setCartoonType(cartoonData.getCartoonType());//类型
+			cartoon.setFirstType(cartoonData.getFirsrtType());// 一级类型
+			cartoon.setCartoonName(cartoonData.getCartoonName());// 剧名
+			cartoon.setUpdateTile(cartoonData.getUpdateTile());// 更新标题
+			cartoon.setCartoonAuthor(cartoonData.getCartoonAuthor());// 作者
+			cartoon.setCartoonAuthorPic(cartoonData.getCartoonAuthorPic());
+			cartoon.setUpdateType(cartoonData.getUpdateType());// 更新类型
+			cartoon.setMainPhoto(cartoonData.getMainPhoto());// 首页主图
+			cartoon.setIntroduction(cartoonData.getIntroduction());// 介绍图
+			cartoon.setMidelPhoto(cartoonData.getMidelPhoto());// 中图
+			cartoon.setSmallPhoto(cartoonData.getSmallPhoto());// 小图
+			cartoon.setIntroduc(cartoonData.getIntroduc());// 短介绍
+			cartoon.setSerialState(cartoonData.getSerialState());// 连载类型（1--连载中
+			cartoon.setHot(0);// 热度
+			cartoon.setState(0);// 上架状态
+			String time = DateUtil.getdate();
+			// 更新时间
+			cartoon.setUpdateDate(time);
+			// 操作时间
+			cartoon.setImplDate(time);
+			// sort排序加1（自增）
+			cartoon.setSort(this.getSortMax() + 1);
+			super.save(cartoon);
+			return cartoon.getId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public int getSortMax() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select max(sort) from Cartoon");
+		List<Integer> lists = getSessionFactory().createSQLQuery(sb.toString())
+				.list();
+		if (lists != null && lists.size() > 0) {
+			Integer obj = lists.get(0);
+			if (obj == null) {
+				return 0;
+			}
+
+			return lists.get(0);
+		}
+		return 0;
+	}
+
+	// 删除漫画(此功能不实现)
+	@Override
+	public boolean deleteAdminCartoon(String id) {
+		try {
+			Cartoon cartoon = super.get(id);
+			if (ParaClick.clickObj(cartoon)) {
+				// 删除漫画
+				super.delete(id);
+				// 删除漫画的类型
+				SQL("delete from CartoonAllType where cartoonId='" + id + "'");
+				// 删除漫画话的图片
+				SQL("delete from CartoonPhoto where cartoonId='" + id + "'");
+				// 删除漫画的话cartoonSet
+				SQL("delete from CartoonSet where cartoonId='" + id + "'");
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
+//	@Caching(evict = { @CacheEvict(value = "Cartoon", allEntries = true),
+//			@CacheEvict(value = "CartoonLike", allEntries = true) })
+	public boolean updateAdminCartoon(CartoonVo cartoonVo) {
+		Cartoon cartoon = null;
+		try {
+			cartoon = super.get(cartoonVo.getId());
+			if (ParaClick.clickObj(cartoon)) {
+				if (!ParaClick.clickString(cartoonVo.getFirsrtType())) {
+					cartoon.setFirstType(cartoonVo.getFirsrtType());
+				}
+				if (!ParaClick.clickString(cartoonVo.getCartoonName())) {
+					cartoon.setCartoonName(cartoonVo.getCartoonName());
+				}
+				if (!ParaClick.clickString(cartoonVo.getUpdateTile())) {
+					cartoon.setUpdateTile(cartoonVo.getUpdateTile());
+				}
+				if (!ParaClick.clickString(cartoonVo.getCartoonAuthor())) {
+					cartoon.setCartoonAuthor(cartoonVo.getCartoonAuthor());
+				}
+				if (!ParaClick.clickString(cartoonVo.getCartoonAuthorPic())) {
+					cartoon.setCartoonAuthorPic(cartoonVo.getCartoonAuthorPic());
+				}
+				if (!ParaClick.clickString(cartoonVo.getUpdateType())) {
+					cartoon.setUpdateType(cartoonVo.getUpdateType());
+				}
+				if (!ParaClick.clickString(cartoonVo.getMainPhoto())) {
+					cartoon.setMainPhoto(cartoonVo.getMainPhoto());
+				}
+				if (!ParaClick.clickString(cartoonVo.getIntroduction())) {
+					cartoon.setIntroduction(cartoonVo.getIntroduction());
+				}
+				if (!ParaClick.clickString(cartoonVo.getMidelPhoto())) {
+					cartoon.setMidelPhoto(cartoonVo.getMidelPhoto());
+				}
+				if (!ParaClick.clickString(cartoonVo.getSmallPhoto())) {
+					cartoon.setSmallPhoto(cartoonVo.getSmallPhoto());
+				}
+				if (!ParaClick.clickString(cartoonVo.getIntroduc())) {
+					cartoon.setIntroduc(cartoonVo.getIntroduc());
+				}
+				if (!ParaClick.clickString(cartoonVo.getSerialState())) {
+					cartoon.setSerialState(cartoonVo.getSerialState());
+				}
+				// 热度
+				if (!ParaClick.clickString(cartoonVo.getHot())) {
+					cartoon.setHot(Integer.parseInt(cartoonVo.getHot()));
+				}
+				// 上架状态（下架状态）
+				if (!ParaClick.clickString(cartoonVo.getState())) {
+					cartoon.setState(Integer.parseInt(cartoonVo.getState()));
+					if ("0".equals(cartoonVo.getState().trim())) {// 漫画下架时将内容集数和Banner图全部下架
+						SQL("update CartoonSet set watchState=0 where cartoonId='"
+								+ cartoonVo.getId() + "'");
+						SQL("update Banner set state=0 where cartoonId='"
+								+ cartoonVo.getId() + "'");
+						JedisUtil.del("Banner");
+						JedisUtil.batchDel("Set"+cartoonVo.getId());
+					}
+				}
+				// 漫画评论次数
+				if (!ParaClick.clickString(cartoonVo.getCommentCount())) {
+					cartoon.setCommentCount(Integer.parseInt(cartoonVo
+							.getCommentCount()));
+				}
+				// 漫画播放次数
+				if (!ParaClick.clickString(cartoonVo.getPlayCount())) {
+					cartoon.setPlayCount(Integer.parseInt(cartoonVo
+							.getPlayCount()));
+				}
+				// 漫画关注人数
+				if (!ParaClick.clickString(cartoonVo.getFollowCount())) {
+					cartoon.setFollowCount(Integer.parseInt(cartoonVo
+							.getFollowCount()));
+				}
+				// 漫画更新时间
+				if (!ParaClick.clickString(cartoonVo.getUpdateDate())) {
+					cartoon.setUpdateDate(cartoonVo.getUpdateDate());
+				}
+				// ///////redis
+				JedisUtil.batchDel("Comic");
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public Cartoon selectByIdCartoon(String id) {
+		Cartoon cartoon = super.get(id);
+		return cartoon;
+	}
+
+	@Override
+	public List<Cartoon> selectAllCartoon(CartoonVo cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select c.* from Cartoon c where 1=1");
+		if (!ParaClick.clickString(cartoonData.getFirsrtType())) {
+			sb.append(" AND c.firstType=" + cartoonData.getFirsrtType());
+		}
+		if (!ParaClick.clickString(cartoonData.getCondition())) {
+			sb.append(" AND ((c.cartoonName LIKE '%"
+					+ cartoonData.getCondition().trim()
+					+ "%') OR (c.cartoonAuthor LIKE '%"
+					+ cartoonData.getCondition().trim()
+					+ "%') OR (c.introduc LIKE '%"
+					+ cartoonData.getCondition().trim() + "%'))");
+		}
+		sb.append(" order by c.state DESC,c.hot DESC,c.sort DESC,c.updateDate DESC LIMIT "
+				+ (Integer.parseInt(cartoonData.getNowpage()) - 1)
+				* Integer.parseInt(cartoonData.getPageNum())
+				+ ","
+				+ Integer.parseInt(cartoonData.getPageNum()));
+		List<Cartoon> cartoonList = SQL(sb.toString(), Cartoon.class);
+		return cartoonList;
+	}
+
+	@Override
+	public int getCount(CartoonVo cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select count(*) from Cartoon c where 1=1");
+		if (!ParaClick.clickString(cartoonData.getFirsrtType())) {
+			sb.append(" AND c.firstType=" + cartoonData.getFirsrtType());
+		}
+		if (!ParaClick.clickString(cartoonData.getCartoonAuthor())) {
+			sb.append(" AND c.cartoonAuthor like '%"
+					+ cartoonData.getCartoonAuthor().trim() + "%'))");
+		}
+		if (!ParaClick.clickString(cartoonData.getCondition())) {
+			sb.append(" AND ((c.cartoonName LIKE '%"
+					+ cartoonData.getCondition().trim()
+					+ "%') OR (c.cartoonAuthor LIKE '%"
+					+ cartoonData.getCondition().trim() + "%'))");
+		}
+		int totalPage = 0;
+		try {
+			totalPage = super.gettotalpage(sb.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return totalPage;
+	}
+
+	@Override
+	public int[] updateSort(CartoonVo cartoonVo) {
+		if ("0".equals(cartoonVo.getSortNum())) {// 向下排序
+			StringBuffer sb = new StringBuffer();
+			sb.append("select c.* from Cartoon c where 1=1");
+			if (!ParaClick.clickString(cartoonVo.getFirsrtType())) {
+				sb.append(" AND c.firstType=" + cartoonVo.getFirsrtType());
+			}
+			if (!ParaClick.clickString(cartoonVo.getCartoonAuthor())) {
+				sb.append(" AND c.cartoonAuthor like '%"
+						+ cartoonVo.getCartoonAuthor().trim() + "%'))");
+			}
+			if (!ParaClick.clickString(cartoonVo.getCondition())) {
+				sb.append(" AND ((c.cartoonName LIKE '%"
+						+ cartoonVo.getCondition().trim()
+						+ "%') OR (c.cartoonAuthor LIKE '%"
+						+ cartoonVo.getCondition().trim() + "%'))");
+			}
+			sb.append(" and c.hot=" + cartoonVo.getHot().trim());
+			sb.append(" and c.sort<(SELECT sort from Cartoon WHERE id='"
+					+ cartoonVo.getId()
+					+ "') order by c.state DESC,c.hot DESC,c.sort DESC,c.updateDate DESC LIMIT 0,1");
+			List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+
+			if (!ParaClick.clickList(list)) {
+				int[] s = new int[1];
+				return s;
+			}
+			int[] sortNum = new int[2];
+			sortNum[0] = list.get(0).getSort();
+			sortNum[1] = Integer.parseInt(cartoonVo.getSort());
+			return sortNum;
+
+		} else if ("1".equals(cartoonVo.getSortNum())) {// 向上排序
+			StringBuffer sb = new StringBuffer();
+			sb.append("select c.* from Cartoon c where 1=1");
+			if (!ParaClick.clickString(cartoonVo.getFirsrtType())) {
+				sb.append(" AND c.firstType=" + cartoonVo.getFirsrtType());
+			}
+			if (!ParaClick.clickString(cartoonVo.getCartoonAuthor())) {
+				sb.append(" AND c.cartoonAuthor like '%"
+						+ cartoonVo.getCartoonAuthor().trim() + "%'))");
+			}
+			if (!ParaClick.clickString(cartoonVo.getCondition())) {
+				sb.append(" AND ((c.cartoonName LIKE '%"
+						+ cartoonVo.getCondition().trim()
+						+ "%') OR (c.cartoonAuthor LIKE '%"
+						+ cartoonVo.getCondition().trim() + "%'))");
+			}
+			sb.append(" and c.hot=" + cartoonVo.getHot().trim());
+			sb.append(" and c.sort>(SELECT sort from Cartoon WHERE id='"
+					+ cartoonVo.getId()
+					+ "') order by c.state DESC,c.hot DESC,c.sort ASC,c.updateDate DESC LIMIT 0,1");
+			List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+			if (!ParaClick.clickList(list)) {
+				int[] s = new int[1];
+				return s;
+			}
+			int[] sortNum = new int[2];
+			sortNum[0] = list.get(0).getSort();
+			sortNum[1] = Integer.parseInt(cartoonVo.getSort());
+			return sortNum;
+		}
+		return null;
+	}
+
+	@Override
+//	@CacheEvict(value = "Cartoon", allEntries = true)
+	public boolean cartoonTop(CartoonVo cartoonVo) {
+		Cartoon cartoon = null;
+		try {
+			cartoon = super.get(cartoonVo.getId());
+			int sortMax = this.getSortMax();
+			if (sortMax == Integer.parseInt(cartoonVo.getSort())) {
+				return false;
+			}
+			cartoon.setSort(sortMax + 1);
+			// ///////redis
+			JedisUtil.batchDel("ComicAll");
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+//	@CacheEvict(value = "Cartoon", allEntries = true)
+	public boolean cartoonChangeSort(int[] sortArr) {
+		List<Cartoon> cartoon1 = super.SQL("select * from Cartoon where sort="
+				+ sortArr[0], Cartoon.class);
+		List<Cartoon> cartoon2 = super.SQL("select * from Cartoon where sort="
+				+ sortArr[1], Cartoon.class);
+		int num = cartoon1.get(0).getSort();
+		cartoon1.get(0).setSort(cartoon2.get(0).getSort());
+		cartoon2.get(0).setSort(num);
+		// ///////redis
+		JedisUtil.batchDel("ComicAll");
+		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String[]> selectCartoonAddBanner() {
+		List<String[]> list = getSessionFactory().createSQLQuery(
+				"select id,cartoonName from Cartoon").list();
+		return list;
+	}
+
+	// 将此漫画下架（此功能用于漫画最后一个话下架（CartoonSet）时 ）
+	@Override
+//	@CacheEvict(value = "Cartoon", allEntries = true)
+	public boolean updateStateByCartoonSetLast(String cartoonId) {
+		Cartoon cartoon = null;
+		try {
+			cartoon = super.get(cartoonId);
+			if (!ParaClick.clickObj(cartoon)) {
+				return false;
+			}
+			SQL("update Cartoon set state=0 where id='" + cartoonId + "'");
+			return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+//	@CacheEvict(value = "Cartoon", allEntries = true)
+	public boolean updateCartoonTitle(String string, String cartoonId) {
+		// 更新话时修改漫画更新标题
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonId);
+			cartoon.setUpdateTile(string);
+			JedisUtil.batchDel("Comic");
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return flag;
+		}
+		return flag;
+	}
+
+}

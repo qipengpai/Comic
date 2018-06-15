@@ -1,0 +1,14 @@
+$(function(){
+	tablebasic()
+});
+function tablebasic(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		success:function(data){
+			if(data.error == 200){
+				
+			}
+		}
+	})
+}

@@ -1,0 +1,148 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class CartoonTask extends BaseEntity implements Serializable{
+	@SuppressWarnings("static-access")
+    @Id
+    private String id=ran.generateString(32);
+	private String userId;					//用户Id
+	private String payDayImplDate="";       //每日签到时间
+	private String payFirstImplDate="";     //每日首充时间
+	private String payExchangeImplDate="";  //每日首兑时间
+	private String shareDayDate="";         //每日分享时间
+	private String shareComicDayDate="";    //每日分享漫画时间
+	private String ImplDate;                //用户形成任务表时的时间
+	private String shareDay="每日分享";        //每日分享
+	private String shareComic="每日分享漫画";   //每日分享漫画
+	private String seeMe="";                //用户关注公众号
+	private String boundPhone="";           //用户是否绑定手机号
+	private String payDayContent="每日签到";   //每日签到
+	private String payFirstContent="每日首充"; //每日首充
+	private String payExchangeContent="每日首兑";//每日首兑
+	private String seeMeContent;            //关注公众号
+	private String boundPhoneContent;       //绑定手机
+	private int SignDay;                //用户连续签到天数
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getPayDayImplDate() {
+		return payDayImplDate;
+	}
+	public void setPayDayImplDate(String payDayImplDate) {
+		this.payDayImplDate = payDayImplDate;
+	}
+	public String getPayFirstImplDate() {
+		return payFirstImplDate;
+	}
+	public void setPayFirstImplDate(String payFirstImplDate) {
+		this.payFirstImplDate = payFirstImplDate;
+	}
+	public String getPayExchangeImplDate() {
+		return payExchangeImplDate;
+	}
+	public void setPayExchangeImplDate(String payExchangeImplDate) {
+		this.payExchangeImplDate = payExchangeImplDate;
+	}
+	public String getShareDayDate() {
+		return shareDayDate;
+	}
+	public void setShareDayDate(String shareDayDate) {
+		this.shareDayDate = shareDayDate;
+	}
+	public String getShareComicDayDate() {
+		return shareComicDayDate;
+	}
+	public void setShareComicDayDate(String shareComicDayDate) {
+		this.shareComicDayDate = shareComicDayDate;
+	}
+	public String getImplDate() {
+		return ImplDate;
+	}
+	public void setImplDate(String implDate) {
+		ImplDate = implDate;
+	}
+	public String getShareDay() {
+		return shareDay;
+	}
+	public void setShareDay(String shareDay) {
+		this.shareDay = shareDay;
+	}
+	public String getShareComic() {
+		return shareComic;
+	}
+	public void setShareComic(String shareComic) {
+		this.shareComic = shareComic;
+	}
+	public String getSeeMe() {
+		return seeMe;
+	}
+	public void setSeeMe(String seeMe) {
+		this.seeMe = seeMe;
+	}
+	public String getBoundPhone() {
+		return boundPhone;
+	}
+	public void setBoundPhone(String boundPhone) {
+		this.boundPhone = boundPhone;
+	}
+	public String getPayDayContent() {
+		return payDayContent;
+	}
+	public void setPayDayContent(String payDayContent) {
+		this.payDayContent = payDayContent;
+	}
+	public String getPayFirstContent() {
+		return payFirstContent;
+	}
+	public void setPayFirstContent(String payFirstContent) {
+		this.payFirstContent = payFirstContent;
+	}
+	public String getPayExchangeContent() {
+		return payExchangeContent;
+	}
+	public void setPayExchangeContent(String payExchangeContent) {
+		this.payExchangeContent = payExchangeContent;
+	}
+	public String getSeeMeContent() {
+		return seeMeContent;
+	}
+	public void setSeeMeContent(String seeMeContent) {
+		this.seeMeContent = seeMeContent;
+	}
+	public String getBoundPhoneContent() {
+		return boundPhoneContent;
+	}
+	public void setBoundPhoneContent(String boundPhoneContent) {
+		this.boundPhoneContent = boundPhoneContent;
+	}
+	public int getSignDay() {
+		return SignDay;
+	}
+	public void setSignDay(int signDay) {
+		SignDay = signDay;
+	}
+	
+	
+}

@@ -1,0 +1,16 @@
+package com.qin.crxl.comic.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.UserEntity;
+
+@Service
+@Transactional
+public interface UserService extends BaseService<UserEntity>{
+
+	UserEntity updateUser(UserEntity entity, String wxqd);
+
+}

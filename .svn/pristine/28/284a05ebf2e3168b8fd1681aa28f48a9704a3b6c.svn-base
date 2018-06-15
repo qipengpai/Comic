@@ -1,0 +1,64 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Tables;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+/**
+ * 
+ * @author 覃金林
+ * @date 2017年12月6日
+ * @Remarks
+ * @Tile={<h1>搜索类</h1>}
+ * @describe={
+ * <p>添加方法：</p>
+ * <ul>
+ * <li>历史搜索</li>
+ * <li>热度搜索</li>
+ * </ul>}
+ *
+ */
+@Entity
+@Table
+public class SearchHistory  extends BaseEntity implements Serializable {
+
+	@Id
+	private String id=ran.generateString(32);
+	private String conext;
+	private String userid;
+	private String ImplDate;
+	
+	
+	
+	public String getUserid() {
+		return userid;
+	}
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getConext() {
+		return conext;
+	}
+	public void setConext(String conext) {
+		this.conext = conext;
+	}
+	public String getImplDate() {
+		return ImplDate;
+	}
+	public void setImplDate(String implDate) {
+		ImplDate = implDate;
+	}
+	
+}

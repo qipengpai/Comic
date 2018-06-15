@@ -1,0 +1,190 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.FriendsCirclePhoto;
+import com.qin.crxl.comic.entity.FriendsCircle;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.FriendsCircleData;
+import com.qin.crxl.comic.entity.vo.FriendsCommentData;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.FriendsCirclePhotoService;
+import com.qin.crxl.comic.service.FriendsCommentService;
+import com.qin.crxl.comic.service.FriendsVeryOkService;
+import com.qin.crxl.comic.service.FriendsCircleService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Service
+public class FriendsCircleServiceImpl extends BaseServiceImpl<FriendsCircle>
+		implements FriendsCircleService {
+	@Autowired
+	private FriendsCirclePhotoService friendCirclePhotoService;
+	@Autowired
+	private FriendsCommentService friendCommentService;
+	@Autowired
+	private FriendsVeryOkService friendVeryOkService;
+
+	@Override
+//	@CacheEvict(value = "MyFriendsCircle", key = "#friendsCircleData.userId", allEntries = false)
+	public FriendsCircle userUpdateHeadPortrict(
+			FriendsCircleData friendsCircleData) {
+		// 发朋友圈
+		boolean flag = false;
+		FriendsCircle friendsCircle = new FriendsCircle();
+		try {
+			friendsCircle.setUserId(friendsCircleData.getUserId());
+			friendsCircle.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			friendsCircle
+					.setReleaseDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			friendsCircle.setReleaseInfo(StringToInt.toInt(friendsCircleData
+					.getReleaseInfo()));
+			// friendsCircle.setPhoto(friendsCircleData.getCondition());
+			friendsCircle.setAite("0");
+			friendsCircle.setState(1);
+			friendsCircle.setDeleteState(1);
+			save(friendsCircle);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
+		return friendsCircle;
+	}
+
+	@Override
+//	@Caching(evict = {
+//			@CacheEvict(value = "FriendsId", key = "#friendsCircleData.id", allEntries = false),
+//			@CacheEvict(value = "MyFriendsCircle", key = "#userEntity.userId", allEntries = false)})
+	public boolean deleteFriendsCircle(FriendsCircleData friendsCircleData,
+			UserEntity userEntity) {
+		// 删除该条朋友圈
+		boolean flag = false;
+		try {
+			FriendsCircle friendsCircle = get(friendsCircleData.getId());
+			if (friendsCircle == null) {
+				throw new BusinessException("回滚异常");
+			}
+			super.delete(friendsCircleData.getId());
+			boolean flag2 = friendCirclePhotoService
+					.deleteByPhotoId(friendsCircleData.getId());
+			if (!flag2) {
+				throw new BusinessException("回滚异常");
+			}
+			boolean flag3 = friendCommentService
+					.deleteByFriendsCircleId(friendsCircleData);
+			if (!flag3) {
+				throw new BusinessException("回滚异常");
+			}
+			boolean flag4 = friendVeryOkService
+					.deleteByFriendsCircleVeryOkId(friendsCircleData);
+			if (!flag4) {
+				throw new BusinessException("回滚异常");
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public int getAllFriendcircleNum(FriendsCircleData friendsCircleData) {
+		// 查看广场朋友圈条数
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM FriendsCircle WHERE 1=1  AND state=1 AND deleteState=1");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<FriendsCircle> getAllFriendcircle(
+			FriendsCircleData friendsCircleData) {
+		// 查看广场朋友圈
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM FriendsCircle WHERE 1=1 AND deleteState=1 ");
+		sb.append(" AND state=1 ORDER BY releaseDate DESC LIMIT "
+				+ (Integer.parseInt(friendsCircleData.getNowPage()) - 1) * 10
+				+ ",10");
+		List<FriendsCircle> list = SQL(sb.toString(), FriendsCircle.class);
+		return list;
+	}
+
+	@Override
+	public List<FriendsCircle> getHotFriendcircle(
+			FriendsCircleData friendsCircleData) {
+		// 查看热门广场朋友圈
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM FriendsCircle WHERE 1=1 AND deleteState=1 ");
+		sb.append(" AND state=1 AND releaseDate LIKE '%"
+				+ DateUtil.getdate_yyyy_MM_dd()
+				+ "%' ORDER BY okCount  DESC LIMIT "
+				+ (Integer.parseInt(friendsCircleData.getNowPage()) - 1) * 10
+				+ ",10");
+		List<FriendsCircle> list = SQL(sb.toString(), FriendsCircle.class);
+		return list;
+	}
+
+	/*
+	 * @Override public boolean addFriendCircleCommentNum( FriendsCommentData
+	 * friendsCommentData) { // 评论后增加评论数量 boolean flag = false; try {
+	 * FriendsCircle friendsCircle = super.get(friendsCommentData
+	 * .getFriendCircleId()); if (friendsCircle == null) { return flag; }
+	 * friendsCircle.setCommentCount(friendsCircle.getCommentCount() + 1); flag
+	 * = true; } catch (Exception e) { // TODO: handle exception
+	 * e.printStackTrace(); return flag; } return flag; }
+	 */
+
+	/*
+	 * @Override public boolean addFriendVeryOkCount(FriendsCircleData
+	 * friendsCircleData) { // 點贊后增加點贊次數 boolean flag = false; try {
+	 * FriendsCircle friendsCircle = super.get(friendsCircleData.getId()); if
+	 * (friendsCircle == null) { return flag; }
+	 * friendsCircle.setCommentCount(friendsCircle.getCommentCount() + 1); flag
+	 * = true; } catch (Exception e) { // TODO: handle exception
+	 * e.printStackTrace(); return flag; } return flag; }
+	 */
+
+	@Override
+	public int getMyAllFriendcircleNum(String userId) {
+		// 我的朋友圈縂條數
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM FriendsCircle WHERE 1=1  AND state=1 AND userId='"
+				+ userId + "'  ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+//	@Cacheable(value = "MyFriendsCircle", key = "#userId")
+	public List<FriendsCircle> getMyAllFriendcircle(String userId) {
+		// 我的所有朋友圈
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM FriendsCircle WHERE 1=1  ");
+		sb.append(" AND state=1  AND userId='" + userId
+				+ "'  ORDER BY releaseDate  DESC ");
+		List<FriendsCircle> list = SQL(sb.toString(), FriendsCircle.class);
+		return list;
+	}
+
+//	@Override
+//	@Cacheable(value = "FriendsId", key = "#id")
+//	public FriendsCircle getById(String id) {
+//		// 缓存每个Id 的朋友圈
+//		FriendsCircle friendsCircle = super.get(id);
+//		return friendsCircle;
+//	}
+
+}

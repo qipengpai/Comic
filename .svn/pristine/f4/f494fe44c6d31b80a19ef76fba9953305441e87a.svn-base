@@ -1,0 +1,28 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.MallCartoonOrder;
+import com.qin.crxl.comic.service.AdminMallCartoonOrderService;
+import com.qin.crxl.comic.tool.ParaClick;
+
+public class AdminMallCartoonOrderServiceImpl extends BaseServiceImpl<MallCartoonOrder> implements
+		AdminMallCartoonOrderService {
+
+	@Override
+	public List<Object[]> selectMallCartoonOrder(
+			MallCartoonOrder mallCartoonOrder) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select a.id,a.orderNum,u.nickname,a.cartoonName,a.titile,a.orderMoney,a.orderDate from (select o.id,o.orderNum,c.cartoonName,s.titile,o.orderMoney,o.orderDate from MallCartoonOrder o,Cartoon c,Cartoonset s where o.cartoonId=c.id and o.cartoonSetId=s.id and orderState=1");
+		if(!ParaClick.clickString(mallCartoonOrder.getCartoonId())){
+			sb.append(" and c.cartoonName like '%"+mallCartoonOrder.getCartoonId()+"%'");
+		}
+		if(!ParaClick.clickString(mallCartoonOrder.getCartoonSetId())){
+			sb.append(" and s.titile like '%"+mallCartoonOrder.getCartoonSetId()+"%'");
+		}
+		sb.append(") a,");
+		sb.append(" where ");
+		return null;
+	}
+}

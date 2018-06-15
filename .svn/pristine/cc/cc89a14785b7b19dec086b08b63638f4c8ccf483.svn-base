@@ -1,0 +1,42 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+/**
+ * 每话图片内容
+ * @author cui
+ *
+ */
+@Service
+@Transactional
+public interface AdminCartoonPhotoService {
+	//增加话的图片
+	boolean addCartoonPhoto(CartoonPhotoData cartoonPhotoData,String[] photoUrl);
+	
+	//查询话中最大的sort
+	int getSortMax(CartoonPhotoData cartoonPhotoData);
+	
+	//删除话的图片
+	boolean deleteCartoonPhoto(CartoonPhotoData cartoonPhotoData);
+	
+	//修改话的排序
+	boolean updateCartoonPhoto(CartoonPhotoData cartoonPhotoData);
+	
+	//查询话的图片
+	List<CartoonPhoto> selectCartoonPhoto(CartoonPhotoData cartoonPhotoData);//每话的id
+	
+	//查询话的所有图片
+	int getCount(CartoonPhotoData cartoonPhotoData);
+	
+	//查询漫画是否存在图片内容
+	List<CartoonPhoto> selectCartoonPhotoByCartoonId(String cartoonId);//漫画ID
+	
+	
+}

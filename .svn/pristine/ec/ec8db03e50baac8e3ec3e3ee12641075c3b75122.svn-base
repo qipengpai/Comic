@@ -1,0 +1,63 @@
+package com.qin.crxl.comic.service.impl;
+
+
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.tool.EmojiFilter;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.StringToInt;
+@Service
+public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService{
+	@SuppressWarnings("unused")
+	private static Logger log = Logger.getLogger(UserServiceImpl.class
+			.getName());
+
+	@Override
+	public UserEntity updateUser(UserEntity entity, String wxqd) {
+		List<UserEntity> userEntity = SQL(
+				"SELECT * from UserEntity WHERE openid ='" + entity.getOpenid()
+						+ "'", UserEntity.class);
+		if (userEntity != null && userEntity.size() > 0) {
+			for (UserEntity old : userEntity) {
+				old.setHeadimgurl(entity.getHeadimgurl());
+
+				if (EmojiFilter.containsEmoji(entity.getNickname()) != false) {
+					old.setNickname(StringToInt.toInt("潮人用户"));
+				} else {
+					old.setNickname(StringToInt.toInt(entity.getNickname()));
+				}
+
+				if (ParaClick.clickString(old.getPlatformIndex())) {
+					old.setPlatformIndex(wxqd);
+				}
+
+				old.setCountry(StringToInt.toInt(entity.getCountry()));
+				old.setProvince(StringToInt.toInt(entity.getProvince()));
+				old.setCity(StringToInt.toInt(entity.getCity()));
+			}
+			log.info("-----数据库用户:" + userEntity.toString() + "------");
+			return userEntity.get(0);
+		} else {
+			if (EmojiFilter.containsEmoji(entity.getNickname()) != false) {
+				entity.setNickname(StringToInt.toInt("潮人用户"));
+			} else {
+				entity.setNickname(StringToInt.toInt(entity.getNickname()));
+			}
+			entity.setProvince(StringToInt.toInt(entity.getProvince()));
+			entity.setCity(StringToInt.toInt(entity.getCity()));
+			entity.setCountry(StringToInt.toInt(entity.getCountry()));
+			if (!ParaClick.clickString(wxqd)) {
+				entity.setPlatformIndex(wxqd);
+			}
+			save(entity);
+		}
+		return entity;
+	}
+
+}

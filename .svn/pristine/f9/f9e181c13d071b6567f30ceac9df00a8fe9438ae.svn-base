@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <title>登录</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet"><base target="_blank">
+    <link href="css/login.css">
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+    <style>
+    	.form-control01{
+	    background-color: #FFF;
+	    background-image: none;
+	    border: 1px solid #e5e6e7;
+	    border-radius: 1px;
+	    color: inherit;
+	    display: block;
+	    padding: 6px 12px;
+	    -webkit-transition: border-color .15s ease-in-out 0s,box-shadow .15s ease-in-out 0s;
+	    transition: border-color .15s ease-in-out 0s,box-shadow .15s ease-in-out 0s;
+	    width: 50%!important;
+	    float:left;
+	    }
+ 
+    </style>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">H+</h1>
+
+            </div>
+            <h3>欢迎使用 H+</h3>
+
+            <form class="m-t" role="form">
+                <div class="form-group">
+                    <input type="text" id="username" class="form-control" placeholder="用户名" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" class="form-control" placeholder="密码" required="">
+                </div>
+                <div class="form-group" id="codebtn">
+                    <input type="text" id="code" class="form-control01" placeholder="验证码" required="">
+                    <img src="/Comic/qpp/comic/ValidateCodeServlet.do" id="codeimg" alt="" style="width:80px;height:32px;">
+                </div>
+                
+                <input type="button"  class="btn btn-primary block full-width m-b" onclick="login()" value="登录">
+
+<!-- 
+                <p class="text-muted text-center"> <a href="login.html#"><small>忘记密码了？</small></a> | <a href="register.html">注册一个新账号</a> -->
+                </p>
+
+            </form>
+        </div>
+    </div>
+    <!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+			            </div>
+			            <div class="modal-body" id = "textcontent">在这里添加一些文本</div>
+			            <div class="modal-footer" id="btngroup">
+			            	<!-- <button type="button" class="btn btn-default" onclick="del()" id="delbtn">删除</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button> -->
+			            </div>
+			        </div><!-- /.modal-content -->
+			    </div><!-- /.modal -->
+			</div>	
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>

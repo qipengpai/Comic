@@ -1,0 +1,18 @@
+package com.qin.crxl.comic.service;
+
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.FriendsCirclePhoto;
+import com.qin.crxl.comic.entity.vo.FriendsCirclePhotoData;
+
+@Service
+@Transactional
+public interface AdminFriendsCirclePhotoService extends BaseService<FriendsCirclePhoto>{
+	//查询用户评论混圈图片
+	List<FriendsCirclePhoto> selectFriendsCirclePhoto(FriendsCirclePhotoData friendsCirclePhotoData);
+}

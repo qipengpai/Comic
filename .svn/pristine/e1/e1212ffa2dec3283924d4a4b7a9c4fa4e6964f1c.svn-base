@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd 
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd 
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+        
+        <!-- 自动扫描注解组件并且自动注入 -->
+   		<context:component-scan base-package="com.qin.crxl" />
+        <!-- Spring 扫描下包 -->
+		<context:component-scan base-package="com.qin.crxl"></context:component-scan>
+    
+        <!-- 开启注解 -->
+		<mvc:annotation-driven />
+        
+        <!-- 激活默认的静态资源处理器 -->
+        <mvc:default-servlet-handler/>
+		<!-- 定时器 -->
+		
+		<!-- sb -->
+		<task:annotation-driven /> 
+		<bean id="tileListener" class="com.qin.crxl.comic.system.TimeService" />
+		<task:scheduled-tasks>  
+	        <task:scheduled ref="tileListener" method="myTest" cron="*/360 * * * * ?" />  
+   		</task:scheduled-tasks>
+   		
+   		
+        <!--视图解析器-->
+	    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	       <property name="prefix" value="/"></property>
+		<property name="suffix" value=".jsp"></property>
+	    </bean>
+	    <bean id="multipartResolver"
+			class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+			<property name="defaultEncoding" value="UTF-8"></property>
+			<property name="maxUploadSize" value="10485760000"></property>
+			<property name="maxInMemorySize" value="40960"></property>
+		</bean>
+		
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/app/uplod/multipartFile.do" />
+			
+			<mvc:mapping path="/qpp/comic/add/cartoon.do" />
+			<mvc:mapping path="/qpp/comic/delete/cartoon.do" />
+			<mvc:mapping path="/qpp/comic/select/cartoon.do" />
+			
+			<mvc:mapping path="/qpp/comic/add/cartoonType.do" />
+			<mvc:mapping path="/qpp/comic/Allselect/cartoonType.do" />
+			
+			<mvc:mapping path="/qpp/comic/select/userEntity.do" />
+			
+			<mvc:mapping path="/qpp/comic/select/banner.do" />
+			<mvc:mapping path="/qpp/comic/add/banner.do"/>
+			
+			<mvc:mapping path="/qpp/comic/add/news.do"/>
+			<mvc:mapping path="/qpp/comic/select/news.do"/>
+			
+			<mvc:mapping path="/qpp/comic/select/feedBack.do"/>
+			
+			<mvc:mapping path="/qpp/comic/select/userOrder.do" />
+			
+			<bean class="com.qin.crxl.comic.tool.AdminListner"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>

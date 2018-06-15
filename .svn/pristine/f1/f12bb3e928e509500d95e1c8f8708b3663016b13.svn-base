@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>更新漫画</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/bootstrap.css">
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+ <style> 
+        .preview-container { 
+            position: relative; 
+            width: 200px; 
+            height: 200px; 
+            background-color: #eee; 
+        } 
+        .preview-container img { 
+            display: none; 
+            position: absolute; 
+        } 
+    </style> 
+</head>
+<body class="gray-bg" >
+<div class="wrapper wrapper-content animated fadeInRight"  id="formid" style="margin:0 auto;border:2px solid #D4D4D4;padding:30px 50px;box-shadow:3px 3px 5px #D4D4D4;margin-top:5%;">
+	<h3 class="text-center" id="hid">更新漫画话集张数</h3>
+	<div id="updata">
+	
+	</div>
+	<div id="url_data">
+	</div>
+	<input class="btn btn-success pull-left" type="button" id="submitbtn" value="修改画 " onclick="sure()">
+	<input class="btn btn-success pull-right" type="button" id="submitbtnatn" value="去添加画 " onclick="addup()">
+	<div class="clearboth"></div>
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+				</div>
+				<div class="modal-body" id="textcontent">在这里添加一些文本</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/mallinfoadd_up.js"></script>
+</body> 
+</html>

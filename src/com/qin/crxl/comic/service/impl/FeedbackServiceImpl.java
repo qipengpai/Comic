@@ -1,0 +1,35 @@
+package com.qin.crxl.comic.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Feedback;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.FeedBackData;
+import com.qin.crxl.comic.service.FeedbackService;
+import com.qin.crxl.comic.tool.DateUtil;
+@Service
+public class FeedbackServiceImpl extends
+BaseServiceImpl<Feedback> implements FeedbackService{
+
+	@Override
+	public boolean addFeedback(FeedBackData feedBackData, UserEntity userEntity) {
+		// 添加反饋
+		boolean flag=false;
+		try {
+			Feedback feedBack=new Feedback();
+			feedBack.setBackDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			feedBack.setUserId(userEntity.getUserId());
+			feedBack.setImplDaye(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			feedBack.setContent(feedBackData.getContent());
+			super.save(feedBack);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

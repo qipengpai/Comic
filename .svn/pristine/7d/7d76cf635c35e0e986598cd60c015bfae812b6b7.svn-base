@@ -1,0 +1,89 @@
+$(function(){
+	tititle();
+	
+});
+function tititle(){
+	$.ajax({
+		url : "/Comic/qpp/comic/add/cartoonSetTitile.do",
+		type:"post",
+		data :{
+			"cartoonId":GetQueryString("id"),
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#title_img").val(data.msg);
+			}
+		}
+	});
+}
+$(".vip").click(function(){
+	 var vipvalue = $('input:radio[name="vip"]:checked').val();
+	 if(vipvalue == 0){
+		 $(".liandong").css("display","block");
+	 }else if(vipvalue == 1){
+		 $(".liandong").css("display","none");
+	 }
+});
+
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return unescape(r[2]);
+	return null;
+}
+function doUpload() {
+    var formData = new FormData($( "#uploadForm" )[0]); 
+//    console.log(formData)
+    $.ajax({    
+         url: '/Comic/app/uplod/multipartFile.do' ,  /*这是处理文件上传的servlet*/  
+         type: 'POST',    
+         data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		$(".form-group_input .fileimg").css("width","100%");
+           	 $("#showPhoto").val(returndata.obj[0]);
+           	 $(".showPhoto").attr("src",returndata.obj[0]);
+       	  }
+       	  
+         },    
+         error: function (returndata) {    
+             alert(returndata);    
+         }    
+    });
+}
+function showphoto(source){
+	var file = source.files[0].name;
+	$(".showPhoto").attr("src",file);
+	$(".showPhoto").attr("alt",file);
+}
+function malladd(){
+	if($("#showPhoto").val() !== "" && $(".byname").val() !== ""){
+		
+		$.ajax({
+			url : "/Comic/qpp/comic/add/cartoonSet.do",
+			type:"post",
+			data :{
+				"showPhoto":$("#showPhoto").val(),
+				"titile" : $("#title_img").val(),
+				"details":$("#details_img").val(),
+				"vip" : $(".vip:checked").val(),
+				"price" : $("#price_img").val(),
+				"moneyState" : $(".moneystste:checked").val(),
+				"watchState" : $(".watchstate:checked").val(),
+				"cartoonId" : GetQueryString("id")
+			},
+			success:function(data){
+				if(data.error == 200){
+					window.location.href = "table_basic_watch.html?id="+GetQueryString("id");
+				}
+			}
+			
+		});
+	}
+}

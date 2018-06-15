@@ -1,0 +1,168 @@
+var nowpage = 1;
+var totalpage;
+var condition = "";
+$(function(){
+	if(GetQueryString("nowpage")){
+		nowpage = GetQueryString("nowpage");
+		$("#nowpage").val(GetQueryString("nowpage"))
+	}
+	if(GetQueryString("condition")){
+		condition = GetQueryString("condition");
+		$("#condition").val(GetQueryString("condition"))
+	}
+	if(GetQueryString("id")){
+		$("#cartoonid").val(GetQueryString("id"))
+	}
+	ajax(nowpage);
+})
+function ajax(nowpage){
+	$.ajax({
+		url:"/Comic/crxl/qpp/distributor/selectDistributiontitle.do",
+		type:"post",
+		data:{
+			"condition" : condition,
+			"nowPage" : nowpage,
+			"cartoonId":$("#cartoonid").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-data").html(data.totalpage);
+				$(".pagination-num").val(data.nowpage);
+				totalpage = data.totalpage;
+				nowpage = data.nowpage;
+				for(var i = 0;i<data.obj.length;i++){
+					var str = "<tr>" +
+							"<td>"+data.obj[i].implDate+"</td>" +
+							"<td>" +data.obj[i].cartoonTitle +"</td>" +
+							"<td><span class='delete btn_btn' onclick='deletetitle(&quot;"+data.obj[i].id+"&quot;,&quot;"+nowpage+"&quot;)'>删</span></td>"+
+							"</tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				model(data.msg);
+			}
+		}
+	})
+}
+function addtitle(){
+	$('#addtitle').modal('show');
+}
+function save(){
+	$.ajax({
+		url:"/Comic/crxl/qpp/distributor/addDistributiontitle.do",
+		type:"post",
+		data:{
+			"cartoonId":$("#cartoonid").val(),
+			"cartoonTitle":$("#titlecon").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#titlecon").val('');
+				nowpage = parseInt($(".pagination-num").val());
+				ajax(nowpage);
+			}
+			$('#addtitle').modal('hide');
+			model(data.msg);
+		}
+	})
+}
+/*function deletetitle(id,nowpage){
+	$.ajax({
+		url:"/Comic/crxl/qpp/distributor/deleteDistributiontitle.do",
+		type:"post",
+		data:{
+			"id" : id,
+		},
+		success:function(data){
+			if(data.error == 200){
+				ajax(nowpage)
+			}
+			model(data.msg)
+		}
+	})
+}*/
+function deletetitle(id){
+	$("#delid").val(id);
+	$("#confirmbox").modal('show');
+}
+function confirmdel(){
+	nowpage = parseInt($(".pagination-num").val());
+	$("#confirmbox").modal('hide');
+	$.ajax({
+		url:"/Comic/crxl/qpp/distributor/deleteDistributiontitle.do",
+		type:"post",
+		data:{
+			"id" : $("#delid").val(),
+		},
+		success:function(data){
+			if(data.error == 200){
+				ajax(nowpage)
+			}
+			model(data.msg)
+		}
+	})
+}
+function cancel(){
+	window.location.href = "distributor_cartoon.html?nowpage="+$("#nowpage").val();
+}
+function firstpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage == 1){
+		return false
+	}else{
+		ajax(1);
+	}
+}
+function prevpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(totalpage>1){
+		ajax(nowpage-1);
+	}else{
+		return false;
+	}
+}
+function lastpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage == totalpage){
+		return false;
+	}else{
+		ajax(totalpage)
+	}
+}
+function nextpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(totalpage > nowpage){
+		ajax(nowpage+1)
+	}else{
+		return false
+	}
+}
+function selectpage(){
+	totalpage = parseInt($(".pagination-data").html());
+	nowpage = parseInt($(".pagination-num").val());
+	if(nowpage >= totalpage){
+		ajax(totalpage);
+	}else{
+		ajax(nowpage);
+	}
+}
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+function model(msg){
+	$('#myModal').modal('show');
+	$('#myModalLabel').html('系统提示');
+	$('#textcontent').html(msg);
+	$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+	/*$("#tbody").empty();*/
+}

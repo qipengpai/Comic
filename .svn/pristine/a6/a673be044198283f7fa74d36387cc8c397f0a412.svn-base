@@ -1,0 +1,82 @@
+package com.qin.crxl.comic.system;
+
+public class ActionUrl {
+
+	// 微信登录
+	public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	
+	
+	
+	// 获取banner图
+	public static final String GET_BANNER = "/qpp/comic/get/banner";
+	
+	
+	
+	// 根据id查询漫画集数
+	public static final String GET_CARTOONSET_BYID = "/qpp/comic/get/cartoon/byid";
+	// 根据id查询漫画集数>点赞
+	public static final String GET_CARTOONSET_BYID_OKCOUNT = "/qpp/comic/bysetid/okcount";
+	// 首頁查询漫画列表
+	public static final String GET_ALL_CARTOON = "/qpp/comic/get/allcartoon";
+	// 查询热门漫画
+	public static final String GET_ALL_HOT_CARTOON = "/qpp/comic/get/hot/cartoon";
+	// 发现>热门漫画>查看更多>全部
+	public static final String GET_ALL_HOT_CARTOON_MORE = "/qpp/comic/get/more/cartoon";
+	// 发现>热门漫画>查看更多>热门
+	public static final String GET_CARTOON_MORE_HOT = "/qpp/comic/get/more/hot";
+	// 发现>热门漫画>查看更多>分类查询
+	public static final String  GET_CARTOON_MORE_BYTYPE = "/qpp/comic/get/more/bytype";
+	// 二级页面查询表头
+	public static final String GET_CARTOON_HEAD_BYID = "/qpp/comic/get/cartoon/head";
+	// 漫画详情
+	public static final String GET_CARTOONPHOTO_INFO_BYID = "/qpp/comic/get/info";
+	
+	
+	
+	// 获取该剧所有评论
+	public static final String GET_ALL_CARTOOMCOMMENT = "/qpp/comic/get/allcomment";
+	// 评论该剧
+	public static final String ADD_CARTOOMCOMMENT = "/qpp/comic/add/allcomment";
+	// 查看評論的所有評論
+	public static final String GET_ALL_CARTOOMCOMMENTSET = "/qpp/comic/get/comment/allcomment";
+	// 評論 評論
+	public static final String ADD_CARTOOMCOMMENTSET = "/qpp/comic/add/comment/comment";
+	// 点赞
+	public static final String ADD_CARTOOMCOMMENT_OK = "/qpp/comic/add/okcount";
+	
+	
+	
+	// 关注漫画
+	public static final String FOLLOW_CARTOON = "/qpp/comic/follow/cartoon";
+	//搜索页面初始化
+	public static final String GET_SEARCH_INITIALIZATION="/app/search/initialization";
+	//搜索
+	public static final String GET_SEARCH="/app/search";
+	
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 根据id查询漫画
+	//public static final String GET_ALL_CARTOOMCOMMENTSET = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 微信登录
+	//public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	//public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	//public static final String GET_CARTOON_BYID = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 根据id查询漫画
+	//public static final String GET_ALL_CARTOOMCOMMENTSET = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+	// 微信登录
+	//public static final String WEIXINLOGIN = "/servlet/OAuthAPIServlet";
+	// 获取banner图
+	//public static final String GET_BANNER = "/qpp/comic/get/banner";
+	// 根据id查询漫画
+	//public static final String GET_CARTOON_BYID = "/qpp/get/cartoon/byid";
+	// 微信登录
+	//public static final String GET_ALL_CARTOON = "/servlet/OAuthAPIServlet";
+}

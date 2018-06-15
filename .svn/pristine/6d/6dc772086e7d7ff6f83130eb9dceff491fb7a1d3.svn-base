@@ -1,0 +1,59 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonComment;
+import com.qin.crxl.comic.entity.FollowCartoon;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class FollowCartoonServiceImpl extends BaseServiceImpl<FollowCartoon>implements FollowCartoonService{
+
+	@Override
+	public int getFollowCount(Cartoon cartoon) {
+		// 查看漫画关注人数
+		int num=super.gettotalpage("SELECT COUNT(*) FROM FollowCartoon WHERE cartoonId='"+cartoon.getId()+"' AND updateState=1 ");
+		return num;
+	}
+
+	@Override
+	public boolean followCartoon(CartoonData cartoonData, UserEntity userEntity) {
+		// 关注
+		boolean flag =false;
+		try {
+			FollowCartoon followCartoon=new FollowCartoon();
+			followCartoon.setCartoonId(followCartoon.getId());
+			followCartoon.setFollowDate(DateUtil.getdate_yyyy_MM_dd());
+			followCartoon.setUpdateState(1);
+			followCartoon.setUserId(userEntity.getUserId());
+			super.save(followCartoon);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<FollowCartoon> getFollowByid(CartoonData cartoonData,UserEntity userEntity) {
+		// 根据你userId查看用户是否关注
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  FollowCartoon  WHERE  1=1 AND userId='"
+				+ userEntity.getUserId()
+				+ "' AND cartoonId='"+cartoonData.getId()+"' AND  updateState=1 ");
+		List<FollowCartoon> list = super.SQL(sb.toString(),
+				FollowCartoon.class);
+
+		return list;
+	}
+
+	
+}

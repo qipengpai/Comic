@@ -1,0 +1,112 @@
+package com.qin.crxl.comic.entity.vo;
+
+public class FriendsCircleData extends BaseEntityVO{
+	private String id = "";
+	//private String userId = ""; // 用户id
+	private String releaseInfo = ""; // 发布内容
+	private String releaseDate = ""; // 发布时间
+	private String aite = ""; // @
+	private String commentCount = ""; // 评论次数
+	private String okCount =""; // 点赞次数
+	private String implDate = ""; // 操作时间
+	private String state = ""; // 状态
+	private String deleteState = ""; //删除状态
+	private String nowPage ="";     //当前页
+	private String pageNum ="";        //每页容量
+	private String condition = "";           //查询条件
+	private String newHot ="";           //查询条件
+	private String veryOk ="";           //查询条件
+	
+	
+	public String getVeryOk() {
+		return veryOk;
+	}
+	public void setVeryOk(String veryOk) {
+		this.veryOk = veryOk;
+	}
+	public String getNewHot() {
+		return newHot;
+	}
+	public void setNewHot(String newHot) {
+		this.newHot = newHot;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+//	public String getUserId() {
+//		return userId;
+//	}
+//	public void setUserId(String userId) {
+//		this.userId = userId;
+//	}
+	public String getReleaseInfo() {
+		return releaseInfo;
+	}
+	public void setReleaseInfo(String releaseInfo) {
+		this.releaseInfo = releaseInfo;
+	}
+	public String getReleaseDate() {
+		return releaseDate;
+	}
+	public void setReleaseDate(String releaseDate) {
+		this.releaseDate = releaseDate;
+	}
+	public String getAite() {
+		return aite;
+	}
+	public void setAite(String aite) {
+		this.aite = aite;
+	}
+	public String getCommentCount() {
+		return commentCount;
+	}
+	public void setCommentCount(String commentCount) {
+		this.commentCount = commentCount;
+	}
+	public String getOkCount() {
+		return okCount;
+	}
+	public void setOkCount(String okCount) {
+		this.okCount = okCount;
+	}
+	public String getImplDate() {
+		return implDate;
+	}
+	public void setImplDate(String implDate) {
+		this.implDate = implDate;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	public String getDeleteState() {
+		return deleteState;
+	}
+	public void setDeleteState(String deleteState) {
+		this.deleteState = deleteState;
+	}
+	public String getNowPage() {
+		return nowPage;
+	}
+	public void setNowPage(String nowPage) {
+		this.nowPage = nowPage;
+	}
+	public String getPageNum() {
+		return pageNum;
+	}
+	public void setPageNum(String pageNum) {
+		this.pageNum = pageNum;
+	}
+	public String getCondition() {
+		return condition;
+	}
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
+	
+}

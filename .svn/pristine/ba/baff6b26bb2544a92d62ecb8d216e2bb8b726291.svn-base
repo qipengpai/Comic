@@ -1,0 +1,13 @@
+package com.qin.crxl.comic.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.qin.crxl.comic.service.DistributorWithdrawalsService;
+
+@Controller
+public class DistributorWithdrawalsController {
+
+	@Autowired
+	private DistributorWithdrawalsService distributorWithdrawalsService;
+}

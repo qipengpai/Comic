@@ -1,0 +1,270 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.PhoneVerification;
+import com.qin.crxl.comic.entity.vo.UserRegisterPar;
+import com.qin.crxl.comic.service.PhoneVerificationService;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.UserEntityData;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.system.SystemConfig;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.tool.SendCode;
+import com.qin.crxl.comic.tool.RandomUtil;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class UserEntityController {
+
+	@Autowired
+	private PhoneVerificationService phoneVerificationService;
+	@Autowired
+	private  UserService userService;
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>用户注册>发送验证码
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SEND_REGISTER_CODE, method = RequestMethod.POST)
+	public Model userRegisterSend(HttpServletRequest request,
+			UserEntityData userEntityData) throws Exception {
+		// 获取登录用户信息
+		userEntityData.clickUser();
+		UserEntity userEntity2= userService.get(userEntityData.getUserId());
+		if (userEntity2 == null) {
+			return new Model(404, "无用户");
+		}
+		if (ParaClick.clickString(userEntityData.getPhone())) {
+			return new Model(500, "手机号为空");
+		}
+		List<UserEntity> userEntity = userService.getByPhone(userEntityData);
+		if (ParaClick.clickList(userEntity)) {
+			return new Model(200, "该手机号已被绑定");
+		}
+		String num = RandomUtil.getFixLenthString(5);
+		String code = SystemConfig.SendCodeMessage(num);
+		SendCode.sendCode(userEntityData.getPhone(), code);
+		String id= phoneVerificationService.temCode(userEntityData.getPhone(),num);
+		Model model=new Model();
+		model.setError(200);
+		model.setMsg("已发送验证码");
+		model.setObj(id);
+		return model;
+	}
+
+	/**
+	 * pp
+	 * 
+	 * @Remarks app>用户注册>提交手机号密码
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.USER_REGISTER, method = RequestMethod.POST)
+	public Model userRegister(HttpServletRequest request,
+			UserEntityData userEntityData) {
+		if (ParaClick.clickString(userEntityData.getPhone())) {
+			return new Model(500, "手机号为空");
+		}
+		if (ParaClick.clickString(userEntityData.getUserPassword())) {
+			return new Model(500, "密码为空");
+		}
+		if (ParaClick.clickString(userEntityData.getCode())) {
+			return new Model(500, "请输入验证码");
+		}
+		String phonevcode = request.getSession().getAttribute("code")
+				.toString();
+		System.err.println(phonevcode + "-" + userEntityData.getCode());
+		if (!userEntityData.getCode().equals(phonevcode)) {
+			return new Model(500, "验证码错误");
+		}
+		boolean flag = userService.addUserEntity(userEntityData);
+		if (!flag) {
+			return new Model(500, "注册失败");
+		}
+		return new Model(200, "注册成功");
+	}
+
+	/**
+	 * pp
+	 * @Remarks app>用户登录
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.USER_LOGIN, method = RequestMethod.POST)
+	public Model userLogin(HttpServletRequest request,
+			UserEntityData userEntityData) {
+		if (ParaClick.clickString(userEntityData.getPhone())) {
+			return new Model(500, "手机号为空");
+		}
+		if (ParaClick.clickString(userEntityData.getUserPassword())) {
+			return new Model(500, "密码为空");
+		}
+		List<UserEntity> userEntity = userService
+				.getUserEntityByLogin(userEntityData);
+		if (!ParaClick.clickList(userEntity)) {
+			return new Model(500, "登录失败");
+		}
+		return new Model(200,userEntity.get(0));
+	}
+
+	/**
+	 * pp
+	 * @Remarks app>退出登录
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.USER_LOGIN_OUT, method = RequestMethod.POST)
+	public void execute(HttpServletRequest request) {
+		request.getSession().invalidate();
+	}
+
+	/**
+	 * pp
+	 * @Remarks app>用戶操作>完善信息
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.USER_PERFECT_INFO, method = RequestMethod.POST)
+	public Model userPerfectInfo(
+			UserEntityData userEntityData) throws Exception {
+		userEntityData.clickUser();
+		UserEntity userEntity = userService.get(userEntityData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		boolean flag = userService.userProfectInfo(userEntityData);
+		if (!flag) {
+			return new Model(500, "修改失败");
+		}
+		return new Model(200, "修改成功");
+	}
+
+	/**
+	 * pp
+	 * @Remarks app>用戶操作>上传头像
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.USER_PERFECT_INFO_HEADPORTRACT, method = RequestMethod.POST)
+	public Model userPerfectInfoHeadPortrait(UserEntityData userEntityData) throws Exception {
+		userEntityData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(userEntityData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		boolean flag=userService.userUpdateHeadPortrict(userEntityData);
+		if (!flag) {
+			return new Model(500, "修改失败");
+		}
+		return new Model(200, "修改成功");
+	}
+	
+	/**
+	 * pp
+	 * @Remarks app>用戶操作>用户绑定手机号码
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value=ActionUrl.GET_UPDATE_PHONE,method = RequestMethod.POST)
+	public Model updatePhone(UserRegisterPar par) throws Exception{
+		par.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(par.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		if (!ParaClick.clickString(userEntity.getTruePhone())) {
+			return new Model(500, "您已绑定手机号码");
+		}
+		if(ParaClick.clickString(par.getTruePhone())||par.getTruePhone().length()<11){
+			return new Model(500, "请输入手机号码");
+		}
+		if(ParaClick.clickString(par.getCode())){
+			return new Model(500, "请输入验证码");
+		}
+		PhoneVerification pv=phoneVerificationService.get(par.getId());
+		if(pv!=null){
+			if(!par.getCode().equals(pv.getCode())){
+				return new Model(500, "验证码错误");
+			}
+			if(!par.getTruePhone().equals(pv.getPhone())){
+				return new Model(500, "请获取验证码");
+			}
+		}else{
+			return new Model(500, "请获取验证码");
+		}
+		List<UserEntity> entity2=userService.getByPhone(par.getTruePhone());
+		if(ParaClick.clickList(entity2)){
+			return new Model(500, "手机号已被绑定");
+		}
+		UserEntity entity=userService.updateUserPhone(userEntity,par.getTruePhone());
+		if (entity==null) {
+			return new Model(500, "绑定失败");
+		}
+		return new Model(200,"绑定成功");
+	}
+	/**
+	 * pp
+	 * @Remarks 更新数据>全部>vip
+	 * @throws Exception
+	 * */
+//	@ResponseBody
+//	@RequestMapping(value = ActionUrl.CHACK_VIP, method = RequestMethod.POST)
+//	public Model getMoreAllCartoon()
+//			throws Exception {
+//		boolean flag=userService.chackVip();
+//		if(!flag){
+//			System.out.println("controller更新数据失败");
+//			return new Model(500,"500");
+//		}
+//		System.out.println("controller更新数据成功");
+//		return new Model(200,"200");
+//	}
+	/**
+	 * pp
+	 * @Remarks app>用戶操作>用户登录
+	 * @throws Exception
+	 * *//*
+	@ResponseBody
+	@RequestMapping(value=ActionUrl.GET_USER_INFO,method = RequestMethod.GET)
+	public Model getUserInfo(HttpSession session,HttpServletRequest request,String id){
+		UserEntity user=  (UserEntity) session.getAttribute("user");
+		if(user==null){
+//			 return new Model(500,SystemConfig.weixlogin);
+			user=userService.getUserInfoById("Er8pfJFf4htHWACkmySp0HD442WgaXS2");
+		}
+		if(user!=null){
+			user=userService.getUserInfoById(user.getUserid());
+			if(user!=null){
+				user.setNickname(StringToInt.toString(user.getNickname()));
+			}
+		}
+		if(!ParaClick.clickString(id)){
+			user=userService.getUserInfoById(id);
+			if(user!=null){
+				user.setNickname(StringToInt.toString(user.getNickname()));
+			}
+		}
+		if(user==null){
+			 return new Model(500,SystemConfig.weixlogin); 
+		}
+		session.removeAttribute("user");
+		session.setAttribute("user", user);
+		session.setMaxInactiveInterval(-1);
+	
+	}*/
+	
+}

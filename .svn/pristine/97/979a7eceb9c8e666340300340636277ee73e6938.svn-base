@@ -1,0 +1,370 @@
+
+package com.qin.crxl.comic.action;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ipaynow.utils.MD5Facade;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.Payment;
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.SystemConfig;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.RandomUtil;
+import com.qin.crxl.comic.tool.SendCode;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class Payservlettwo {
+	@SuppressWarnings("unused")
+	private static Logger log = Logger.getLogger(Payservlettwo.class.getName());
+	private static final long serialVersionUID = 1L;
+	public static Map<String, String> orderResult; // 用来存储订单的交易状态(key:订单号，value:状态(0:未支付，1：已支付))
+													// ---- 这里可以根据需要存储在数据库中
+	public static int orderStatus = 0;
+	private RandomUtil ran = new RandomUtil();
+
+	@Autowired
+	private UserOrderService userOrderService;
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * 會員支付地址
+	 * @param req
+	 * @param resp
+	 * @param session
+	 * @throws Exception 
+	 */
+
+	@RequestMapping(value = "/pay/payaction/vip", method = RequestMethod.POST)
+	protected Model doPost(UserOrderData userOrderData) throws Exception {
+		userOrderData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(userOrderData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		@SuppressWarnings("static-access")
+		String rans = ran.generateString(32);
+		String money = userOrderData.getOrderMoney();// 分
+		String funcode = SystemConfig._XZZF_FUNCTION_CODE;// 功能码
+		String deviceType = SystemConfig._XZZF_EQUIPMENT;// 设备类型
+		String appId = SystemConfig._XZZF_APPID;
+		String mhtOrderNo = rans;// 订单号
+		String version = SystemConfig._XZZF_VARSION_NUM;// 版本
+		String mhtOrderName = "充值会员 ";// 订单名称
+		String mhtCurrencyType = SystemConfig._XZZF_MHTCURRENCYTYPE;
+		String mhtOrderAmt = money;// 订单金额
+		/* String mhtOrderAmt = (1)+""; */
+		String mhtOrderDetail = "充值会员";// 订单详情
+		String mhtOrderType = SystemConfig._XZZF_MHTORDERTYPE;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		String mhtOrderStartTime = dateFormat.format(new Date());// 订单时间
+		String notifyUrl = "http://fkfq.edisonluorui.com/Comic/pay/callback.do";// 后台回调地址
+		System.err.println("##支付回调地址:##" + notifyUrl);
+		String frontNotifyUrl = "http://fkfq.edisonluorui.com/Comic/webindex/success.html";// 前台回调地址
+		String mhtCharset = SystemConfig._XZZF_MHTCHARSET;// 支付编码
+		String payChannelType = SystemConfig._XZZF_CHANNEL;// 支付渠道13
+		String outputType = SystemConfig._XZZF_FORMAT;// 输出格式0/1
+		String appKey = SystemConfig._XZZF_APPID_KEY;// md5 key
+		String mhtReserved = rans;
+		String mhtSignType = SystemConfig._XZZF_SIGNTYPE;
+
+		// 做MD5签名
+		Map<String, String> dataMap = new HashMap<String, String>();
+		dataMap.put("appId", appId);
+		dataMap.put("deviceType", deviceType);
+		dataMap.put("funcode", funcode);
+		dataMap.put("mhtOrderNo", mhtOrderNo);
+		dataMap.put("mhtOrderName", mhtOrderName);
+		dataMap.put("version", version);
+		dataMap.put("mhtCurrencyType", mhtCurrencyType);
+		dataMap.put("mhtOrderAmt", mhtOrderAmt);
+		dataMap.put("mhtOrderDetail", mhtOrderDetail);
+		dataMap.put("mhtOrderType", mhtOrderType);
+		dataMap.put("mhtOrderStartTime", mhtOrderStartTime);
+		dataMap.put("notifyUrl", notifyUrl);
+		dataMap.put("frontNotifyUrl", frontNotifyUrl);
+		dataMap.put("mhtCharset", mhtCharset);
+		dataMap.put("outputType", outputType);
+		dataMap.put("payChannelType", payChannelType);
+		dataMap.put("mhtSignType", mhtSignType);
+		// 商户保留域， 可以不用填。 如果商户有需要对每笔交易记录一些自己的东西，可以放在这个里面
+		dataMap.put("mhtReserved", mhtReserved);
+		String mhtSignature = MD5Facade.getFormDataParamMD5(dataMap, appKey,
+				"UTF-8");
+
+		// 初始化订单到DB
+		try {
+			UserOrder uo = new UserOrder();
+			uo.setOrderNum(rans);
+			uo.setOrderMoney(Integer.parseInt(money) / 100);
+			uo.setOrderDescription("充值会员");
+			uo.setOrderRemarks("充值会员");
+			uo.setOrderOpenId(userEntity.getOpenid());
+			uo.setOrderState(0);
+			uo.setOrderCurrency(0);
+			uo.setOrderIntegral(JSONObject.fromObject(userEntity).toString());
+			uo.setOrderDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			userOrderService.save(uo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Payment payment=new Payment();
+		payment.setAppId(appId);
+		payment.setDeviceType(deviceType);
+		payment.setFrontNotifyUrl(frontNotifyUrl);
+		payment.setFuncode(funcode);
+		payment.setMhtCharset(mhtCharset);
+		payment.setMhtCurrencyType(mhtCurrencyType);
+		payment.setMhtOrderAmt(mhtOrderAmt);
+		payment.setMhtOrderDetail(mhtOrderDetail);
+		payment.setMhtOrderName(mhtOrderName);
+		payment.setMhtOrderNo(mhtOrderNo);
+		payment.setMhtOrderStartTime(mhtOrderStartTime);
+		payment.setMhtOrderType(mhtOrderType);
+		payment.setMhtSignature(mhtSignature);
+		payment.setMhtSignType(mhtSignType);
+		payment.setNotifyUrl(frontNotifyUrl);
+		payment.setOutputType(outputType);
+		payment.setPayChannelType(payChannelType);
+		payment.setVersion(version);
+		return new Model(200,payment);
+	}
+
+	// 會員支付回调
+	@RequestMapping(value = "/pay/callback", method = RequestMethod.POST)
+	protected Model callback(HttpServletRequest req, HttpServletResponse resp,
+			HttpSession session) throws ServletException, IOException {
+		log.info("---------开始回调---------");
+		BufferedReader reader = req.getReader();
+		StringBuilder reportBuilder = new StringBuilder();
+		String tempStr = "";
+		while ((tempStr = reader.readLine()) != null) {
+			reportBuilder.append(tempStr);
+		}
+		String reportContent = reportBuilder.toString();
+		System.out.println("#######" + reportContent + "########");
+
+		Map<String, String> map = getMapToList(reportContent);
+		System.out.println(map.toString());
+		String orderId = map.get("mhtOrderNo");
+		System.err.println("##回调订单号:##" + orderId);
+		// 修改订单状态
+		UserOrder ret = userOrderService.updateOrder(orderId);
+		if (ret == null) {
+			new Model(500, "订单信息错误");
+		}
+		UserEntity user = (UserEntity) JSONObject
+				.toBean(JSONObject.fromObject(ret.getOrderIntegral()),
+						UserEntity.class);
+		System.out.println(user.getOpenid());
+		boolean flag = userService.updateVipState(user.getUserId(),
+				ret.getOrderMoney());
+		if (!flag) {
+			return new Model(500, "支付失败");
+		}
+		userOrderService.cleanJF(orderId);// 受连续回调影响 积分归0
+		UserEntity user2 = userService.get(user.getUserId());
+		if (user2 != null) {
+			user2.setNickname(StringToInt.toString(user2.getNickname()));
+			log.info("---------支付回调:订单" + ret.getOrderNum() + "  状态:"
+					+ ret.getOrderState() + "---------");
+			log.info("---------用户信息:" + user2.toString() + "---------");
+			return new Model(200, "支付完成");
+
+		} else {
+			log.info("---------用户信息未获取---------");
+			return new Model(500, "支付失败");
+		}
+
+	}
+
+	private Map<String, String> getMapToList(String reportContent) {
+		Map<String, String> map = new HashMap<String, String>();
+		String[] ret = reportContent.split("&");
+		for (int i = 0; i < ret.length; i++) {
+			String[] v = ret[i].split("=");
+			map.put(v[0], v[1]);
+
+		}
+		return map;
+	}
+
+	/**
+	 * 劇點支付地址
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param session
+	 * @throws Exception 
+	 */
+
+	@RequestMapping(value = "/pay/payaction/playPoint", method = RequestMethod.POST)
+	protected Model doPost2(UserOrderData userOrderData) throws Exception {
+		userOrderData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(userOrderData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		@SuppressWarnings("static-access")
+		String rans = ran.generateString(32);
+		String money = userOrderData.getOrderMoney();// 分
+		String funcode = SystemConfig._XZZF_FUNCTION_CODE;// 功能码
+		String deviceType = SystemConfig._XZZF_EQUIPMENT;// 设备类型
+		String appId = SystemConfig._XZZF_APPID;
+		String mhtOrderNo = rans;// 订单号
+		String version = SystemConfig._XZZF_VARSION_NUM;// 版本
+		String mhtOrderName = "充值剧点";// 订单名称
+		String mhtCurrencyType = SystemConfig._XZZF_MHTCURRENCYTYPE;
+		String mhtOrderAmt = money;// 订单金额
+		/* String mhtOrderAmt = (1)+""; */
+		String mhtOrderDetail = "充值剧点";// 订单详情
+		String mhtOrderType = SystemConfig._XZZF_MHTORDERTYPE;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		String mhtOrderStartTime = dateFormat.format(new Date());// 订单时间
+		String notifyUrl = "http://fkfq.edisonluorui.com/Comic/pay/callback.do";// 后台回调地址
+		System.err.println("##支付回调地址:##" + notifyUrl);
+		String frontNotifyUrl = "http://fkfq.edisonluorui.com/Comic/webindex/success.html";// 前台回调地址
+		String mhtCharset = SystemConfig._XZZF_MHTCHARSET;// 支付编码
+		String payChannelType = SystemConfig._XZZF_CHANNEL;// 支付渠道13
+		String outputType = SystemConfig._XZZF_FORMAT;// 输出格式0/1
+		String appKey = SystemConfig._XZZF_APPID_KEY;// md5 key
+		String mhtReserved = rans;
+		String mhtSignType = SystemConfig._XZZF_SIGNTYPE;
+
+		// 做MD5签名
+		Map<String, String> dataMap = new HashMap<String, String>();
+		dataMap.put("appId", appId);
+		dataMap.put("deviceType", deviceType);
+		dataMap.put("funcode", funcode);
+		dataMap.put("mhtOrderNo", mhtOrderNo);
+		dataMap.put("mhtOrderName", mhtOrderName);
+		dataMap.put("version", version);
+		dataMap.put("mhtCurrencyType", mhtCurrencyType);
+		dataMap.put("mhtOrderAmt", mhtOrderAmt);
+		dataMap.put("mhtOrderDetail", mhtOrderDetail);
+		dataMap.put("mhtOrderType", mhtOrderType);
+		dataMap.put("mhtOrderStartTime", mhtOrderStartTime);
+		dataMap.put("notifyUrl", notifyUrl);
+		dataMap.put("frontNotifyUrl", frontNotifyUrl);
+		dataMap.put("mhtCharset", mhtCharset);
+		dataMap.put("outputType", outputType);
+		dataMap.put("payChannelType", payChannelType);
+		dataMap.put("mhtSignType", mhtSignType);
+
+		// 商户保留域， 可以不用填。 如果商户有需要对每笔交易记录一些自己的东西，可以放在这个里面
+		dataMap.put("mhtReserved", mhtReserved);
+		String mhtSignature = MD5Facade.getFormDataParamMD5(dataMap, appKey,
+				"UTF-8");
+
+		// 初始化订单到DB
+		try {
+			UserOrder uo = new UserOrder();
+			uo.setOrderNum(rans);
+			uo.setOrderMoney(Integer.parseInt(money) / 100);
+			uo.setOrderDescription("充值剧点");
+			uo.setOrderRemarks("充值剧点");
+			uo.setOrderOpenId(userEntity.getOpenid());
+			uo.setOrderState(0);
+			uo.setOrderCurrency((Integer.parseInt(money)) / 100 * 100);
+			uo.setOrderIntegral(JSONObject.fromObject(userEntity).toString());
+			uo.setOrderDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			userOrderService.save(uo);
+		} catch (Exception e) {
+			// TODO: handle exception
+			// throw new RuntimeException("生成订单失败");
+			e.printStackTrace();
+		}
+		Payment payment=new Payment();
+		payment.setAppId(appId);
+		payment.setDeviceType(deviceType);
+		payment.setFrontNotifyUrl(frontNotifyUrl);
+		payment.setFuncode(funcode);
+		payment.setMhtCharset(mhtCharset);
+		payment.setMhtCurrencyType(mhtCurrencyType);
+		payment.setMhtOrderAmt(mhtOrderAmt);
+		payment.setMhtOrderDetail(mhtOrderDetail);
+		payment.setMhtOrderName(mhtOrderName);
+		payment.setMhtOrderNo(mhtOrderNo);
+		payment.setMhtOrderStartTime(mhtOrderStartTime);
+		payment.setMhtOrderType(mhtOrderType);
+		payment.setMhtSignature(mhtSignature);
+		payment.setMhtSignType(mhtSignType);
+		payment.setNotifyUrl(frontNotifyUrl);
+		payment.setOutputType(outputType);
+		payment.setPayChannelType(payChannelType);
+		payment.setVersion(version);
+		return new Model(200,payment);
+	}
+
+	// 剧点支付回调
+	@RequestMapping(value = "/pay/callback/playPoint", method = RequestMethod.POST)
+	protected Model callbackPlayPoint(HttpServletRequest req,
+			HttpServletResponse resp, HttpSession session)
+			throws ServletException, IOException {
+		log.info("---------开始回调---------");
+		BufferedReader reader = req.getReader();
+		StringBuilder reportBuilder = new StringBuilder();
+		String tempStr = "";
+		while ((tempStr = reader.readLine()) != null) {
+			reportBuilder.append(tempStr);
+		}
+		String reportContent = reportBuilder.toString();
+		System.out.println("#######" + reportContent + "########");
+
+		Map<String, String> map = getMapToList(reportContent);
+		System.out.println(map.toString());
+		String orderId = map.get("mhtOrderNo");
+		System.err.println("##回调订单号:##" + orderId);
+
+		// 修改订单状态
+
+		UserOrder ret = userOrderService.updateOrder(orderId);
+		if (ret == null) {
+			new Model(500, "订单信息错误");
+		}
+		UserEntity user = (UserEntity) JSONObject
+				.toBean(JSONObject.fromObject(ret.getOrderIntegral()),
+						UserEntity.class);
+		System.out.println(user.getOpenid());
+		UserEntity entity = userService.updateMoney(user.getUserId(),
+				ret.getOrderCurrency());
+		// 受连续回调影响 积分归0
+		userOrderService.cleanJF(orderId);
+		if (entity != null) {
+			entity.setNickname(StringToInt.toString(entity.getNickname()));
+			log.info("---------支付回调:订单" + ret.getOrderNum() + "  状态:"
+					+ ret.getOrderState() + "---------");
+			log.info("---------用户信息:" + entity.toString() + "---------");
+			return new Model(200, "支付完成");
+
+		} else {
+			log.info("---------用户信息未获取---------");
+			return new Model(500, "支付失败");
+		}
+
+	}
+}

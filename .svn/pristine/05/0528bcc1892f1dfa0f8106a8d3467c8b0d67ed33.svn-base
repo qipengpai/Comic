@@ -1,0 +1,490 @@
+$(function(){
+	details();
+});
+function details(){
+	if(GetQueryString("nowpage01")){
+		nowpage01 = GetQueryString("nowpage01")
+	}else{
+		nowpage01 = 1
+	}
+	if(GetQueryString("pagenum01")){
+		pagenum01 = GetQueryString("pagenum01")
+	}else{
+		pagenum01 = $(".pagination-page-list").val()
+	}
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("id"),
+			"pageNum" : pagenum01,
+			"nowPage" : nowpage01
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+function hot(number,id){
+	$.ajax({
+		url : "/Comic/qpp/comic/update/cartoonComment.do",
+		type:"post",
+		data:{
+			"id":id,
+			"deleteCartoonComment":number,
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : (parseInt($(".pagination-num").val())<parseInt($(".pagination-data").html()))?(parseInt($(".pagination-num").val())):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				details();
+			}
+		}
+	});
+}
+
+function dataSection(){
+		$.ajax({
+			url : "/Comic/qpp/comic/select/cartoonComment.do",
+			type:"post",
+			data:{
+				"cartoonId": $("#hiddenval").val(),
+				"starTime":$("#starttime").val(),
+				"endTime":$("#overtime").val(),
+				"deleteCartoonComment": $("#pushed").val(),
+				"condition":$("#select").val(),
+				"pageNum" : $(".pagination-page-list").val(),
+				"nowPage" : 1
+			},
+			success:function(data){
+				if(data.error == 200){
+					$("#tbody").empty();
+					$("#gong").html(data.totalNum);
+					$(".pagination-num").val(data.nowpage);
+					$(".pagination-data").html(data.totalpage);
+					for(var i = 0;i <data.obj.length; i ++){
+						$("#hiddenval").val(data.obj[i][1]);
+						if(data.obj[i][9] == 1){
+							var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+						}else if(data.obj[i][9] == 0){
+							var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+						}
+						if(data.obj[i][10] !== 0){
+							var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+						}else if(data.obj[i][10] == 0){
+							var pl = "无评论"
+						}
+						var str = "";
+						str += "<tr><td></td><td>"+
+								data.obj[i][2] +
+								"</td><td>" + 
+								data.obj[i][3] +
+								"</td><td>"+
+								data.obj[i][4] +
+								"</td><td>" + 
+								data.obj[i][5] +
+								"</td><td>" + 
+								data.obj[i][6] +
+								"</td><td>" +
+								data.obj[i][7] +
+								"</td><td>"+
+								data.obj[i][8] +
+								"</td><td>" +
+								hot_title +
+								"</td><td>" +
+								pl +
+								"</td></tr>";
+						$("#tbody").append(str);
+					}
+				}else{
+					$('#myModal').modal('show');
+					$('#myModalLabel').html('系统提示');
+					$('#textcontent').html(data.msg);
+					$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+						$("#tbody").empty();
+				}
+			}
+		});
+}
+function change(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#hiddenval").val(),
+			"starTime":$("#starttime").val(),
+			"endTime":$("#overtime").val(),
+			"deleteCartoonComment": $("#pushed").val(),
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+function cliback(){
+	window.location.href = "cartoon_comment.html?search="+GetQueryString("search")+"&nowpage="+GetQueryString("nowpage")+"&pagenum="+GetQueryString("pagenum");
+}
+/*页码的第一个*/
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#hiddenval").val(),
+			"starTime":$("#starttime").val(),
+			"endTime":$("#overtime").val(),
+			"deleteCartoonComment": $("#pushed").val(),
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#hiddenval").val(),
+			"starTime":$("#starttime").val(),
+			"endTime":$("#overtime").val(),
+			"deleteCartoonComment": $("#pushed").val(),
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#hiddenval").val(),
+			"starTime":$("#starttime").val(),
+			"endTime":$("#overtime").val(),
+			"deleteCartoonComment": $("#pushed").val(),
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonComment.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#hiddenval").val(),
+			"starTime":$("#starttime").val(),
+			"endTime":$("#overtime").val(),
+			"deleteCartoonComment": $("#pushed").val(),
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i <data.obj.length; i ++){
+					$("#hiddenval").val(data.obj[i][1]);
+					if(data.obj[i][9] == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i][0]+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i][9] == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i][0]+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i][10] !== 0){
+						var pl = "<a onclick='pl(&quot;"+data.obj[i][0]+"&quot;)'>查看</a>"
+					}else if(data.obj[i][10] == 0){
+						var pl = "无评论"
+					}
+					var str = "";
+					str += "<tr><td></td><td>"+
+							data.obj[i][2] +
+							"</td><td>" + 
+							data.obj[i][3] +
+							"</td><td>"+
+							data.obj[i][4] +
+							"</td><td>" + 
+							data.obj[i][5] +
+							"</td><td>" + 
+							data.obj[i][6] +
+							"</td><td>" +
+							data.obj[i][7] +
+							"</td><td>"+
+							data.obj[i][8] +
+							"</td><td>" +
+							hot_title +
+							"</td><td>" +
+							pl +
+							"</td></tr>";
+					$("#tbody").append(str);
+				}
+			}else{
+				$('#myModal').modal('show');
+				$('#myModalLabel').html('系统提示');
+				$('#textcontent').html(data.msg);
+				$('#btngroup').html('<button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button>');	
+					$("#tbody").empty();
+			}
+		}
+	});
+}
+/*评论中的评论*/
+function pl(id){
+	window.location.href = "episode_details_comment.html?id="+GetQueryString("id")+"&search="+GetQueryString("search")+"&nowpage="+GetQueryString("nowpage")+"&pagenum="+GetQueryString("pagenum")+"&nowpage01="+$(".pagination-num").val()+"&pagenum01="+$(".pagination-page-list").val()+"&plid="+id;
+}

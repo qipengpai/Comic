@@ -1,0 +1,93 @@
+package com.qin.game.entity.redis;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
+
+public class TestRedis {
+	public static void main(String[] args) throws IOException {
+			//存带时间限制的值  单位秒
+			setExpire(20);
+		    //存值
+			set();
+			
+		   //取值
+//			get("test_key");
+			//取值
+//			getExpire("test_key_Expire");
+		    //删除某个值
+//		    del("test_key");
+		}
+
+		
+		
+		
+		
+		
+		
+		//删除某个值
+		private static void del(String key) {
+			JedisUtil.del(key);
+			String obj = (String) JedisUtil.get(key);
+			System.err.println("obj:"+obj);
+		}
+		//查询
+		private static void get(String key) {
+			String obj = (String) JedisUtil.get(key);
+			System.err.println("obj:"+obj);
+			
+		}
+		private static void getExpire(String key) {
+			String obj2 = (String) JedisUtil.get(key);
+			System.err.println("obj2:"+obj2);
+			
+		}
+
+
+
+
+
+	   
+
+	    /**
+	     * @date 2017年1月14日下午7:49:57 void
+	     * @Des:不带时间期限的存储
+	     */
+		private static void set() {
+			JedisUtil.set("test_key", "TestRedis数据库");
+		}
+		/**
+		 * @date 2017年1月14日下午7:49:33
+		 * @param seconds 秒
+		 * @Des: 带时间期限的存储
+		 */
+		private static void setExpire(int seconds) {
+			JedisUtil.setExpire("test_key_Expire", "TestRedisExpire数据库",seconds);
+		}
+
+
+
+		private static void testM1() throws IOException {
+			Properties properties = new Properties();
+			properties.load(RedisConfig.class.getResourceAsStream("config/redisconf.properties"));
+			String property = properties.getProperty("redis.hostName");
+			System.err.println("property:"+property);
+			
+			File file = new File("config/redisconf.properties");
+	        String name = file.getName();
+	        String path = file.getPath();
+	        String parent = file.getParent();
+	        String CanonicalPath="22";
+			try {
+				CanonicalPath = file.getCanonicalPath();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	        System.err.println("name;"+name);
+	        System.err.println("path;"+path);
+	        System.err.println("parent;"+parent);
+	        System.err.println("CanonicalPath;"+CanonicalPath);
+		}
+
+}

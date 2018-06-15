@@ -1,0 +1,97 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.AdminCartoonSetService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 漫画话的控制类
+ * @author cui
+ *
+ */
+@Controller
+public class AdminCartoonSetController {
+
+	@Autowired
+	private AdminCartoonSetService adminCartoonSetService;
+	
+	
+	
+	//增加话
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOONSET, method = RequestMethod.POST)
+	public Model addCartoonSet(CartoonSetData cartoonSetData){
+		System.out.println("eeee:"+cartoonSetData.getCartoonId());
+		boolean bool = adminCartoonSetService.addCartoonSet(cartoonSetData);
+		if(bool){
+			return new Model(200,"增加成功");
+		}
+		return new Model(500,"增加失败");
+	}
+	
+	
+	//删除话
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.DATELE_CARTOONSET, method = RequestMethod.POST)
+	public Model dateleCartoonSet(CartoonSetData cartoonSetData){
+		boolean bool = adminCartoonSetService.deleteCartoonSet(cartoonSetData);
+		if(bool){
+			return new Model(200,"删除成功");
+		}
+		return new Model(500,"删除失败");
+	}
+	
+	//修改话
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.UPDATE_CARTOONSET, method = RequestMethod.POST)
+	public Model updateCartoonSet(CartoonSetData cartoonSetData){
+		boolean bool = adminCartoonSetService.updateCartoonSet(cartoonSetData);
+		if(bool){
+			return new Model(200,"更新成功");
+		}
+		return new Model(500,"更新失败");
+	}
+	
+	//查询所有话
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_CARTOONSET, method = RequestMethod.POST)
+	public Model selectCartoonSet(CartoonSetData cartoonSetData){
+		Model model=new Model();
+		int num=0;
+		if(ParaClick.clickString(cartoonSetData.getNowPage())){
+			cartoonSetData.setNowPage("1");
+		}
+		if(ParaClick.clickString(cartoonSetData.getPageNum())){
+			cartoonSetData.setPageNum("10");
+		}
+		num=adminCartoonSetService.getCount(cartoonSetData);
+		List<CartoonSet> cartoonSetList = adminCartoonSetService.selectCartoonSet(cartoonSetData);
+		model.setError(200);
+		model.setNowpage(Integer.parseInt(cartoonSetData.getNowPage()));
+		model.setTotalpage((num + Integer.parseInt(cartoonSetData.getPageNum()) - 1) / Integer.parseInt(cartoonSetData.getPageNum()));
+		model.setObj(cartoonSetList);
+		return model;
+	}
+	//根据id查询话
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_CARTOONSETBYID, method = RequestMethod.POST)
+	public Model selectCartoonSetById(CartoonSetData cartoonSetData){
+		CartoonSet cartoonSet = adminCartoonSetService.selectCartoonSetById(cartoonSetData.getId());
+		if(ParaClick.clickObj(cartoonSet)){
+			return new Model(200,cartoonSet);
+		}
+		return new Model(500,"查询失败");
+	}
+	
+	
+}

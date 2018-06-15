@@ -1,0 +1,100 @@
+package com.qin.crxl.comic.service.impl;
+/**
+ * 漫画类型接口实现类
+ */
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonAllType;
+import com.qin.crxl.comic.entity.CartoonType;
+import com.qin.crxl.comic.entity.vo.CartoonTypeVo;
+import com.qin.crxl.comic.service.AdminCartoonAllTypeService;
+import com.qin.crxl.comic.service.AdminCartoonTypeService;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminCartoonTypeServiceImpl extends BaseServiceImpl<CartoonType> implements AdminCartoonTypeService {
+	@Autowired
+	private AdminCartoonAllTypeService adminCartoonAllTypeService;
+	@Override
+	public boolean addCartoonType(CartoonTypeVo cartoonTypeData) {
+		try{
+			CartoonType cartoonType =new CartoonType();
+			cartoonType.setCartoonType(cartoonTypeData.getCartoonType());
+			super.save(cartoonType);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean updateCartoonType(CartoonTypeVo cartoonTypeData) {
+		CartoonType cartoonType=null;
+		try {
+			cartoonType=super.get(cartoonTypeData.getId());
+			if(ParaClick.clickObj(cartoonType)){
+				cartoonType.setCartoonType(cartoonTypeData.getCartoonType());
+				cartoonType.setClick(cartoonTypeData.getClick());
+				cartoonType.setShowNum(cartoonTypeData.getShowNum());
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return false;
+		}
+	}
+
+	@Override
+	public CartoonType selectCartoonType(String id) {
+		List<CartoonType> cartoonType = SQL("select * from CartoonType where id='"+id+"'",CartoonType.class);
+		if(cartoonType!=null&&cartoonType.size()>0){
+			return cartoonType.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public List<CartoonType> allCartoonType() {
+		List<CartoonType> cartoonType = SQL("select * from CartoonType",CartoonType.class);
+		System.out.println("图片类型数量："+cartoonType.size());
+		return cartoonType;
+	}
+
+	@Override
+	public List<CartoonType> selectAllCartoonType(Cartoon cartoon) {
+		
+		List<CartoonAllType> list = adminCartoonAllTypeService.selectCartoonAllType(cartoon.getId());
+		if(ParaClick.clickList(list)){
+			List<CartoonType> cartoonTypeList=new ArrayList<CartoonType>();
+			for(int i=0;i<list.size();i++){
+				CartoonType type = this.selectCartoonType(list.get(i).getCartoonTypeId());
+				cartoonTypeList.add(type);
+			}
+			return cartoonTypeList;
+		}
+		return null;
+	}
+
+	@Override
+	public boolean deleteCartoonType(CartoonTypeVo cartoonTypeData) {
+		try {
+			super.delete(cartoonTypeData.getId());
+			SQL("delete from CartoonAllType where CartoonTypeId='"+cartoonTypeData.getId()+"'");
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	
+
+}

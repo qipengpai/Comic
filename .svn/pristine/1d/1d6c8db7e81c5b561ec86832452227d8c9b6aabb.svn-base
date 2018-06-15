@@ -1,0 +1,620 @@
+$(function(){
+	news();
+	inpblur();
+});
+function news(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		success:function(data){
+			if(data.error == 200){
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+function newsre(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+function deleter(id){
+	$(".alertatn").css("display","block");
+	$("#surebtn").click(function(){
+		$.ajax({
+			url:"/Comic/qpp/comic/delete/news.do",
+			type:"post",
+			data:{
+				"id" :id
+			},
+			success:function(data){
+				if(data.error == 200){
+					$("#tbody").empty();
+					newsre();
+				}
+			}
+		});
+	});
+	$("#deletebtn").click(function(){
+		$(".alertatn").css("display","none");
+	});
+	
+}
+function edit(id){
+	window.location.href = "cartoon_newsedit.html?id="+id;
+}
+function grounding(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/news.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				newsre();
+			}	
+		}
+	});
+}
+
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+/*页码的后一个*/
+
+/*改变列表的个数*/
+function change(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+/*页码的第一个*/
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+
+
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+function inpblur(){
+	$(".pagination-num").blur(function(){
+			$.ajax({
+				url:"/Comic/qpp/comic/select/news.do",
+				type:"post",
+				data:{
+					"pageNum" : $(".pagination-page-list").val(),
+					"nowPage" : $(".pagination-num").val()
+				},
+				success:function(data){
+					if(data.error == 200){
+						$("#tbody").empty();
+						$(".pagination-num").val(data.nowpage);
+						$(".pagination-data").html(data.totalpage);
+						for(var i=0;i<data.obj.length;i++){
+							if(data.obj[i].state == 1){
+								var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+							}else if(data.obj[i].state == 0){
+								var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+							}
+							var str = "";
+								str += "<tr><td></td><td>"+
+								data.obj[i].title +
+								"</td><td>" + 
+								data.obj[i].content +
+								"</td>" +
+								"<td>" +
+								data.obj[i].type +
+								"</td>" +
+								"<td>" +
+								data.obj[i].sendDate +
+								"</td><td>" + 
+								grounding +
+								"</td>" +
+								"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+								$("#tbody").append(str);
+						}
+					};
+				}
+			});
+	});
+}
+function newstitle(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"title" : $("#newsid").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+			
+		},
+		error:function(){
+			$("#tbody").empty();
+			alert(data.mag);
+		}
+	});
+}
+function newscontent(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"content" : $("#newsid").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}
+
+function newstype(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"type" : $("#newsid").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}
+function newsdata(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"sendDate" : $("#newdata").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}
+function newsalr(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"state" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}
+function newsnot(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/news.do",
+		type:"post",
+		data:{
+			"state" : 0
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					var str = "";
+						str += "<tr><td></td><td>"+
+						data.obj[i].title +
+						"</td><td>" + 
+						data.obj[i].content +
+						"</td>" +
+						"<td>" +
+						data.obj[i].type +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sendDate +
+						"</td><td>" + 
+						grounding +
+						"</td>" +
+						
+						"<td><span class='edit  btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span></td></tr>";
+						$("#tbody").append(str);
+				}
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}

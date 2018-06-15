@@ -1,0 +1,250 @@
+package com.qin.crxl.comic.entity.vo;
+
+public class CartoonVo extends BaseEntityVO {
+
+	private String id;
+	private String cartoonType; // 类型
+	private String firsrtType; // 一级类型
+	private String cartoonName; // 剧名
+	private String updateTile; // 更新标题
+	private String cartoonAuthor; // 作者
+	private String cartoonAuthorPic;//作者头像
+	private String updateType; // 更新类型
+	private String mainPhoto; // 首页主图
+	private String introduction; // 介绍图
+	private String midelPhoto; // 中图
+	private String smallPhoto; // 小图
+	private String introduc; // 短介绍
+	private String hot; // 热度
+	private String sort; // 排序
+	private String sortNum; // 排序调整（ 向下排序--0 向上排序--1 置顶--2）
+	private String commentCount; // 评论次数
+	private String playCount; // 播放次数
+	private String followCount;//关注人数
+	private String state; // 漫画状态
+	private String nowpage; // 当前页
+	private String pageNum; // 每页容量
+	private String condition; // 查询条件
+	private String mode; // 查询条件
+	private String cartoonSetId;
+	private String hotState; // 给热门查询用的状态
+
+	private String serialState = ""; // 連載類型
+
+	public String getSerialState() {
+		return serialState;
+	}
+
+	public void setSerialState(String serialState) {
+		this.serialState = serialState;
+	}
+
+	public String getFirsrtType() {
+		return firsrtType;
+	}
+
+	public void setFirsrtType(String firsrtType) {
+		this.firsrtType = firsrtType;
+	}
+
+	public String getHotState() {
+		return hotState;
+	}
+
+	public void setHotState(String hotState) {
+		this.hotState = hotState;
+	}
+
+	public String getCartoonSetId() {
+		return cartoonSetId;
+	}
+
+	public void setCartoonSetId(String cartoonSetId) {
+		this.cartoonSetId = cartoonSetId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCartoonType() {
+		return cartoonType;
+	}
+
+	public void setCartoonType(String cartoonType) {
+		this.cartoonType = cartoonType;
+	}
+
+	public String getCartoonName() {
+		return cartoonName;
+	}
+
+	public void setCartoonName(String cartoonName) {
+		this.cartoonName = cartoonName;
+	}
+
+	public String getUpdateTile() {
+		return updateTile;
+	}
+
+	public void setUpdateTile(String updateTile) {
+		this.updateTile = updateTile;
+	}
+
+	public String getCartoonAuthor() {
+		return cartoonAuthor;
+	}
+
+	public void setCartoonAuthor(String cartoonAuthor) {
+		this.cartoonAuthor = cartoonAuthor;
+	}
+	
+	public String getCartoonAuthorPic() {
+		return cartoonAuthorPic;
+	}
+
+	public void setCartoonAuthorPic(String cartoonAuthorPic) {
+		this.cartoonAuthorPic = cartoonAuthorPic;
+	}
+
+	public String getUpdateType() {
+		return updateType;
+	}
+
+	public void setUpdateType(String updateType) {
+		this.updateType = updateType;
+	}
+
+	public String getMainPhoto() {
+		return mainPhoto;
+	}
+
+	public void setMainPhoto(String mainPhoto) {
+		this.mainPhoto = mainPhoto;
+	}
+
+	public String getIntroduction() {
+		return introduction;
+	}
+
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+
+	public String getIntroduc() {
+		return introduc;
+	}
+
+	public void setIntroduc(String introduc) {
+		this.introduc = introduc;
+	}
+
+	public String getHot() {
+		return hot;
+	}
+
+	public void setHot(String hot) {
+		this.hot = hot;
+	}
+
+	public String getSort() {
+		return sort;
+	}
+
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
+
+	public String getSortNum() {
+		return sortNum;
+	}
+
+	public void setSortNum(String sortNum) {
+		this.sortNum = sortNum;
+	}
+
+	public String getCommentCount() {
+		return commentCount;
+	}
+
+	public void setCommentCount(String commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public String getPlayCount() {
+		return playCount;
+	}
+
+	public void setPlayCount(String playCount) {
+		this.playCount = playCount;
+	}
+	
+	public String getFollowCount() {
+		return followCount;
+	}
+
+	public void setFollowCount(String followCount) {
+		this.followCount = followCount;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getNowpage() {
+		return nowpage;
+	}
+
+	public void setNowpage(String nowpage) {
+		this.nowpage = nowpage;
+	}
+
+	public String getPageNum() {
+		return pageNum;
+	}
+
+	public void setPageNum(String pageNum) {
+		this.pageNum = pageNum;
+	}
+
+	public String getCondition() {
+		return condition;
+	}
+
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+
+	public String getMidelPhoto() {
+		return midelPhoto;
+	}
+
+	public void setMidelPhoto(String midelPhoto) {
+		this.midelPhoto = midelPhoto;
+	}
+
+	public String getSmallPhoto() {
+		return smallPhoto;
+	}
+
+	public void setSmallPhoto(String smallPhoto) {
+		this.smallPhoto = smallPhoto;
+	}
+
+}

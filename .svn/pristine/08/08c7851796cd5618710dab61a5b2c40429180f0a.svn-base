@@ -1,0 +1,71 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonAllType;
+import com.qin.crxl.comic.service.AdminCartoonAllTypeService;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 每个漫画的全部类型的接口实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminCartoonAllTypeServiceImpl extends BaseServiceImpl<CartoonAllType> implements
+		AdminCartoonAllTypeService {
+	
+
+	@Override
+	public boolean addCartoonType(String cartoonId, String[] cartoonTypeStr) {
+		try {
+			if(!ParaClick.clickString(cartoonId)&&(cartoonTypeStr!=null&&cartoonTypeStr.length>0)){
+				int num=0;
+				for(int i=0;i<cartoonTypeStr.length;i++){
+					if(!cartoonTypeStr[i].equals("")){
+						CartoonAllType cartoonType=new CartoonAllType();
+						cartoonType.setCartoonId(cartoonId);
+						cartoonType.setCartoonTypeId(cartoonTypeStr[i]);
+						super.save(cartoonType);
+						System.out.println("添加第"+(i+1)+"个漫画类型");
+					}else{
+						num++;
+					}
+					
+				}
+				System.out.println("共添加"+(cartoonTypeStr.length-num)+"个漫画类型");
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteCartoonType(String cartoonId, String cartoonTypeId) {
+		try {
+			List<CartoonAllType> sql = SQL("select * from CartoonAllType where CartoonId='"+cartoonId+"' and CartoonTypeId='"+cartoonTypeId+"'",CartoonAllType.class);
+			if(ParaClick.clickList(sql)){
+				super.delete(sql.get(0).getId());
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public List<CartoonAllType> selectCartoonAllType(String cartoonId) {
+		List<CartoonAllType> cartoonAllTypeList = SQL("select * from CartoonAllType where CartoonId='"+cartoonId+"'",CartoonAllType.class);
+		if(ParaClick.clickList(cartoonAllTypeList)){
+			return cartoonAllTypeList;
+		}
+		return null;
+	}
+	
+
+}

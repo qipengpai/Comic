@@ -1,0 +1,11 @@
+package com.qin.crxl.comic.system;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+public class StatisticsTimer {
+
+	@Autowired
+	private  DistributorUserStatisticsServcie distributorUserStatisticsServcie;
+	
+}

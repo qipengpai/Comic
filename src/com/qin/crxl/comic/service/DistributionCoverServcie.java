@@ -1,0 +1,29 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.DistributionCover;
+import com.qin.crxl.comic.entity.vo.DistributionCoverData;
+
+@Service
+@Transactional
+public interface DistributionCoverServcie extends BaseService<DistributionCover>{
+
+	boolean addDistributorModel(String cartoonCover);
+
+	boolean updateDistributorModel(DistributionCoverData distributionCoverData);
+
+	boolean deleteDistributorNews(String id);
+
+	int selectDistributorModelCount();
+
+	List<DistributionCover> selectDistributorModel(String nowPage,
+			String pageNum);
+
+//	DistributionCover getByLogin(String cartoonId, String implDate);
+
+}

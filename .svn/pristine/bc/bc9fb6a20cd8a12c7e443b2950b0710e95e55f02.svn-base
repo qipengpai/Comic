@@ -1,0 +1,206 @@
+package com.qin.crxl.comic.action;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ipaynow.pay.GateWayService;
+import com.ipaynow.utils.MD5Facade;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.Payment;
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.SystemConfig;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.RandomUtil;
+import com.qin.crxl.comic.tool.StringToInt;
+
+@Controller
+public class PayServlet {
+
+	private static Logger log = Logger.getLogger(Payservlettwo.class.getName());
+	@SuppressWarnings("unused")
+	private static final long serialVersionUID = 1L;
+
+	@Autowired
+	private UserOrderService userOrderService;
+	@Autowired
+	private UserService userService;
+
+	private RandomUtil ran = new RandomUtil();
+
+	/**
+	 * 劇點支付地址
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param session
+	 * @throws Exception
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/pay/payaction/playPoint", method = RequestMethod.POST)
+	protected void doPost2(HttpServletRequest req, HttpServletResponse resp,
+			UserOrderData userOrderData) throws Exception {
+		userOrderData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(userOrderData
+				.getUserId());
+		if (userEntity == null) {
+
+		}
+		// 生成订单
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		/* 订单号 */
+		String rans=req.getParameter("out_trade_no");
+		String money=req.getParameter("total_fee");
+		// 初始化订单
+		try {
+			UserOrder uo = new UserOrder();
+			uo.setOrderNum(rans);
+			uo.setOrderMoney(Integer.parseInt(money) / 100);
+			uo.setOrderDescription("充值咔咔豆");
+			uo.setOrderRemarks("充值咔咔豆");
+			uo.setOrderUserId(userEntity.getUserId());
+			uo.setOrderState(0);
+			uo.setOrderCurrency((Integer.parseInt(money)) / 100 * 100);
+			uo.setOrderIntegral(JSONObject.fromObject(userEntity).toString());
+			uo.setOrderDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			userOrderService.save(uo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 做支付验证
+		GateWayService service = new GateWayService();
+		service.pay(req, resp, userEntity.getOpenid());
+	}
+
+	// 剧点支付回调@
+	@ResponseBody
+	@RequestMapping(value = "/pay/callback/playPoint", method = RequestMethod.POST)
+	protected Model callbackPlayPoint(HttpServletRequest req, String orderNum)
+			throws ServletException, IOException {
+
+		System.err.println("##回调订单号:##" + orderNum);
+		// 修改订单状态
+		UserOrder ret = userOrderService.updateOrder(orderNum);
+		if (ret == null) {
+			return new Model(500, "订单信息错误");
+		}
+		UserEntity userEntity = userService.getUserInfoById(ret
+				.getOrderUserId());
+		// 受连续回调影响 积分归0
+		// userOrderService.cleanJF(orderId);
+		UserEntity entity = userService.updateMoney(userEntity.getUserId(),
+				ret.getOrderCurrency());
+		if (entity != null) {
+			entity.setNickname(StringToInt.toString(entity.getNickname()));
+			log.info("---------支付回调:订单" + ret.getOrderNum() + "  状态:"
+					+ ret.getOrderState() + "---------");
+			log.info("---------用户信息:" + entity.toString() + "---------");
+			return new Model(200, "订单成功");
+
+		} else {
+			log.info("---------用户信息未获取---------");
+			return new Model(500, "订单失败");
+		}
+	}
+
+	/**
+	 * 會員支付地址
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param session
+	 * @throws Exception
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/pay/payaction/vip", method = RequestMethod.POST)
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp,
+			UserOrderData userOrderData) throws Exception {
+		userOrderData.clickUser();
+		UserEntity userEntity = userService.getUserInfoById(userOrderData
+				.getUserId());
+		if (userEntity == null) {
+
+		}
+		// 生成订单
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		/* 订单号 */
+		@SuppressWarnings("static-access")
+		String rans = userOrderData.getOrderNum();
+		String money = userOrderData.getOrderMoney();// 分
+		// 初始化订单
+		try {
+			UserOrder uo = new UserOrder();
+			uo.setOrderNum(rans);
+			uo.setOrderMoney(Integer.parseInt(money) / 100);
+			uo.setOrderDescription("充值会员");
+			uo.setOrderRemarks("充值会员");
+			uo.setOrderUserId(userEntity.getUserId());
+			uo.setOrderState(0);
+			uo.setOrderCurrency((Integer.parseInt(money)) / 100 * 100);
+			uo.setOrderIntegral(JSONObject.fromObject(userEntity).toString());
+			uo.setOrderDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			userOrderService.save(uo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 做支付验证
+		GateWayService service = new GateWayService();
+		service.pay(req, resp, userEntity.getOpenid());
+	}
+
+	// 會員支付回调
+	@ResponseBody
+	@RequestMapping(value = "/pay/callback", method = RequestMethod.POST)
+	protected Model callback(HttpServletRequest req, String orderNum)
+			throws ServletException, IOException {
+		log.info("---------开始回调---------");
+		System.err.println("##回调订单号:##" + orderNum);
+		// 修改订单状态
+		UserOrder ret = userOrderService.updateOrder(orderNum);
+		if (ret == null) {
+			new Model(500, "订单信息错误");
+		}
+		UserEntity userEntity = userService.getUserInfoById(ret
+				.getOrderUserId());
+		boolean flag = userService.updateVipState(userEntity.getUserId(),
+				ret.getOrderMoney());
+		if (!flag) {
+			return new Model(500, "支付失败");
+		}
+		UserEntity user2 = userService.get(userEntity.getUserId());
+		if (user2 != null) {
+			user2.setNickname(StringToInt.toString(user2.getNickname()));
+			log.info("---------支付回调:订单" + ret.getOrderNum() + "  状态:"
+					+ ret.getOrderState() + "---------");
+			log.info("---------用户信息:" + user2.toString() + "---------");
+			return new Model(200, "支付完成");
+
+		} else {
+			log.info("---------用户信息未获取---------");
+			return new Model(500, "支付失败");
+		}
+
+	}
+}

@@ -1,0 +1,88 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Distributor;
+import com.qin.crxl.comic.entity.vo.DistributorData;
+import com.qin.crxl.comic.service.DistributorService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.MD5;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class DistributorServiceImpl extends BaseServiceImpl<Distributor> implements DistributorService{
+
+	@Override
+	public List<Distributor> getByQd(String qd) {
+		// 查看渠道是否存在
+		List<Distributor> list=SQL("SELECT * FROM Distributor WHERE qd='"+qd+"'", Distributor.class);
+		return list;
+	}
+
+	@Override
+	public List<Distributor> getByUserName(String userName) {
+		// 查看用户名是否存在
+		List<Distributor> list=SQL("SELECT * FROM Distributor WHERE userName='"+userName+"'", Distributor.class);
+		return list;
+	}
+
+	@Override
+	public boolean registerDistributor(DistributorData distributorData) {
+		// 注册用户
+		boolean flag=false;
+		try {
+			Distributor distributor=new Distributor();
+			if (ParaClick.clickString(distributorData.getAccountName())) {
+				distributor.setAccountName(distributorData.getAccountName());
+			}
+			if (ParaClick.clickString(distributorData.getAccountNum())) {
+				distributor.setAccountNum(distributorData.getAccountNum());
+			}
+			if (ParaClick.clickString(distributorData.getEmail())) {
+				distributor.setEmail(distributorData.getEmail());
+			}
+			if (ParaClick.clickString(distributorData.getHeadImg())) {
+				distributor.setHeadImg(distributorData.getHeadImg());
+			}
+			if (ParaClick.clickString(distributorData.getNickName())) {
+				distributor.setNickName(distributorData.getNickName());
+			}
+			if (ParaClick.clickString(distributorData.getPayType())) {
+				distributor.setPayType(distributorData.getPayType());
+			}
+			if (ParaClick.clickString(distributorData.getUserName())) {
+				distributor.setUserName(distributorData.getUserName());
+			}
+			if (ParaClick.clickString(distributorData.getProportion())) {
+				distributor.setProportion(Double.parseDouble(distributorData.getProportion()));
+			}
+			if (ParaClick.clickString(distributorData.getPhone())) {
+				distributor.setPhone(distributorData.getPhone());
+			}
+			if (ParaClick.clickString(distributorData.getQd())) {
+				distributor.setQd(distributorData.getQd().toUpperCase());
+			}
+			if (ParaClick.clickString(distributorData.getUserPwd())) {
+				distributor.setUserPwd(MD5.getMd5(distributorData.getUserPwd()));
+			}
+			if (ParaClick.clickString(distributorData.getUserPwd())) {
+				distributor.setUserPwd(MD5.getMd5(distributorData.getUserPwd()));
+			}
+			distributor.setUserType("1");
+			distributor.setWithdrawalsType(1);
+			distributor.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			distributor.setLastLoginDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			distributor.setState(1);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	
+}

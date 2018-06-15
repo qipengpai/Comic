@@ -1,0 +1,24 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.HistoryRecord;
+import com.qin.crxl.comic.service.HistoryRecordService;
+
+@Service
+public class HistoryRecordServiceImpl  extends BaseServiceImpl<HistoryRecord>implements HistoryRecordService{
+
+	@Override
+	public int getWatchCount(Cartoon cartoon) {
+		// 查看漫画观看人数
+		int num=super.gettotalpage("SELECT COUNT(*) FROM HistoryRecord WHERE cartoonId='"+cartoon.getId()+"'");
+		return num;
+	}
+
+	
+
+}

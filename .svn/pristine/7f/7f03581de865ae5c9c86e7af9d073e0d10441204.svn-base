@@ -1,0 +1,105 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.AdminCartoonPhotoService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 每话图片的实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminCartoonPhotoServiceImpl extends BaseServiceImpl<CartoonPhoto> implements AdminCartoonPhotoService {
+
+	@Override
+	public boolean addCartoonPhoto(CartoonPhotoData cartoonPhotoData,
+			String[] photoUrl) {
+		try {
+			if(!ParaClick.clickString(cartoonPhotoData.getCartoonId())&&!ParaClick.clickString(cartoonPhotoData.getCartoonSetId())){
+				if(photoUrl!=null&&photoUrl.length>0){
+					for(int i=0;i<photoUrl.length;i++){
+						CartoonPhoto cartoonPhoto=new CartoonPhoto();
+						//漫画Id
+						cartoonPhoto.setCartoonId(cartoonPhotoData.getCartoonId());
+						//每话Id
+						cartoonPhoto.setCartoonSetId(cartoonPhotoData.getCartoonSetId());
+						//图片路径
+						cartoonPhoto.setPhotoUrl(photoUrl[i]);
+						//序号sort（自增+1）
+						cartoonPhoto.setSort(this.getSortMax()+1);
+						//操作时间
+						cartoonPhoto.setImplDate(DateUtil.getdate());
+						super.save(cartoonPhoto);
+						System.out.println("添加到话的第"+(i+1)+"张图片");
+					}
+					System.out.println("共添加话"+photoUrl.length+"张图片");
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+	
+	
+	@Override
+	public int getSortMax() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select max(sort) from CartoonPhoto");
+		List<Object[]> lists=getSessionFactory().createSQLQuery(sb.toString()).list();
+		if(lists!=null&&lists.size()>0){
+			Object[] obj=lists.get(0);
+			return (int)obj[0];
+		}
+		return 0;
+	}
+	
+	@Override
+	public boolean deleteCartoonPhoto(CartoonPhotoData cartoonPhotoData) {
+		try {
+			CartoonPhoto cartoonPhoto = super.get(cartoonPhotoData.getId());
+			if(ParaClick.clickObj(cartoonPhoto)){
+				super.delete(cartoonPhotoData.getId());
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateCartoonPhoto(CartoonPhotoData cartoonPhotoData) {
+		
+		return false;
+	}
+
+	@Override
+	public List<CartoonPhoto> selectCartoonPhoto(CartoonSetData cartoonSetData) {
+		List<CartoonPhoto> list=SQL("select * from CartoonPhoto where cartoonSetId="+cartoonSetData.getId(),CartoonPhoto.class);
+		if(ParaClick.clickList(list)){
+			return list;
+		}
+		return null;
+	}
+
+
+	@Override
+	public int getCount(CartoonSetData cartoonSetData) {
+		int gettotalpage = super.gettotalpage("select count(*) from CartoonPhoto where cartoonSetId="+cartoonSetData.getId());
+		return gettotalpage;
+	}
+
+	
+
+}

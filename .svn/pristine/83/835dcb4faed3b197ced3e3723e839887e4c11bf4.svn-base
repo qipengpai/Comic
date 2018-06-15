@@ -1,0 +1,40 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+
+@Service
+public class CartoonServiceImpl  extends BaseServiceImpl<Cartoon>implements CartoonService{
+
+	@Override
+	public List<Cartoon> getALLCartoon(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  Cartoon where  1=1 and state=1 order by sort ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public List<Cartoon> getALLHotCartoon(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  Cartoon where  1=1 and state=1 and hot=1 order by sort ");
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		List<Cartoon> list=super.SQL(sb.toString(),Cartoon.class);
+		return list;
+	}
+	@Override
+	public List<Cartoon> getHot0_8() {
+		return SQL("SELECT * from Cartoon where hot=1 GROUP BY sort ASC LIMIT 0,8", Cartoon.class);
+	}
+	@Override
+	public List<Cartoon> getSearchLike(String conext) {
+		return SQL("SELECT * from Cartoon where cartoonName LIKE '%"+conext+"%'", Cartoon.class);
+	}
+	
+}

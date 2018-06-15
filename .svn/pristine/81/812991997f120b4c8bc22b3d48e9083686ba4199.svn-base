@@ -1,0 +1,114 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class UserOrder extends BaseEntity implements Serializable{
+	@SuppressWarnings("static-access")
+    @Id
+	private String id=ran.generateString(32);
+	private String orderNum="";
+	private int orderMoney=0;
+	private String orderDescription="";
+	private String orderRemarks=""; 
+	private String orderOpenId="";
+	private int orderCurrency=0;
+	private String orderIntegral="";
+	private int orderState=0;
+	private String orderDate="";
+	private String orderImplDate="";
+	
+	public Integer getOrderCurrency() {
+		return orderCurrency;
+	}
+	public void setOrderCurrency(Integer orderCurrency) {
+		this.orderCurrency = orderCurrency;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getOrderNum() {
+		return orderNum;
+	}
+	public void setOrderNum(String orderNum) {
+		this.orderNum = orderNum;
+	}
+
+	public Integer getOrderMoney() {
+		return orderMoney;
+	}
+	public void setOrderMoney(Integer orderMoney) {
+		this.orderMoney = orderMoney;
+	}
+	public void setOrderState(Integer orderState) {
+		this.orderState = orderState;
+	}
+	public String getOrderDescription() {
+		return orderDescription;
+	}
+	public void setOrderDescription(String orderDescription) {
+		this.orderDescription = orderDescription;
+	}
+	public String getOrderRemarks() {
+		return orderRemarks;
+	}
+	public void setOrderRemarks(String orderRemarks) {
+		this.orderRemarks = orderRemarks;
+	}
+
+	public int getOrderState() {
+		return orderState;
+	}
+	public void setOrderState(int orderState) {
+		this.orderState = orderState;
+	}
+	@Column(length=8888)
+	public String getOrderIntegral() {
+		return orderIntegral;
+	}
+	public void setOrderIntegral(String orderIntegral) {
+		this.orderIntegral = orderIntegral;
+	}
+	public String getOrderOpenId() {
+		return orderOpenId;
+	}
+	public void setOrderOpenId(String orderOpenId) {
+		this.orderOpenId = orderOpenId;
+	}
+	public String getOrderDate() {
+		return orderDate;
+	}
+	public void setOrderDate(String orderDate) {
+		this.orderDate = orderDate;
+	}
+	public String getOrderImplDate() {
+		return orderImplDate;
+	}
+	public void setOrderImplDate(String orderImplDate) {
+		this.orderImplDate = orderImplDate;
+	}
+
+	public void setOrderMoney(int orderMoney) {
+		this.orderMoney = orderMoney;
+	}
+	public void setOrderCurrency(int orderCurrency) {
+		this.orderCurrency = orderCurrency;
+	}
+	
+
+	
+	
+}

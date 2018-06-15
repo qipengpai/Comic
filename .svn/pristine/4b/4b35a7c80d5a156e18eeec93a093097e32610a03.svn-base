@@ -1,0 +1,88 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.vo.BannerData;
+import com.qin.crxl.comic.service.AdminBannerService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminBannerServiceImpl extends BaseServiceImpl<Banner> implements
+		AdminBannerService {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getAllBanner(BannerData bannerData) {
+		List<Object[]> list = getSessionFactory().createSQLQuery("select b.id,b.httpImg,c.id as cartoonId,c.cartoonName,b.title,b.state,b.click from Banner b,Cartoon c where b.cartoonId=c.id")
+				.list();
+		return list;
+	}
+
+	@Override
+	public boolean addBanner(BannerData bannerData) {
+		Banner banner=null;
+		try {
+			banner=new Banner();
+			banner.setComicUrl(bannerData.getComicUrl());
+			banner.setHttpImg(bannerData.getHttpImg());
+			banner.setTitle(bannerData.getTitle());
+			banner.setImplDate(DateUtil.getdate());
+			banner.setCartoonId(bannerData.getCartoonId());
+			super.save(banner);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteBanner(BannerData bannerData) {
+		Banner banner=null;
+		try {
+			if(!ParaClick.clickObj(banner)){
+				return false;
+			}
+			super.delete(bannerData.getId());
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateBanner(BannerData bannerData) {
+		Banner banner=null;
+		try {
+			banner=super.get(bannerData.getId());
+			if(ParaClick.clickObj(banner)){
+				if(!ParaClick.clickString(bannerData.getComicUrl())){
+					banner.setComicUrl(bannerData.getComicUrl());
+				}
+				if(!ParaClick.clickString(bannerData.getHttpImg())){
+					banner.setHttpImg(bannerData.getHttpImg());
+				}
+				if(!ParaClick.clickString(bannerData.getTitle())){
+					banner.setTitle(bannerData.getTitle());
+				}
+				if(!ParaClick.clickString(bannerData.getState())){
+					banner.setState(Integer.parseInt(bannerData.getState()));
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public Banner selectBannerById(BannerData bannerData) {
+		return super.get(bannerData.getId());
+	}
+}

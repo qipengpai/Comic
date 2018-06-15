@@ -1,0 +1,77 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Banner;
+import com.qin.crxl.comic.entity.vo.BannerData;
+import com.qin.crxl.comic.service.AdminBannerService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+@Service
+public class AdminBannerServiceImpl extends BaseServiceImpl<Banner> implements
+		AdminBannerService {
+
+	@Override
+	public List<Banner> getAllBanner(BannerData bannerData) {
+		List<Banner> bannerList = SQL("select * from Banner where cartoonId='"+bannerData.getCartoonId()+"'",Banner.class);
+		if(ParaClick.clickList(bannerList)){
+			return bannerList;
+		}
+		return null;
+	}
+
+	@Override
+	public boolean addBanner(BannerData bannerData) {
+		Banner banner=null;
+		try {
+			banner=new Banner();
+			banner.setComicUrl(bannerData.getComicUrl());
+			banner.setHttpImg(banner.getHttpImg());
+			banner.setTitle(banner.getTitle());
+			banner.setImplDate(DateUtil.getdate());
+			banner.setCartoonId(banner.getCartoonId());
+			super.save(banner);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteBanner(BannerData bannerData) {
+		try {
+			super.delete(bannerData.getId());
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateBanner(BannerData bannerData) {
+		Banner banner=null;
+		try {
+			banner=super.get(bannerData.getId());
+			if(ParaClick.clickObj(banner)){
+				if(!ParaClick.clickString(bannerData.getComicUrl())){
+					banner.setComicUrl(bannerData.getComicUrl());
+				}
+				if(!ParaClick.clickString(bannerData.getHttpImg())){
+					banner.setHttpImg(bannerData.getHttpImg());
+				}
+				if(!ParaClick.clickString(bannerData.getState())){
+					banner.setState(Integer.parseInt(bannerData.getState()));
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+}

@@ -1,0 +1,337 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.AdminCartoonSetService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 漫画话的接口实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminCartoonSetServiceImpl extends BaseServiceImpl<CartoonSet> implements
+		AdminCartoonSetService {
+
+	@Override
+	public boolean addCartoonSet(CartoonSetData cartoonSetData) {
+		try{
+			CartoonSet cartoonSet =new CartoonSet();
+			cartoonSet.setShowPhoto(cartoonSetData.getShowPhoto());//展示图
+			cartoonSet.setTitile(cartoonSetData.getTitile());//标题
+			cartoonSet.setDetails(cartoonSetData.getDetails());//介绍
+			cartoonSet.setImplDate(DateUtil.getdate());//操作时间
+			cartoonSet.setCartoonId(cartoonSetData.getCartoonId());//漫画id
+			//sort排序（自增+1）
+			Integer sortMax = this.getSortMax(cartoonSetData.getCartoonId());
+			if(!ParaClick.clickObj(sortMax)){
+				sortMax=0;
+			}
+			cartoonSet.setSort(sortMax+1);
+			
+			cartoonSet.setVip(Integer.parseInt(cartoonSetData.getVip()));//是否vip
+			if(!ParaClick.clickString(cartoonSetData.getPrice())){
+				cartoonSet.setPrice(Integer.parseInt(cartoonSetData.getPrice()));//价格
+			}
+			cartoonSet.setMoneyState(Integer.parseInt(cartoonSetData.getMoneyState()));//付费状态
+//			cartoonSet.setWatchState(Integer.parseInt(cartoonSetData.getWatchState()));//观看状态
+			super.save(cartoonSet);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Integer getSortMax(String cartoonId) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select max(sort) from CartoonSet where cartoonId='"+cartoonId+"'");
+		List<Integer> lists=getSessionFactory().createSQLQuery(sb.toString()).list();
+		try {
+			if(lists!=null&&lists.size()>0){
+				Integer obj=lists.get(0);
+				return obj;
+			}
+			return 0;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	@Override
+	public Integer getStateSortMax(String cartoonId) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select max(sort) from CartoonSet where cartoonId='"+cartoonId+"' and watchState=1");
+		List<Integer> lists=getSessionFactory().createSQLQuery(sb.toString()).list();
+		try {
+			if(lists!=null&&lists.size()>0){
+				Integer obj=lists.get(0);
+				return obj;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return null;
+	}
+	
+	@Override
+	public boolean deleteCartoonSet(CartoonSetData cartoonSetData) {
+		try {
+			CartoonSet cartoonSet = super.get(cartoonSetData.getId());
+			if(ParaClick.clickObj(cartoonSet)){
+				super.delete(cartoonSetData.getId());
+				SQL("delete from CartoonPhoto where cartoonId='"+cartoonSetData.getCartoonId()+"' and cartoonSetId='"+cartoonSetData.getId()+"'");
+				System.out.println("select count(*) from CartoonSet where  cartoonId='"+cartoonSetData.getCartoonId()+"'");
+				List<Object> num = getSessionFactory().createSQLQuery("select count(id) from CartoonSet where  cartoonId='"+cartoonSetData.getCartoonId()+"'").list();
+				System.out.println(num.size());
+				if(num!=null&&num.size()>0){//判断此漫画是否是最后一话
+					int obj=Integer.parseInt(String.valueOf(num.get(0)));
+					if(1==obj){
+						SQL("update Cartoon set state=0 where id='"+cartoonSetData.getCartoonId()+"'");
+					}
+				}
+				return true;
+			}else{
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public boolean updateCartoonSet(CartoonSetData cartoonSetData) {
+		CartoonSet cartoonSet=null;
+		try {
+			cartoonSet=super.get(cartoonSetData.getId());
+			if(ParaClick.clickObj(cartoonSet)){
+				if(!ParaClick.clickString(cartoonSetData.getShowPhoto())){
+					cartoonSet.setShowPhoto(cartoonSetData.getShowPhoto());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getTitile())){
+					cartoonSet.setTitile(cartoonSetData.getTitile());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getDetails())){
+					cartoonSet.setDetails(cartoonSetData.getDetails());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getVip())){
+					cartoonSet.setVip(Integer.parseInt(cartoonSetData.getVip()));
+				}
+				
+				if(!ParaClick.clickString(cartoonSetData.getPrice())){
+					cartoonSet.setPrice(Integer.parseInt(cartoonSetData.getPrice()));
+				}
+				if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+					cartoonSet.setMoneyState(Integer.parseInt(cartoonSetData.getMoneyState()));
+				}
+				//弹幕次数
+				if(!ParaClick.clickString(cartoonSetData.getBarrageCount())){
+					cartoonSet.setBarrageCount(cartoonSetData.getBarrageCount());
+				}
+				//评论次数
+				if(!ParaClick.clickString(cartoonSetData.getCommentCount())){
+					cartoonSet.setCommentCount(Integer.parseInt(cartoonSetData.getCommentCount()));
+				}
+				//播放次数
+				if(!ParaClick.clickString(cartoonSetData.getPlayCount())){
+					cartoonSet.setPlayCount(Integer.parseInt(cartoonSetData.getPlayCount()));
+				}
+				//点赞数
+				if(!ParaClick.clickString(cartoonSetData.getOkCount())){
+					cartoonSet.setOkCount(Integer.parseInt(cartoonSetData.getOkCount()));
+				}
+				
+				if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+					
+					
+					
+					if("1".equals(cartoonSetData.getWatchState())){//漫画话上架
+						if(!"1".equals(cartoonSetData.getSort())){
+							//查询此话的上一集的状态
+							List<Integer> nextWatchState = getSessionFactory().createSQLQuery("select watchState from CartoonSet where cartoonId='"+cartoonSetData.getCartoonId()+"' and sort<"+cartoonSetData.getSort()+" order by sort DESC limit 0,1").list();
+							if(nextWatchState.get(0)!=1){
+								return false;
+							}
+						}
+						SQL("update Cartoon set updateTile='"+cartoonSetData.getTitile()+"' where id='"+cartoonSetData.getCartoonId()+"'");
+						cartoonSet.setWatchState(Integer.parseInt(cartoonSetData.getWatchState()));
+						return true;
+					}else if("0".equals(cartoonSetData.getWatchState())){//漫画话下架
+						Integer sortMax = this.getSortMax(cartoonSetData.getCartoonId());
+						if(!ParaClick.clickObj(sortMax)){//查询最大Sort出错
+							return false;
+						}
+						if(sortMax!=Integer.parseInt(cartoonSetData.getSort())){
+							//查询此话的下一集的状态
+							List<Integer> nextWatchState = getSessionFactory().createSQLQuery("select watchState from CartoonSet where cartoonId='"+cartoonSetData.getCartoonId()+"' and sort>"+cartoonSetData.getSort()+" order by sort ASC limit 0,1").list();
+							System.out.println("select watchState from CartoonSet where cartoonId='"+cartoonSetData.getCartoonId()+"' and sort>"+cartoonSetData.getSort()+" order by sort DESC limit 0,1");
+							if(nextWatchState.get(0)!=0){//判断下一集的状态为1 （跳选）和集数为第1话
+								return false;
+							}
+						}
+						List<String> nextTitle=getSessionFactory().createSQLQuery("select titile from CartoonSet where cartoonId='"+cartoonSetData.getCartoonId()+"' and watchState=1 and sort<"+cartoonSetData.getSort()+" order by sort DESC limit 0,1").list();
+						if(!"1".equals(cartoonSetData.getSort().trim())){
+							SQL("update Cartoon set updateTile='"+nextTitle.get(0)+"' where id='"+cartoonSetData.getCartoonId()+"'");
+						}
+						cartoonSet.setWatchState(Integer.parseInt(cartoonSetData.getWatchState()));
+						return true;
+					}else{
+						return false;
+					}
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateCartoonSetDate(String cartoonSetId) {
+		CartoonSet cartoonSet=null;
+		try {
+			cartoonSet=super.get(cartoonSetId);
+			cartoonSet.setUpdateDate(DateUtil.getdate());
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+	
+	
+	
+	
+	@Override
+	public List<CartoonSet> selectCartoonSet(CartoonSetData cartoonSetData) {
+		StringBuffer sb= new StringBuffer();
+		sb.append("select c.* from CartoonSet c where 1=1 and cartoonId='"+cartoonSetData.getCartoonId()+"'");
+		if(!ParaClick.clickString(cartoonSetData.getPrice())){
+			sb.append(" AND c.price="+cartoonSetData.getPrice());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getVip())){
+			sb.append(" AND c.vip="+cartoonSetData.getVip());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+			sb.append(" AND c.moneyState="+cartoonSetData.getMoneyState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+			sb.append(" AND c.watchState="+cartoonSetData.getWatchState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getCondition())){
+			sb.append(" AND ((c.titile LIKE '%"
+					+ cartoonSetData.getTitile().trim() + "%') OR (c.details LIKE '%"
+					+ cartoonSetData.getDetails().trim()
+					+ "%'))");
+		}
+		sb.append(" order by c.sort");
+		if(!ParaClick.clickString(cartoonSetData.getBack())){
+			if("0".equals(cartoonSetData.getBack().trim())){
+				sb.append(" DESC");
+			}
+		}
+		
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonSetData.getNowPage())-1)*Integer.parseInt(cartoonSetData.getPageNum())+","+ Integer.parseInt(cartoonSetData.getPageNum()));
+		List<CartoonSet> cartoonSetList = SQL(sb.toString(), CartoonSet.class);
+		return cartoonSetList;
+	}
+
+	@Override
+	public int getCount(CartoonSetData cartoonSetData) {
+		StringBuffer sb= new StringBuffer();
+		sb.append("select count(*) from CartoonSet c where 1=1 and c.cartoonId='"+cartoonSetData.getCartoonId()+"'");
+		if(!ParaClick.clickString(cartoonSetData.getPrice())){
+			sb.append(" AND c.price="+cartoonSetData.getPrice());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getVip())){
+			sb.append(" AND c.vip="+cartoonSetData.getVip());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+			sb.append(" AND c.moneyState="+cartoonSetData.getMoneyState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+			sb.append(" AND c.watchState="+cartoonSetData.getWatchState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getCondition())){
+			sb.append(" AND ((c.titile LIKE '%"
+					+ cartoonSetData.getTitile().trim() + "%') OR (c.details LIKE '%"
+					+ cartoonSetData.getDetails().trim()
+					+ "%'))");
+		}
+		int totalPage=0;
+		try {
+			totalPage = super.gettotalpage(sb.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return totalPage;
+	}
+	
+	
+	@Override
+	public CartoonSet selectCartoonSetById(String id) {
+		return super.get(id);
+	}
+
+	@Override
+	public int getLookNum(String cartoonId) {
+		try {
+			int gettotalpage = super.gettotalpage("select count(cartoonId) from CartoonSet s,Cartoon c where s.cartoonId=c.Id and s.watchState=1 and c.state=1 and cartoonId='"+cartoonId+"'");
+			System.out.println("select count(cartoonId) from cartoonSet s,cartoon c where s.cartoonId=c.Id and s.watchState=1 and c.state=1 and cartoonId='"+cartoonId+"'");
+			return gettotalpage;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	@Override
+	public List<CartoonSet> selectCartoonSetByCartoonId(String cartoonId) {
+		List<CartoonSet> sql = SQL("select * from CartoonSet where watchState=1 and cartoonId='"+cartoonId+"'",CartoonSet.class);
+		return sql;
+	}
+
+	@Override
+	public boolean updateAllCartoonSetState(CartoonSetData cartoonSetData) {
+		
+		try {
+			SQL("update CartoonSet set watchState="+Integer.parseInt(cartoonSetData.getWatchState().trim())+" where cartoonId='"+cartoonSetData.getCartoonId()+"'");
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean selectCartoonSetByCartoonId(CartoonSetData cartoonSetData) {
+		List<Object[]> list=null;
+		try {
+			list = getSessionFactory().createSQLQuery("select id from CartoonSet where cartoonId='"+cartoonSetData.getCartoonId()+"' and sort>"+cartoonSetData.getSort()).list();
+			if(ParaClick.clickList(list)){
+				return false;
+			}
+		} catch (HibernateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+}

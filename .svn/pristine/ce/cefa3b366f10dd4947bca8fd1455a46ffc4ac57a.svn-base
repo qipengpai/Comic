@@ -1,0 +1,59 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.News;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.UserOrder;
+import com.qin.crxl.comic.entity.vo.NewsData;
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+import com.qin.crxl.comic.service.UserOrderService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class UserOrderServiceImpl extends BaseServiceImpl<UserOrder> implements
+		UserOrderService {
+	@Override
+	public UserOrder updateOrder(String orderId) {
+		List<UserOrder> list = SQL("SELECT * FROM UserOrder WHERE orderNum='"
+				+ orderId + "'", UserOrder.class);
+		if (list != null && list.size() > 0) {
+			for (UserOrder order : list) {
+				order.setOrderState(1);
+				order.setOrderImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			}
+			return list.get(0);
+		}
+		return null;
+	}
+	@Override
+	public void cleanJF(String orderId) {
+		UserOrder uo= get(orderId);
+		uo.setOrderCurrency(0);
+	}
+	@Override
+	public int getUserOrderNum(UserEntity userEntity) {
+		// 產看訂單總數
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM UserOrder WHERE orderState= 1  AND orderUserId='"+userEntity.getUserId()+"'");
+		int num =gettotalpage(sb.toString());
+		return num;
+	}
+	@Override
+	public List<UserOrder> getALLUserOrderByUserId(UserOrderData userOrderData,UserEntity userEntity) {
+		// 查看所有訂單
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM UserOrder WHERE orderState= 1 AND orderUserId='"+userEntity.getUserId()+"'  ORDER BY orderDate DESC ");
+		List<UserOrder> list= SQL(sb.toString(),UserOrder.class);
+		return list;
+	}
+	@Override
+	public int getUserOrderByTask(String userId,String openid) {
+		// 查看是否首充
+		int num=super.gettotalpage("SELECT COUNT(*) FROM UserOrder WHERE orderState= 1 AND orderUserId='"+userId+"'");
+		return num;
+	}
+}

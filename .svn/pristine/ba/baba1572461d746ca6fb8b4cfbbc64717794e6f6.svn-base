@@ -1,0 +1,56 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.VeryOk;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.VeryOkService;
+import com.qin.crxl.comic.tool.DateUtil;
+
+@Service
+public class CartoonSetServiceImpl  extends BaseServiceImpl<CartoonSet>implements CartoonSetService{
+	
+	@Autowired
+	private VeryOkService veryOkService;
+
+	@Override
+	public List<CartoonSet> getByCartoonId(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  CartoonSet where CartoonId='"+cartoonData.getId()+"' ");
+		if (Integer.parseInt(cartoonData.getMode())==1) {
+			sb.append("ORDER BY sort DESC");
+		}else{
+			sb.append("ORDER BY sort ASC");
+		}
+		//Integer.parseInt(cartoonData.getPageNum())
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*10+",10  ");
+		List<CartoonSet> list=super.SQL(sb.toString(),CartoonSet.class);
+		return list;
+	}
+
+	@Override
+	public int getPageNum(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  CartoonSet where CartoonId='"+cartoonData.getId()+"' ");
+		int num= super.gettotalpage(sb.toString());
+		return num;
+	}
+
+
+	@Override
+	public CartoonSet getCarrtoonBySetId(CartoonSetData cartoonSetData) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+}

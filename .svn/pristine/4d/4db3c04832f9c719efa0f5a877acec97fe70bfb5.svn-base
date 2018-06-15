@@ -1,0 +1,49 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Feedback;
+import com.qin.crxl.comic.entity.vo.FeedBackData;
+import com.qin.crxl.comic.service.AdminFeedbackService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+/**
+ * 反馈表控制类
+ * @author cui
+ *
+ */
+@Controller
+public class AdminFeedbackController {
+	@Autowired
+	private AdminFeedbackService adminFeedbackService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_FEEDBACK, method = RequestMethod.POST)
+	public Model selectFeedback(FeedBackData feedBackData){
+		int num=0;
+		if(ParaClick.clickString(feedBackData.getNowPage())){
+			feedBackData.setNowPage("1");
+		}
+		if(ParaClick.clickString(feedBackData.getPageNum())){
+			feedBackData.setPageNum("10");
+		}
+		List<Feedback> feedbackList = adminFeedbackService.selectFeedback(feedBackData);
+		Model model=new Model();
+		if(ParaClick.clickList(feedbackList)){
+			model.setError(200);
+			model.setNowpage(Integer.parseInt(feedBackData.getNowPage()));
+			model.setTotalpage((num + Integer.parseInt(feedBackData.getPageNum()) - 1) / Integer.parseInt(feedBackData.getPageNum()));
+			model.setObj(feedbackList);
+			return model;
+		}
+		return new Model(500,"查询失败");
+	}
+}

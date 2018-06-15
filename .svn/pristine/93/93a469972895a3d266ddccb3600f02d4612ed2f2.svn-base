@@ -1,0 +1,12 @@
+package com.qin.crxl.comic.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.DistributorUserStatistics;
+import com.qin.crxl.comic.system.DistributorUserStatisticsServcie;
+
+@Service
+public class DistributorUserStatisticsServcieImpl extends BaseServiceImpl<DistributorUserStatistics> implements DistributorUserStatisticsServcie{
+
+}

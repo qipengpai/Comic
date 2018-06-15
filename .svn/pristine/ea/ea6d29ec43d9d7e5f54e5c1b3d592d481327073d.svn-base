@@ -1,0 +1,46 @@
+package com.qin.crxl.comic.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.FeedBackData;
+import com.qin.crxl.comic.service.FeedbackService;
+import com.qin.crxl.comic.service.UserService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+
+@Controller
+public class FeedbackController {
+
+	@Autowired
+	private FeedbackService feedbackService;
+	@Autowired
+	private UserService userService;
+	/**
+	 * pp
+	 * @Remarks app>個人中心>意見反饋
+	 * @throws Exception
+	 * */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_FEEDBACK_INFO, method = RequestMethod.POST)
+	public Model deleteUserPerfectInfoHeadPortrait(
+			FeedBackData feedBackData)
+			throws Exception {
+		feedBackData.clickUser();
+		UserEntity userEntity = userService.get(feedBackData.getUserId());
+		if (userEntity == null) {
+			return new Model(404, "无用户");
+		}
+		boolean flag = feedbackService.addFeedback(
+				feedBackData, userEntity);
+		if (!flag) {
+			return new Model(500, "發聵失败");
+		}
+		return new Model(200, "反饋成功");
+	}
+
+}

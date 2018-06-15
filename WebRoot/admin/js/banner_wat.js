@@ -1,0 +1,72 @@
+$(function(){
+	addbanner()
+});
+function addbanner(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/banner.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("id")
+		},
+		success:function(data){
+			if(data.error == 200){
+				for(var i = 0; i<data.obj.length; i++){
+					var str ="";
+					/*str += "<div class='ui-widget'><div class='form-group_input'><label>漫画banner标题：</label><br>" +
+							"<input id='mallimg' type='text' class='form-control bannerurl' placeholder='填写漫画banner标题' value='"+data.obj[i].title+"'>" +
+							"</div><div class='form-group_input'><label>修改banner图片：</label><br>"  +
+							"<input type='file' name='file' onchange='mainphoto(this)'>" +
+							"<img alt='image' class='mainPhoto' src='"+data.obj[i].httpImg+"'>" +
+							"</div></div>";*/
+					str += "<tr><td></td><td>"+data.obj[i].title+"</td><td><img src='"+data.obj[i].httpImg+"'></td><td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span></td></tr>";
+					$("#bannerwat").append(str);
+			
+				}
+				
+			}else{
+				
+			}
+		}
+	});
+}
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}
+function edit(id){
+	/*$.ajax({
+		url:"/Comic/qpp/comic/select/bannerById.do",
+		type:"post",
+		data:{
+			"id":GetQueryString("id")
+		},
+		success:function(data){
+			
+		}
+		}*/
+	window.location.href= "banner_edit.html?id="+id+"&cartoonId="+GetQueryString("id");
+}
+function deleter(id){
+	$.ajax({
+		url:"/Comic/qpp/comic/delete/banner.do",
+		type:"post",
+		data:{
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#bannerwat").empty();
+				addbanner();
+			}
+			
+			
+		}
+	});
+}
+function clihref(){
+	window.location.href = "banneradd.html?id="+GetQueryString("id");
+}

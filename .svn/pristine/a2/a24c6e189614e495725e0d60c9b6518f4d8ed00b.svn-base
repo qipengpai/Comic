@@ -1,0 +1,178 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonAllType;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.AdminCartoonSetService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 漫画话的接口实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminCartoonSetServiceImpl extends BaseServiceImpl<CartoonSet> implements
+		AdminCartoonSetService {
+
+	@Override
+	public boolean addCartoonSet(CartoonSetData cartoonSetData) {
+		try{
+			CartoonSet cartoonSet =new CartoonSet();
+			cartoonSet.setShowPhoto(cartoonSetData.getShowPhoto());//展示图
+			cartoonSet.setTitile(cartoonSetData.getTitile());//标题
+			cartoonSet.setDetails(cartoonSetData.getDetails());//介绍
+			cartoonSet.setImplDate(DateUtil.getdate());//操作时间
+			cartoonSet.setCartoonId(cartoonSetData.getCartoonId());//漫画id
+			//sort排序（自增+1）
+			int sortMax = this.getSortMax();
+			cartoonSet.setSort(sortMax);
+			
+			cartoonSet.setVip(Integer.parseInt(cartoonSetData.getVip()));//是否vip
+			cartoonSet.setPrice(Integer.parseInt(cartoonSetData.getPrice()));//价格
+			cartoonSet.setMoneyState(Integer.parseInt(cartoonSetData.getMoneyState()));//付费状态
+			cartoonSet.setWatchState(Integer.parseInt(cartoonSetData.getWatchState()));//观看状态
+			super.save(cartoonSet);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int getSortMax() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select max(sort) from CartoonSet");
+		List<Integer> lists=getSessionFactory().createSQLQuery(sb.toString()).list();
+		try {
+			if(lists!=null&&lists.size()>0){
+				Integer obj=lists.get(0);
+				return obj;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return 0;
+	}
+	
+	@Override
+	public boolean deleteCartoonSet(CartoonSetData cartoonSetData) {
+		try {
+			CartoonSet cartoonSet = super.get(cartoonSetData.getId());
+			if(ParaClick.clickObj(cartoonSet)){
+				super.delete(cartoonSetData.getId());
+				return true;
+			}else{
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean updateCartoonSet(CartoonSetData cartoonSetData) {
+		CartoonSet cartoonSet=null;
+		try {
+			cartoonSet=super.get(cartoonSetData.getId());
+			if(ParaClick.clickObj(cartoonSet)){
+				if(!ParaClick.clickString(cartoonSetData.getShowPhoto())){
+					cartoonSet.setShowPhoto(cartoonSetData.getShowPhoto());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getTitile())){
+					cartoonSet.setTitile(cartoonSetData.getTitile());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getDetails())){
+					cartoonSet.setDetails(cartoonSetData.getDetails());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getUpdateDate())){
+					cartoonSet.setUpdateDate(cartoonSetData.getUpdateDate());
+				}
+				if(!ParaClick.clickString(cartoonSetData.getVip())){
+					cartoonSet.setVip(Integer.parseInt(cartoonSetData.getVip()));
+				}
+				
+				if(!ParaClick.clickString(cartoonSetData.getPrice())){
+					cartoonSet.setPrice(Integer.parseInt(cartoonSetData.getPrice()));
+				}
+				if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+					cartoonSet.setMoneyState(Integer.parseInt(cartoonSetData.getMoneyState()));
+				}
+				if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+					cartoonSet.setWatchState(Integer.parseInt(cartoonSetData.getWatchState()));
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public List<CartoonSet> selectCartoonSet(CartoonSetData cartoonSetData) {
+		StringBuffer sb= new StringBuffer();
+		sb.append("select c.* from CartoonSet c where 1=1");
+		if(!ParaClick.clickString(cartoonSetData.getPrice())){
+			sb.append(" AND c.price="+cartoonSetData.getPrice());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getVip())){
+			sb.append(" AND c.vip="+cartoonSetData.getVip());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+			sb.append(" AND c.moneyState="+cartoonSetData.getMoneyState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+			sb.append(" AND c.watchState="+cartoonSetData.getWatchState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getCondition())){
+			sb.append(" AND ((c.titile LIKE '%"
+					+ cartoonSetData.getTitile().trim() + "%') OR (a.details LIKE '%"
+					+ cartoonSetData.getDetails().trim()
+					+ "%'))");
+		}
+		sb.append(" order by c.sort DESC LIMIT "+(Integer.parseInt(cartoonSetData.getNowPage())-1)*10+","+Integer.parseInt(cartoonSetData.getPageNum()));
+		List<CartoonSet> cartoonSetList = SQL(sb.toString(), CartoonSet.class);
+		return cartoonSetList;
+	}
+
+	@Override
+	public int getCount(CartoonSetData cartoonSetData) {
+		StringBuffer sb= new StringBuffer();
+		sb.append("select count(*) from CartoonSet c where 1=1");
+		if(!ParaClick.clickString(cartoonSetData.getPrice())){
+			sb.append(" AND c.price="+cartoonSetData.getPrice());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getVip())){
+			sb.append(" AND c.vip="+cartoonSetData.getVip());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getMoneyState())){
+			sb.append(" AND c.moneyState="+cartoonSetData.getMoneyState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getWatchState())){
+			sb.append(" AND c.watchState="+cartoonSetData.getWatchState());
+		}
+		if(!ParaClick.clickString(cartoonSetData.getCondition())){
+			sb.append(" AND ((c.titile LIKE '%"
+					+ cartoonSetData.getTitile().trim() + "%') OR (a.details LIKE '%"
+					+ cartoonSetData.getDetails().trim()
+					+ "%'))");
+		}
+		int totalPage = super.gettotalpage(sb.toString());
+		return totalPage;
+	}
+	
+	
+	@Override
+	public CartoonSet selectCartoonSetById(String id) {
+		return super.get(id);
+	}
+	
+}

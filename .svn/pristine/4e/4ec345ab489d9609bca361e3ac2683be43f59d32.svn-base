@@ -1,0 +1,37 @@
+package com.qin.crxl.comic.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.service.AdminCartoonAllTypeService;
+import com.qin.crxl.comic.system.ActionUrl;
+/**
+ * 漫画所有类型的控制类
+ * @author cui
+ *
+ */
+import com.qin.crxl.comic.tool.Model;
+/**
+ * 漫画所有类型的控制类
+ * @author cui
+ *
+ */
+@Controller
+public class AdminCartoonAllTypeController {
+	@Autowired
+	private  AdminCartoonAllTypeService  adminCartoonAllTypeService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_CARTOONALLTYPE, method = RequestMethod.POST)
+	public Model addCartoonAllType(String cartoonId,@RequestParam(value = "cartoonTypeId[]") String[] cartoonTypeId){
+		boolean bool = adminCartoonAllTypeService.addCartoonType(cartoonId, cartoonTypeId);
+		if(bool){
+			return new Model(200,"添加成功");
+		}
+		return new Model(500,"添加失败");
+	}
+}

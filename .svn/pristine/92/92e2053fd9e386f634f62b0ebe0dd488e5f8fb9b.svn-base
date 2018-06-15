@@ -1,0 +1,5 @@
+package com.qin.crxl.comic.system;
+
+public class ActionUrl {
+	public static final String WEIXINLOGIN="/servlet/OAuthAPIServlet";
+}

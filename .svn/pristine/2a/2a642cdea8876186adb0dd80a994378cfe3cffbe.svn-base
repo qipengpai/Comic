@@ -1,0 +1,85 @@
+package com.qin.crxl.comic.action;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.SearchHistory;
+import com.qin.crxl.comic.entity.vo.SearchInitializationData;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.SearchHistoryService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+
+@Controller
+public class SearchAction {
+	@Autowired
+	private CartoonService cartoonService;
+	
+	@Autowired
+	private SearchHistoryService searchHistoryService;
+	
+	/**
+	 * 
+	 * @author 覃金林
+	 * @throws Exception 
+	 * @date 2017年12月7日
+	 * @Remarks
+	 * @Tile={<h1>....</h1>}
+	 * @describe={<p>...</p>}
+	 *
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_SEARCH, method = RequestMethod.POST)
+	public Model getSearch(SearchInitializationData searchInitializationData) throws Exception{
+		searchInitializationData.clickUser();
+		List<Cartoon> ctList=cartoonService.getSearchLike(searchInitializationData.getConext());
+		return new Model(200, ctList);
+	}
+	
+	
+	/**
+	 * 
+	 * @author 覃金林
+	 * @date 2017年12月6日
+	 * @Remarks
+	 * @Tile={<h1>搜索初始化</h1>}
+	 * @describe={<p>进入功能加载历史搜索记录/热搜等关键词</p>}
+	 *
+	 */
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.GET_SEARCH_INITIALIZATION, method = RequestMethod.POST)
+	public Model getSearchHot(SearchInitializationData searchInitializationData) throws Exception{
+		searchInitializationData.clickUser();
+		//获取用户的历史记录
+		List<String> history=new ArrayList<>();
+		
+		List<SearchHistory> shList=searchHistoryService.getHistory(searchInitializationData.getUserId());
+		if(shList!=null&&shList.size()>0){
+			for(SearchHistory sh :shList){
+				history.add(sh.getConext());
+			}
+		}
+		//获取热门搜索
+		List<String> hot=new ArrayList<>();
+		List<Cartoon> ctList=cartoonService.getHot0_8();
+		if(ctList!=null&& ctList.size()>0){
+			for(Cartoon ct:ctList){
+				hot.add(ct.getCartoonName());
+			}
+		}
+		Map<String, Object> ret=new HashMap<>();
+		ret.put("history", history);
+		ret.put("hot", hot);
+		return new Model(200, ret);
+	}
+
+}

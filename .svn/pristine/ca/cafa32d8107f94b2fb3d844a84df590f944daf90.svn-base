@@ -1,0 +1,128 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CommentVeryOk;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonSetCommentData;
+import com.qin.crxl.comic.exception.BusinessException;
+import com.qin.crxl.comic.service.CartoonSetCommentService;
+import com.qin.crxl.comic.service.CommentVeryOkServcie;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class CommentVeryOkServiceImpl extends BaseServiceImpl<CommentVeryOk>
+		implements CommentVeryOkServcie {
+	@Autowired
+	private CartoonSetCommentService cartoonSetCommentService;
+	@Override
+	@Cacheable(value = "CartoonSetCommentOK", key = "#id.concat(#userId)")
+	public List<CommentVeryOk> getUserCartoonCommentSetVeryOk(String id,
+			String userId) {
+		// 产看用户是否给该评论点赞
+		List<CommentVeryOk> list = SQL(
+				"SELECT * FROM CommentVeryOk WHERE commentId='" + id
+						+ "' AND userId='" + userId
+						+ "' AND okState=1 ", CommentVeryOk.class);
+		return list;
+	}
+
+	@Override
+	public int getUserSetVseryOkCount(String id, UserEntity userEntity) {
+		// 查询此话点赞次数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM CommentVeryOk  WHERE commentId='"
+						+ id + "' AND okState=1 ");
+		return num;
+	}
+
+	@Override
+	public List<CommentVeryOk> getUserCartoonCommentVeryOk(String id,
+			UserEntity userEntity) {
+		// 产看用户是否给该评论点赞
+		List<CommentVeryOk> list = SQL(
+				"SELECT * FROM CommentVeryOk WHERE commentId='" + id
+						+ "' AND userId='" + userEntity.getUserId()
+						+ "' AND okState=1 ", CommentVeryOk.class);
+		return list;
+	}
+
+	@Override
+	public int getUserVseryOkCount(String id, UserEntity userEntity) {
+		// 查询此话点赞次数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM CommentVeryOk  WHERE commentId='"
+						+ id + "' AND okState=1 ");
+		return num;
+	}
+
+	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "CartoonSetComment", allEntries = true),
+			@CacheEvict(value = "CartoonSetCommentOK", key = "#id.concat(#userId)") })
+	public boolean addVeryOK(String id,String userId) throws Exception {
+		// 点赞
+		boolean flag = false;
+		try {
+			CommentVeryOk veryOk = new CommentVeryOk();
+			veryOk.setCommentId(id);
+			veryOk.setOkDate(DateUtil.getdate_yyyy_MM_dd());
+			veryOk.setUserId(userId);
+			veryOk.setOkState(1);
+			super.save(veryOk);
+			//增加评论中的点赞数
+//			boolean flag2 = cartoonSetCommentService
+//					.addVeryOkCount(cartoonSetCommentData.getId());
+//			if (!flag2) {
+//				return flag;
+//			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		super.SQL("UPDATE CartoonSetComment SET okCount=(okCount+1) WHERE id='"+id+"'");
+		return flag;
+	}
+
+	@Override
+	public boolean addCommentVeryOk(CartoonSetCommentData cartoonSetCommentData) {
+		// 增加评论的点赞数
+		return false;
+	}
+
+	@Override
+	public boolean deleteVeryOK(String id,String userId) {
+		// 取消点赞
+		boolean flag = false;
+		try {
+			List<CommentVeryOk> list3 = getUserCartoonCommentSetVeryOk(id, userId);
+			if (!ParaClick.clickList(list3)) {
+				return flag;
+			}
+			for (int i = 0; i < list3.size(); i++) {
+				super.delete(list3.get(i).getId());
+			}
+			boolean flag2=cartoonSetCommentService.subductionOkCount(id);
+			if(!flag2){
+				throw new BusinessException("减少点赞数点赞异常");
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+}

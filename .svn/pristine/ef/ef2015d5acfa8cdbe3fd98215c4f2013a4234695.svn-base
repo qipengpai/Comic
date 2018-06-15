@@ -1,0 +1,37 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonCommentVeryOk;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.CartoonCommentVeryOkService;
+
+@Service
+public class CartoonCommentVeryOkServiceImpl extends
+		BaseServiceImpl<CartoonCommentVeryOk> implements
+		CartoonCommentVeryOkService {
+
+	@Override
+	public List<CartoonCommentVeryOk> getUserCartoonCommentVeryOk(String id,
+			UserEntity userEntity) {
+		// 产看用户是否给该评论点赞
+		List<CartoonCommentVeryOk> list = SQL(
+				"SELECT * FROM CartoonCommentVeryOk WHERE cartoonCommentId=='"
+						+ id + "' AND userId=='" + userEntity.getUserId()
+						+ "' AND okState=1 ", CartoonCommentVeryOk.class);
+		return list;
+	}
+
+	@Override
+	public int getUserVseryOkCount(String id, UserEntity userEntity) {
+		// 查询此话点赞次数
+		int num = super
+				.gettotalpage("SELECT * FROM CartoonCommentVeryOk  WHERE cartoonCommentId='" + id
+						+ "' AND okState=1 ");
+		return num;
+	}
+
+}

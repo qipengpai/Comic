@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>更新漫画</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/bootstrap.css">
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript" src="js/lrz.bundle.js" ></script>
+ <style> 
+        .preview-container { 
+            position: relative; 
+            width: 200px; 
+            height: 200px; 
+            background-color: #eee; 
+        } 
+        .preview-container img { 
+            display: none; 
+            position: absolute; 
+        } 
+        .form-group_input .filename{
+        	width:auto;
+        }
+        .form-group_input img {
+		    width: 100%;
+		    margin-right: 10px;
+		    margin-bottom:10px;
+		}
+		.clearfix{
+			clear:both;
+		}
+		#goTop {
+		position:absolute;
+		left: 30px;
+  		top: 20px;
+		display:none;
+		width:50px;
+		height:48px;
+		background:#fff url(/Comic/admin/img/gotop.png) no-repeat 16px 15px;border:solid 1px #f9f9f8;border-radius:6px;box-shadow:0 1px 1px rgba(0, 0, 0, 0.2);
+		cursor:pointer;
+		}
+		#goTop:hover{
+		height:50px;
+		background-position:16px 16px;box-shadow:0 1px 1px rgba(0, 0, 0, 0.3);
+		}
+		#showPhoto div{
+		position:relative;
+		width:46%;
+		margn-left:2%;
+		margin-right:2%;
+		float:left;
+		}
+		#showPhoto span{
+		position:absolute;
+			right:0;
+		top:0;
+		z-index:100;
+		width:50px;
+		color:#fff;
+		text-align:center;
+		cursor:pointer;
+		}
+		.watertype input{
+			display:inline-block;
+			width:20px;
+		}
+    </style> 
+</head>
+<body class="gray-bg" >
+<div class="wrapper wrapper-content animated fadeInRight"  id="formid" style="margin:0 auto;border:2px solid #D4D4D4;padding:30px 50px;box-shadow:3px 3px 5px #D4D4D4;padding-top:5%;">
+	<h3 class="text-center" id="hid">添加漫画</h3>
+	<div class="watertype">
+		<span>有水印</span>
+		<input type="radio" name="watertype" value="1">
+		<span>无水印</span>
+		<input type="radio" name="watertype" value="0">
+	</div>
+	<form method="post" id="uploadForm" enctype="multipart/form-data">
+		<div class="form-group">
+			<div class="ui-widget">
+				<div class="form-group_input">
+
+					<input type="file" name="file" onchange="showPhoto()" id="filename" multiple>
+					<img alt="image" class="showPhoto filename" src="http://p0oqd5s9w.bkt.clouddn.com/1513325068647@qinruida-PRFYVQe8.png">
+				</div>
+				<label>漫画展示图：</label><br>
+				<div class="form-group_input">
+					<div id="showPhoto"></div>
+					<div id="url"></div>
+					<div id="width"></div>
+					<div id="height"></div>
+				</div>
+			</div>
+		</div>
+		<div id="goTop" class="goTop"></div>
+		<input type="hidden" id="width">
+		<input type="hidden" id="height">
+		<div class="clearfix"></div>
+		
+		<a onclick="primary()" class="btn btn-primary">返回</a>
+		<input class="btn btn-success pull-right" type="button" id="submitbtn" value="提交" onclick="add()">
+		<div class="clearboth"></div>
+	</form>
+		<input id="showPhoto" type="hidden"> 
+		
+		
+		
+
+	<input id="yins" type="hidden">
+	<!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+			            </div>
+			            <div class="modal-body" id = "textcontent">在这里添加一些文本</div>
+			            <div class="modal-footer" id="btngroup">
+			            	<!-- <button type="button" class="btn btn-default" onclick="del()" id="delbtn">删除</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button> -->
+			            </div>
+			        </div><!-- /.modal-content -->
+			    </div><!-- /.modal -->
+			</div>	
+	<!--  -->
+	<script src="js/jquery.min.js"></script>
+	<!--管理员登录验证  -->
+	<script src="js/login_Yan.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/mallinfoadd_updata.js"></script>
+	<script src="js/go_Top_Bottom.js"></script>
+</body> 
+</html>

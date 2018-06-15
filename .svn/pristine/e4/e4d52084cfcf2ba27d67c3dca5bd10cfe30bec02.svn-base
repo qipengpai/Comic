@@ -1,0 +1,18 @@
+package com.qin.crxl.comic.system;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.qin.crxl.comic.service.UserService;
+
+public class TimeService {
+
+	@Autowired
+	private  UserService userService;
+	
+	public void myTest(){
+		if (userService.chackVip()) {
+			System.out.println("更新数据成功");
+		}
+		System.out.println("更新数据失败");
+	}
+}

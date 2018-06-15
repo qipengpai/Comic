@@ -1,0 +1,106 @@
+$(function(){
+	selectupdata();
+	 $("#uploadDiv").on("click",function(){  
+	     var uploadFile = '<input name="files" id="uploaderInput" class="weui-uploader__input" type="file" accept="image/*" multiple/>';  
+	     $("#fileDiv").append($(uploadFile));  
+	     $("#uploaderInput").bind("change",function(e){  
+	                              //可以做一些其他的事，比如图片预览  
+	                             $(this).removeAttr("id");  
+	            });  
+	  $("#uploaderInput").click();    
+	 });
+});
+function updata(){
+	$.ajax({
+		url : "/Comic/qpp/comic/update/cartoonSet.do",
+		type:"post",
+		data:{
+			
+		},
+		success:function(data){
+			
+		}
+	});
+}
+function updatashow(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id")
+		},
+		success:function(data){
+			
+		}
+	});
+}
+function selectupdata(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id")
+		},
+		success:function(data){
+			if(data.error == 200){
+				
+			}
+		}
+	});
+}
+function add(){
+	var addurl ="";
+	$("#url .img_url").each(function (i){
+		addurl += $(this).val() + "," ;
+		
+	});
+	$.ajax({
+		url : "/Comic/qpp/comic/add/cartoonPhoto.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("cartoonid"),
+			"cartoonSetId":GetQueryString("id"),
+			"photoUrl":addurl
+		},
+		success:function(data){
+			if(data.error == 200){
+				alert("提交成功");
+			}
+			
+		}
+	});
+}
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return unescape(r[2]);
+	return null;
+}
+function showPhoto(){
+	var formData = new FormData($( "#uploadForm" )[0]);
+	$.ajax({
+		url : '/Comic/app/uplod/multipartFile.do',
+		type:"post",
+		 data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		 var img_conent = "";
+       		 var img_url = "";
+       		 var imgurldata = returndata.obj[0];
+       		img_conent += "<img src='"+imgurldata+"'>";
+       		img_url +="<input type='hidden' class='img_url' value='"+imgurldata+"' >";
+       		$("#showPhoto").append(img_conent);
+       		$("#url").append(img_url);
+       	  };
+       	  
+         }
+	});
+}

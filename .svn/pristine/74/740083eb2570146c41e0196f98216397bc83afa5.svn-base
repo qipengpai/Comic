@@ -1,0 +1,162 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import javassist.bytecode.LineNumberAttribute.Pc;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.VeryOk;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.entity.vo.CartoonSetCommentData;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+import com.qin.crxl.comic.service.CartoonSetService;
+import com.qin.crxl.comic.service.VeryOkService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class CartoonSetServiceImpl  extends BaseServiceImpl<CartoonSet>implements CartoonSetService{
+	
+	@Autowired
+	private VeryOkService veryOkService;
+
+	@Override
+	public List<CartoonSet> getByCartoonId(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT * FROM  CartoonSet WHERE CartoonId='"+cartoonData.getId()+"' AND watchState=1 ");
+		if (Integer.parseInt(cartoonData.getMode())==1) {
+			sb.append("ORDER BY sort DESC");
+		}else{
+			sb.append("ORDER BY sort ASC");
+		}
+		//Integer.parseInt(cartoonData.getPageNum())
+		sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*10+",10  ");
+		List<CartoonSet> list=super.SQL(sb.toString(),CartoonSet.class);
+		return list;
+	}
+
+	@Override
+	public int getPageNum(CartoonData cartoonData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT COUNT(*) from  CartoonSet WHERE CartoonId='"+cartoonData.getId()+"' AND watchState=1 ");
+		int num= super.gettotalpage(sb.toString());
+		return num;
+	}
+
+
+	@Override
+	public CartoonSet getCarrtoonBySetId(CartoonSetData cartoonSetData) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Cacheable(value = "myehcach",key = "#id")
+	public List<CartoonSet> getByCartoon(String id) {
+		// TODO Auto-generated method stub
+		StringBuffer sb=new StringBuffer();
+		sb.append("select * from  CartoonSet where CartoonId='"+id+"' ");
+		sb.append("ORDER BY SORT ASC LIMIT 0,1 ");
+		List<CartoonSet> list=super.SQL(sb.toString(),CartoonSet.class);
+		return list;
+	}
+
+	/*@Override
+	public boolean addCartoonSetCommentCount(
+			CartoonSetCommentData cartoonSetCommentData) {
+		// 增加每话的评论数
+		boolean flag=false;
+		try {
+			CartoonSet cartoonSet=super.get(cartoonSetCommentData.getCartoonSetId());
+			if(cartoonSet==null){
+				return flag;
+			}
+			cartoonSet.setCommentCount(cartoonSet.getCommentCount()+1);
+			flag =true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}*/
+
+	@Override
+	public boolean addVeryOKCount(CartoonSetData cartoonSetData) {
+		// 增加每话点赞数
+		boolean flag=false;
+		try {
+			CartoonSet cartoonSet=super.get(cartoonSetData.getId());
+			if(cartoonSet==null){
+				return flag;
+			}
+			cartoonSet.setOkCount(cartoonSet.getOkCount()+1);
+			flag =true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public CartoonSet getBySort(int i, String string) {
+		// 根据排序查询漫画的话
+		List<CartoonSet> cartoonSet=super.SQL("SELECT * FROM CartoonSet WHERE cartoonId='"+string+"' AND sort='"+i+"' AND watchState=1", CartoonSet.class);
+		if (ParaClick.clickList(cartoonSet)) {
+			return cartoonSet.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public List<CartoonSet> getByCartoonIdforFollow(String id) {
+		//根據cartoonid查詢話  for follow
+		List<CartoonSet> cartoonSet=super.SQL("SELECT * FROM CartoonSet WHERE cartoonId='"+id+"' ORDER BY sort DESC", CartoonSet.class);
+		return cartoonSet;
+	}
+
+	@Override
+	public boolean addPlayCount(String cartoonSetId) {
+		// 增加每话播放量
+		boolean flag=false;
+		try {
+			CartoonSet cartoonSet=super.get(cartoonSetId);
+			cartoonSet.setPlayCount(cartoonSet.getPlayCount()+1);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+
+	@Override
+	public boolean addPlayCount2(CartoonSet cartoonSet) {
+		// 增加每话播放量
+		boolean flag=false;
+		try {
+			CartoonSet cartoonSet2=super.get(cartoonSet.getId());
+			cartoonSet2.setPlayCount(cartoonSet.getPlayCount()+1);
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	
+
+}

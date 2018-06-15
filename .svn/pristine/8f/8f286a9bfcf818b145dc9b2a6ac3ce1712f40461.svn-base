@@ -1,0 +1,52 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+
+
+
+
+
+
+
+
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.FollowCartoon;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+
+@Service
+@Transactional
+public interface FollowCartoonService extends BaseService<FollowCartoon> {
+
+	int getFollowCount(String id);
+
+	boolean followCartoon(String string, String string2)throws Exception ;
+
+	List<FollowCartoon> getFollowByid(String string, String string2);
+
+	int getCartoonByBookshelfCount(CartoonData cartoonData,
+			UserEntity userEntity);
+
+	List<FollowCartoon> getCartoonByBookshelf(CartoonData cartoonData,
+			UserEntity userEntity);
+
+	boolean deleteFollowCartoon(String string, String string2);
+
+	List<FollowCartoon> getCartoonByLogin(UserEntity userEntity);
+
+	int getCartoonByBookshelfCountByIos(CartoonData cartoonData,
+			UserEntity userEntity);
+
+	List<FollowCartoon> getCartoonByBookshelfByIos(CartoonData cartoonData,
+			UserEntity userEntity);
+
+	List<FollowCartoon> getCartoonByLoginByIos(UserEntity userEntity);
+
+	
+}

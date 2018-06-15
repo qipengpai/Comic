@@ -1,0 +1,582 @@
+$(function(){
+	mallwatch();
+});
+function mallwatch(){
+	$.ajax({
+		url : "/Comic/qpp/comic/select/cartoonSet.do",
+		type : "post",
+		data : {
+			"cartoonId" : GetQueryString("id")
+		},
+		success:function(data){
+			if(data.error == 200){
+				if(data.error == 200){
+					
+					$(".pagination-num").val(data.nowpage);
+					$(".pagination-data").html(data.totalpage);
+					for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						"<img src='"+data.obj[i].showPhoto+"'>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+	            
+				};
+			}
+		}
+	});
+}
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return unescape(r[2]);
+	return null;
+}
+/*页码的第一个*/
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+				
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+				
+			}
+		}
+	});
+}
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+				
+			}
+		}
+	});
+}
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						 
+					};
+				
+			}
+		}
+	});
+}
+/*改变列表的个数*/
+function change(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+				
+			}
+		}
+	});
+}
+/*删除*/
+function deleter(id){
+	$.ajax({
+		url:"/Comic/qpp/comic/datele/cartoonSet.do",
+		type:"post",
+		data:{
+			"cartoonId" :GetQueryString("id"),
+			"id" : id
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				deletefunsh();
+			}
+		}
+	});
+}
+/*删除完成进行渲染*/
+function deletefunsh(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoonSet.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					var str = "";
+					str +="<tr>" +"<td>" +
+						"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+						"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+						"</td>" +
+						"<td>" +
+						data.obj[i].titile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].showPhoto +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateTitile +
+						"</td>" +
+						"<td>" +
+						data.obj[i].details +
+						"</td>" +
+						"<td>" +
+						data.obj[i].updateDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].implDate +
+						"</td>" +
+						"<td>" +
+						data.obj[i].barrageCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].commentCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].playCount + 
+						"</td>" +
+						"<td>" +
+						data.obj[i].okCount +
+						"</td>" +
+						"<td>" +
+						data.obj[i].sort +
+						"</td>" +
+						"<td>" +
+						data.obj[i].vip +
+						"</td>" +
+						"<td>" +
+						data.obj[i].price +
+						"</td>" +
+						"<td>" +
+						data.obj[i].moneyState +
+						"</td>" +
+						"<td>" +
+						data.obj[i].watchState  +
+						"</td>" +
+						"<td><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].id+"&quot;)'>删</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].id+"&quot;)'>改</span><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].id+"&quot;)'>更新</span>" +
+						"</td>";
+					$("#tbody").append(str);
+						
+						 
+					};
+				
+			}
+		}
+	});
+}
+/*更新*/
+function watch(id){
+	/*$.ajax({
+		url : "/Comic/qpp/comic/update/cartoonSet",
+		type:"post",
+		data:{
+			
+		},
+		success:function(data){
+			
+		}
+	});*/
+	window.location.href = "table_basic_updataadd.html?id="+id+"&cartoonid="+GetQueryString("id");
+}
+/*添加*/
+function addup(){
+	window.location.href = "table_basic_add.html?id="+GetQueryString("id");
+	
+}
+
+function edit(id){
+	window.location.href = "table_basic_watchedit.html?id="+id+"&cartoonId="+GetQueryString("id");
+}

@@ -1,0 +1,141 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.FollowCartoon;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class FollowCartoonServiceImpl extends BaseServiceImpl<FollowCartoon>
+		implements FollowCartoonService {
+
+	@Override
+	public int getFollowCount(String id) {
+		// 查看漫画关注人数
+		int num = super
+				.gettotalpage("SELECT COUNT(*) FROM FollowCartoon WHERE cartoonId='"
+						+ id + "' AND updateState=1 ");
+		return num;
+	}
+
+	@Override
+	@CacheEvict(value="CartoonFollow",key="#id.concat(#userId)",allEntries=false)
+	public boolean followCartoon(String id, String userId)
+			throws Exception {
+		// 关注
+		boolean flag = false;
+		try {
+			FollowCartoon followCartoon = new FollowCartoon();
+			followCartoon.setCartoonId(id);
+			followCartoon.setFollowDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			followCartoon.setUpdateState(1);
+			followCartoon.setUserId(userId);
+			super.save(followCartoon);
+			/*
+			 * boolean flag2=cartoonService.addFollowNum(cartoonData); if
+			 * (!flag2) { throw new BusinessException("增加關注人數"); }
+			 */
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		super.SQL("UPDATE Cartoon SET followCount=(followCount+1) WHERE id='"
+				+ id + "'");
+		return flag;
+	}
+
+	@Override
+	@Cacheable(value="CartoonFollow",key="#string.concat(#userId)")
+	public List<FollowCartoon> getFollowByid(String string,
+			String userId) {
+		// 根据你userId查看用户是否关注
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  FollowCartoon  WHERE  1=1 AND userId='"
+				+ userId + "' AND cartoonId='"
+				+ string+ "' AND  updateState=1 ");
+		List<FollowCartoon> list = super
+				.SQL(sb.toString(), FollowCartoon.class);
+
+		return list;
+	}
+
+	@Override
+	public int getCartoonByBookshelfCount(CartoonData cartoonData,
+			UserEntity userEntity) {
+		// 查看書架數量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM FollowCartoon as f,Cartoon as c WHERE c.id=f.cartoonId AND c.state=1 AND userId='"
+				+ userEntity.getUserId() + "' AND  updateState=1 ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<FollowCartoon> getCartoonByBookshelf(CartoonData cartoonData,
+			UserEntity userEntity) {
+		// 查看書架
+		StringBuffer sb = new StringBuffer();
+		// 记得cartoon 的上架状态
+		sb.append("SELECT * FROM FollowCartoon as f,Cartoon as c WHERE c.id=f.cartoonId AND c.state=1 AND f.userId='"
+				+ userEntity.getUserId() + "' AND  f.updateState=1 ");
+		sb.append(" ORDER BY f.followDate DESC LIMIT "
+				+ (Integer.parseInt(cartoonData.getNowPage()) - 1) * 12 + ",12");
+		List<FollowCartoon> list = super
+				.SQL(sb.toString(), FollowCartoon.class);
+		return list;
+	}
+
+	@Override
+	@CacheEvict(value="CartoonFollow",key="#id.concat(#userId)",allEntries=false)
+	public boolean deleteFollowCartoon(String id, String userId) {
+		// 取消關注
+		boolean flag = false;
+		try {
+			List<FollowCartoon> followCartoon = SQL(
+					"SELECT * FROM FollowCartoon WHERE cartoonId='"
+							+ id + "' AND userId='"
+							+ userId + "'", FollowCartoon.class);
+			if (!ParaClick.clickList(followCartoon)) {
+				return flag;
+			}
+			for (int i = 0; i < followCartoon.size(); i++) {
+				super.delete(followCartoon.get(i).getId());
+			}
+			/*
+			 * boolean flag2=cartoonService.deleteFollowNum(cartoonData); if
+			 * (!flag2) { throw new BusinessException("減少關注人數"); }
+			 */
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<FollowCartoon> getCartoonByLogin(
+			UserEntity userEntity) {
+		// 查看所有关注漫画
+		StringBuffer sb = new StringBuffer();
+		// 记得cartoon 的上架状态
+		sb.append("SELECT f.* FROM FollowCartoon as f,Cartoon as c WHERE c.id=f.cartoonId AND c.state=1 AND f.userId='"
+				+ userEntity.getUserId() + "' AND  f.updateState=1  ORDER BY f.followDate DESC");
+		List<FollowCartoon> list = super
+				.SQL(sb.toString(), FollowCartoon.class);
+		return list;
+	}
+
+}

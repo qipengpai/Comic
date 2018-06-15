@@ -1,0 +1,561 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.service.CartoonCommentService;
+import com.qin.crxl.comic.service.CartoonService;
+import com.qin.crxl.comic.service.FollowCartoonService;
+import com.qin.crxl.comic.service.HistoryRecordService;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+
+@Service
+public class CartoonServiceImpl extends BaseServiceImpl<Cartoon> implements
+		CartoonService {
+
+	@Autowired
+	private HistoryRecordService historyRecordService;
+	@Autowired
+	private FollowCartoonService followCartoonService;
+	@Autowired
+	private CartoonCommentService cartoonCommentService;
+
+	@Override
+	// @Cacheable(value = "Cartoon",key = "#root.methodName")
+	public int getNewCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		// ///////redis
+		int num = super.gettotalpage("ComicNum", 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	// @Cacheable(value = "Cartoon",key = "#root.methodName.concat(#nowPage)")
+	public List<Cartoon> getNewCartoon(String nowPage) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY sort DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(nowPage) - 1) * 5 + ",5");
+		// ///////redis
+		List<Cartoon> list = super.SQL("Comic" + nowPage, 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName")
+	public List<Cartoon> getSixHotCartoon() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC LIMIT 0,3 ");
+		List<Cartoon> list = super.SQL("ComicAllHot", 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName.concat(#cartoonType).concat(#firsrtType).concat(#nowPage)")
+	public List<Cartoon> getALLCartoon(String cartoonType, String firsrtType,
+			String nowPage) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  c.* FROM  Cartoon as c,CartoonAllType as cat,CartoonType as ct WHERE  c.id=cat.CartoonId AND cat.CartoonTypeId=ct.id  AND c.state=1 ");
+		/*
+		 * if (!ParaClick.clickString(cartoonData.getHotState())) {
+		 * sb.append(" AND c.hot=1"); }
+		 */
+		if (!ParaClick.clickString(cartoonType)) {
+			sb.append(" AND ct.id='" + cartoonType + "'");
+		}
+		if (!ParaClick.clickString(firsrtType)) {
+			sb.append(" AND c.firsrtType='" + firsrtType + "'");
+		}
+		sb.append(" GROUP BY c.id ORDER BY c.hot DESC,c.sort DESC  LIMIT "
+				+ (Integer.parseInt(nowPage) - 1) * 12 + ",12");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicAll" + cartoonType + nowPage,
+				3600, sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName.concat(#cartoonType).concat(#firsrtType)")
+	public int getALLCartoonCount(String cartoonType, String firsrtType) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(DISTINCT c.id) FROM  Cartoon as c,CartoonAllType as cat,CartoonType as ct WHERE  c.id=cat.CartoonId AND cat.CartoonTypeId=ct.id  AND c.state=1 ");
+		/*
+		 * if (!ParaClick.clickString(cartoonData.getHotState())) {
+		 * sb.append(" AND c.hot=1"); }
+		 */
+		if (!ParaClick.clickString(cartoonType)) {
+			sb.append(" AND ct.id='" + cartoonType + "'");
+		}
+		if (!ParaClick.clickString(firsrtType)) {
+			sb.append(" AND c.+firsrtType='" + firsrtType + "'");
+		}
+		// System.out.println(sb.toString());
+		// ///////redis
+		int num = super.gettotalpage("ComicAllNumber" + cartoonType, 3600,
+				sb.toString());
+		return num;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName")
+	public int getALLCartoonCountByRankingList(CartoonData cartoonData) {
+		// 查询所有数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1  ");
+		// ///////redis
+		int num = super.gettotalpage("ComicListNum", 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName.concat(#cartoonData.nowPage)")
+	public List<Cartoon> getALLCartoonByRankingList(CartoonData cartoonData) {
+		// 按播放量排序查询
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY playCount DESC");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicList" + cartoonData.getNowPage(),
+				3600, sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonByRMRankingList(CartoonData cartoonData) {
+		// 热卖榜 (关注排序)
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY followCount DESC");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		// ///////redis
+		List<Cartoon> list = super.SQL(
+				"ComicListGZ" + cartoonData.getNowPage(), 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName")
+	public List<Cartoon> getALLCartoonByRankingListThree(CartoonData cartoonData) {
+		// 按播放量排序查询前三
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 ORDER BY playCount DESC");
+		sb.append(" LIMIT 0 ,3  ");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicListThree", 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public List<Cartoon> getALLHotCartoon(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ORDER BY sort DESC ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + ",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLHotCartoonCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND hot=1 ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonbyType(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ORDER BY sort DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 10 + " ,10 ");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	// 备用
+	@Override
+	public int getALLCartoonbyTypeCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND cartoonType='"
+				+ cartoonData.getCartoonType() + "' ");
+		int num = super.gettotalpage(sb.toString());
+		return num;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName.concat(#cartoonData.nowPage)")
+	public List<Cartoon> getALLCartoonbyTypeThree(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 and state=1  ORDER BY sort DESC  ");
+		sb.append(" LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 3 + ",3 ");
+		List<Cartoon> list = super.SQL("ComicLike" + cartoonData.getNowPage(),
+				3600, sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName")
+	public int getALLCartoonbyTypeThreeCount(CartoonData cartoonData) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 and state=1  ");
+		int num = super.gettotalpage("ComicLike", 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	// @Cacheable(value="Cartoon",key="#root.methodName")
+	public List<Cartoon> getHot0_8() {
+		return SQL(
+				"ComicAll0_8",
+				3600,
+				"SELECT * FROM Cartoon WHERE hot=1 AND state=1 ORDER BY sort ASC LIMIT 0,8",
+				Cartoon.class);
+	}
+
+	@Override
+	// @Cacheable(value="CartoonLike",key="#conext")
+	public List<Cartoon> getSearchLike(String conext) {
+		// return
+		// SQL("SearchLike"+conext,36000,"SELECT * FROM Cartoon WHERE cartoonName LIKE '%"
+		// + conext
+		// + "%'", Cartoon.class);
+		return SQL("SELECT * FROM Cartoon WHERE cartoonName LIKE '%" + conext
+				+ "%' AND state=1 ", Cartoon.class);
+	}
+
+	public List<Cartoon> getALLCartoonByRun() {
+		// 查看所有
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1  ");
+		// sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*Integer.parseInt(cartoonData.getPageNum())+","+Integer.parseInt(cartoonData.getPageNum())+"");
+		// sb.append(" LIMIT "+(Integer.parseInt(cartoonData.getNowPage())-1)*10+",10");
+		List<Cartoon> list = super.SQL(sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public boolean backupsDatabases() {
+		// 备份数据
+		boolean flag = false;
+		try {
+			int followCartoon = 0;
+			int historyRecord = 0;
+			int cartoonComment = 0;
+			List<Cartoon> list = getALLCartoonByRun();
+			if (!ParaClick.clickList(list)) {
+				throw new RuntimeException();
+			}
+			for (int i = 0; i < list.size(); i++) {
+				/* 查看关注人数 */
+				followCartoon = followCartoonService.getFollowCount(list.get(i)
+						.getId());
+				list.get(i).setFollowCount(followCartoon * 72);
+				historyRecord = historyRecordService.getWatchCount(list.get(i));
+				list.get(i).setPlayCount(historyRecord * 83);
+				cartoonComment = cartoonCommentService
+						.getCartoonCommentCount(list.get(i));
+				list.get(i).setCommentCount(cartoonComment * 47);
+			}
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+
+		return flag;
+	}
+
+	/*
+	 * @Override public boolean addCommentCount(String cartoonId) { // 增加评论次数
+	 * boolean flag = false; try { Cartoon cartoon = super.get(cartoonId); if
+	 * (cartoon == null) { return flag; }
+	 * cartoon.setCommentCount(cartoon.getCommentCount() + 1); flag = true; }
+	 * catch (Exception e) { // TODO: handle exception e.printStackTrace();
+	 * return flag; }
+	 * 
+	 * return flag; }
+	 */
+	@Override
+	public boolean addPlayCount(String cartoonId) {
+		// 增加播放量
+		boolean flag = false;
+		try {
+			Cartoon cartoon = super.get(cartoonId);
+			if (cartoon == null) {
+				return flag;
+			}
+			cartoon.setPlayCount(cartoon.getPlayCount() + 1);
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		return flag;
+	}
+
+	@Override
+	public List<Cartoon> getNewCartoonByIos(String nowPage,String qd) {
+		// ios查看首页
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY sort DESC LIMIT " + (Integer.parseInt(nowPage) - 1) * 10 + ",10");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicIOS" + nowPage+flag, 3600,
+				sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getNewCartoonCountIos(CartoonData cartoonData,String qd) {
+		// ios查看首页条数
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		// ///////redis
+		int num = super.gettotalpage("ComicIOS"+flag, 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getSixHotCartoonByIos(String nowPage,String qd) {
+		// ios查看热门前三漫画
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 AND hot=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY sort DESC LIMIT "+(Integer.parseInt(nowPage)-1)*12+",12 ");
+		List<Cartoon> list = super.SQL("ComicIOSAllHot"+nowPage+flag, 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonCountByIos(String cartoonType, String firsrtType,String qd) {
+		// 查看更多漫画分类的数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(DISTINCT c.id) FROM  Cartoon as c,CartoonAllType as cat,CartoonType as ct WHERE  c.id=cat.CartoonId AND cat.CartoonTypeId=ct.id AND c.state=1 AND c.iosState=1 ");
+		if (!ParaClick.clickString(cartoonType)) {
+			sb.append(" AND ct.id='" + cartoonType + "'");
+		}
+		if (!ParaClick.clickString(firsrtType)) {
+			sb.append(" AND c.+firsrtType='" + firsrtType + "'");
+		}
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND c.updateType=1");
+		}
+		// ///////redis
+		int num = super.gettotalpage("ComicIOSAllNumber"+cartoonType+flag, 3600,
+				sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonByIos(String cartoonType,
+			String firsrtType, String nowPage,String qd) {
+		// 查看更多漫画分类
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  c.* FROM  Cartoon as c,CartoonAllType as cat,CartoonType as ct WHERE  c.id=cat.CartoonId AND cat.CartoonTypeId=ct.id AND c.state=1 AND c.iosState=1 ");
+		if (!ParaClick.clickString(cartoonType)) {
+			sb.append(" AND ct.id='" + cartoonType + "'");
+		}
+		if (!ParaClick.clickString(firsrtType)) {
+			sb.append(" AND c.firsrtType='" + firsrtType + "'");
+		}
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND c.updateType=1");
+		}
+		sb.append(" GROUP BY c.id ORDER BY c.hot DESC,c.sort DESC  LIMIT "
+				+ (Integer.parseInt(nowPage) - 1) * 12 + ",12");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicIOSAll" + cartoonType + nowPage+flag,
+				3600, sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonbyTypeThreeCountByIos(CartoonData cartoonData,String qd) {
+		// 猜你喜欢数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1  ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		int num = super.gettotalpage("ComicIOSLike", 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonbyTypeThreeByIos(CartoonData cartoonData,String qd) {
+		// 猜你喜欢
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY sort DESC LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 3 + ",3 ");
+		List<Cartoon> list = super.SQL(
+				"ComicIOSLike" + cartoonData.getNowPage()+flag, 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public int getALLCartoonCountByRankingListByIos(CartoonData cartoonData,String qd) {
+		// 查询所有数量
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT COUNT(*) FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		// ///////redis
+		int num = super.gettotalpage("ComicIOSListNum"+flag, 3600, sb.toString());
+		return num;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonByRMRankingListByIos(
+			CartoonData cartoonData,String qd) {
+		// 热卖榜 (关注排序)
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY followCount DESC LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 12 + ",12");
+		// ///////redis
+		List<Cartoon> list = super.SQL(
+				"ComicIOSListGZ" + cartoonData.getNowPage()+flag, 3600,
+				sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public List<Cartoon> getALLCartoonByRankingListByIos(CartoonData cartoonData,String qd) {
+		// 按播放量排序查询
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY playCount DESC LIMIT " + (Integer.parseInt(cartoonData.getNowPage()) - 1)
+				* 12 + ",12");
+		// ///////redis
+		List<Cartoon> list = super.SQL(
+				"ComicIOSList" + cartoonData.getNowPage()+flag, 3600, sb.toString(),
+				Cartoon.class);
+		return list;
+	}
+
+	@Override
+	public List<Cartoon> getSearchLikeByIos(String content,String qd) {
+		// return
+		// SQL("SearchLike"+conext,36000,"SELECT * FROM Cartoon WHERE cartoonName LIKE '%"
+		// + conext
+		// + "%'", Cartoon.class);
+		StringBuffer sb = new StringBuffer();
+		sb.append(" SELECT * FROM Cartoon WHERE cartoonName LIKE '%" + content
+				+ "%' AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY sort ASC LIMIT 0,8 ");
+		return SQL(sb.toString(), Cartoon.class);
+		
+		
+	}
+
+	@Override
+	public List<Cartoon> getHot0_8ByIos(String qd) {
+		// 热搜词
+		StringBuffer sb = new StringBuffer();
+		sb.append(" SELECT * FROM Cartoon WHERE hot=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY sort ASC LIMIT 0,8 ");
+		return SQL("ComicIOSAll0_8"+flag,3600,sb.toString(), Cartoon.class);
+	}
+
+	@Override
+	public List<Cartoon> getNewCartoonByIosNew(String nowPage,String qd) {
+		// ios查看首页
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT  * FROM  Cartoon WHERE  1=1 AND state=1 AND iosState=1 ");
+		String flag="APP_IOS";
+		if (qd.equals("APPLE")) {
+			flag="APPLE";
+			sb.append(" AND updateType=1");
+		}
+		sb.append(" ORDER BY updateDate DESC  LIMIT " + (Integer.parseInt(nowPage) - 1) * 10 + ",10");
+		// ///////redis
+		List<Cartoon> list = super.SQL("ComicIOSNEW-" + nowPage+flag, 3600,
+				sb.toString(), Cartoon.class);
+		return list;
+	}
+
+	/*
+	 * @Override public boolean addFollowNum(CartoonData cartoonData) { //
+	 * 增加關注人數 boolean flag = false; try { Cartoon cartoon =
+	 * super.get(cartoonData.getId()); if (cartoon == null) { return flag; }
+	 * cartoon.setFollowCount(cartoon.getFollowCount() + 1); flag = true; }
+	 * catch (Exception e) { // TODO: handle exception e.printStackTrace();
+	 * return flag; } return flag; }
+	 */
+	/*
+	 * @Override public boolean deleteFollowNum(CartoonData cartoonData) { //
+	 * 關注人數-1 boolean flag = false; try { Cartoon cartoon =
+	 * super.get(cartoonData.getId()); if (cartoon == null) { return flag; }
+	 * cartoon.setFollowCount(cartoon.getFollowCount() - 1); flag = true; }
+	 * catch (Exception e) { // TODO: handle exception e.printStackTrace();
+	 * return flag; } return flag; }
+	 */
+
+}

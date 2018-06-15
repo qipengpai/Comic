@@ -1,0 +1,145 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonPhoto;
+import com.qin.crxl.comic.entity.vo.CartoonPhotoData;
+import com.qin.crxl.comic.service.AdminCartoonPhotoService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 每话图片的实现类
+ * @author cui
+ *
+ */
+@Service
+public class AdminCartoonPhotoServiceImpl extends BaseServiceImpl<CartoonPhoto> implements AdminCartoonPhotoService {
+
+	@Override
+	public boolean addCartoonPhoto(CartoonPhotoData cartoonPhotoData,
+			String[] photoUrl) {
+		try {
+			if(!ParaClick.clickString(cartoonPhotoData.getCartoonId())&&!ParaClick.clickString(cartoonPhotoData.getCartoonSetId())){
+				if(photoUrl!=null&&photoUrl.length>0){
+					if(photoUrl.length==1&&ParaClick.clickString(photoUrl[0])){
+						return false;
+					}
+					int num=0;
+					int sortMax = this.getSortMax(cartoonPhotoData);
+					for(int i=0;i<photoUrl.length;i++){
+						//筛出字符数组中空数组
+						if(ParaClick.clickString(photoUrl[i])){
+							num++;
+							continue;
+						}
+						CartoonPhoto cartoonPhoto=new CartoonPhoto();
+						//漫画Id
+						cartoonPhoto.setCartoonId(cartoonPhotoData.getCartoonId());
+						//每话Id
+						cartoonPhoto.setCartoonSetId(cartoonPhotoData.getCartoonSetId());
+						//图片路径
+						cartoonPhoto.setPhotoUrl(photoUrl[i]);
+						//序号sort（自增+1）
+						sortMax++;
+						cartoonPhoto.setSort(sortMax);
+						//操作时间
+						cartoonPhoto.setImplDate(DateUtil.getdate());
+						super.save(cartoonPhoto);
+						System.out.println("添加到话的第"+(i+1)+"张图片");
+					}
+					String time=DateUtil.getdate();
+					//更新话的日期
+					SQL("update CartoonSet set updateDate='"+time+"' where id='"+cartoonPhotoData.getCartoonSetId()+"'");
+					//更新漫画的日期
+					SQL("update Cartoon set updateDate='"+time+"' where id='"+cartoonPhotoData.getCartoonId()+"'");
+					System.out.println("共添加话"+(photoUrl.length-num)+"张图片");
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+	
+	
+	@Override
+	public int getSortMax(CartoonPhotoData cartoonPhotoData) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("select max(sort) from CartoonPhoto where cartoonSetId='"+cartoonPhotoData.getCartoonSetId()+"'");
+		try {
+			List<Integer> lists=getSessionFactory().createSQLQuery(sb.toString()).list();
+			if(lists!=null&&lists.size()>0){
+				Integer obj=lists.get(0);
+				if(obj==null){
+					obj=0;
+				}
+				return obj;
+			}
+		} catch (HibernateException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public boolean deleteCartoonPhoto(CartoonPhotoData cartoonPhotoData) {
+		try {
+			CartoonPhoto cartoonPhoto = super.get(cartoonPhotoData.getId());
+			if(ParaClick.clickObj(cartoonPhoto)){
+				super.delete(cartoonPhotoData.getId());
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateCartoonPhoto(CartoonPhotoData cartoonPhotoData) {
+		try {
+			SQL("delete from CartoonPhoto where cartoonSetId='"+cartoonPhotoData.getCartoonSetId()+"'");
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public List<CartoonPhoto> selectCartoonPhoto(String cartoonSetId) {
+		List<CartoonPhoto> list=SQL("select * from CartoonPhoto where cartoonSetId='"+cartoonSetId+"' Order by sort",CartoonPhoto.class);
+		if(ParaClick.clickList(list)){
+			return list;
+		}
+		return null;
+	}
+
+
+	@Override
+	public int getCount(CartoonPhotoData cartoonPhotoData) {
+		int gettotalpage=0;
+		try {
+			gettotalpage = super.gettotalpage("select count(*) from CartoonPhoto where cartoonSetId='"+cartoonPhotoData.getCartoonSetId()+"'");
+			return gettotalpage;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+		return gettotalpage;
+	}
+
+
+	@Override
+	public List<CartoonPhoto> selectCartoonPhotoByCartoonId(String cartoonId) {
+		List<CartoonPhoto> sql = SQL("select * from CartoonPhoto where cartoonId='"+cartoonId+"'",CartoonPhoto.class);
+		return sql;
+	}
+
+	
+
+}

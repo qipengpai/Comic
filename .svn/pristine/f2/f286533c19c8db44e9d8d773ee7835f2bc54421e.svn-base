@@ -1,0 +1,113 @@
+package com.qin.crxl.comic.action;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.Administrators;
+import com.qin.crxl.comic.entity.vo.AdministratorsData;
+import com.qin.crxl.comic.service.AdministratorsService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+/**
+ * 管理员控制类
+ * @author cui
+ *
+ */
+@Controller
+public class AdministratorsController {
+	@Autowired
+	private AdministratorsService administratorsService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADD_ADMIN, method = RequestMethod.POST)
+	public Model addAdministrators(AdministratorsData administratorsData){
+		if(ParaClick.clickString(administratorsData.getAdminName())){
+			return new Model(500,"请填写登录名");
+		}
+		if(ParaClick.clickString(administratorsData.getAdminPwd())){
+			return new Model(500,"请填写登录密码");
+		}
+		boolean bool = administratorsService.addAdministrators(administratorsData);
+		if(bool){
+			return new Model(200,"注册成功");
+		}
+		return new Model(500,"注册失败");
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.LOGIN_ADMIN, method = RequestMethod.POST)
+	public Model loginAdministrators(AdministratorsData administratorsData,HttpServletRequest request,String vcode){
+		if(ParaClick.clickString(administratorsData.getAdminName())||ParaClick.clickString(administratorsData.getAdminPwd())){
+			return new Model(500,"用户名或密码为空");
+		}
+		try {
+			String c = vcode.toLowerCase();
+			String svcode = request.getSession().getAttribute("vCode")
+					.toString().toLowerCase();
+			// String svcode="12345";
+			if (c == null || !svcode.equals(c)) {
+				return new Model(406, "验证码错误");
+			}
+		} catch (Exception e) {
+			return new Model(406, "验证码错误");
+		}
+		Administrators admin = administratorsService.loginAdministrators(administratorsData);
+		if(!ParaClick.clickObj(admin)){
+			return new Model(500,"用户名或密码错误");
+		}
+		Model model=new Model();
+		model.setError(200);
+		model.setMsg("登录成功");
+		model.setObj(admin);
+		request.getSession().setAttribute("userinfo", model.getObj());
+		request.getSession().setMaxInactiveInterval(0);
+		return model;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.UPDATE_ADMINPWD, method = RequestMethod.POST)
+	public Model updateAdminPwd(AdministratorsData administratorsData,String newPwd){
+		if(ParaClick.clickString(administratorsData.getAdminPwd())){
+			return new Model(500,"修改密码失败");
+		}
+		if(ParaClick.clickString(newPwd)){
+			return new Model(500,"修改密码失败");
+		}
+		boolean bool = administratorsService.updateAdminPwd(administratorsData, newPwd);
+		if(bool){
+			return new Model(200,"修改密码成功");
+		}
+		return new Model(500,"修改密码失败");
+	}
+	
+	
+	/*获取管理员信息*/
+	@ResponseBody
+	@RequestMapping(value=ActionUrl.GET_ADMIN,method = RequestMethod.POST)
+	public Model getProvider(HttpServletRequest request,String code){
+		Administrators admin=(Administrators) request.getSession().getAttribute("userinfo");
+		if(null != admin){
+			Model model=new Model();
+			model.setError(200);
+			model.setObj(admin);
+			return model;
+		}else{
+			return new Model(404, "未找到用户");
+		}
+	} 
+	
+	/*退出登录*/
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.ADMIN_LOGOUT, method = RequestMethod.POST)
+	public void execute(HttpSession session){
+	        session.invalidate();		      
+	}
+	
+}

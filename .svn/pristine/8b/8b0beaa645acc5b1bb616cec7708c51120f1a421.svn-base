@@ -1,0 +1,27 @@
+package com.qin.crxl.comic.service;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+import javax.websocket.server.ServerEndpoint;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseService;
+import com.qin.crxl.comic.entity.Cartoon;
+import com.qin.crxl.comic.entity.CartoonSet;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.entity.vo.CartoonData;
+import com.qin.crxl.comic.entity.vo.CartoonSetData;
+@Service
+@Transactional
+public interface CartoonSetService  extends BaseService<CartoonSet> {
+
+	List<CartoonSet> getByCartoonId( CartoonData cartoonData);
+
+	int getPageNum(CartoonData cartoonData);
+
+	CartoonSet getCarrtoonBySetId(CartoonSetData cartoonSetData);
+
+	
+}

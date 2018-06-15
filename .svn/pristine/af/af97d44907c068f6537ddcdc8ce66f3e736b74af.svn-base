@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>distributoradd.html</title>
+    <link href="css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min.css?v=4.0.0" rel="stylesheet">
+  </head>
+  <body>
+  <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>注册分销账号</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form method="get" class="form-horizontal" style="padding-left:30%;">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">账号</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="account">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">渠道</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="qd">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">密码</label>
+                                <div class="col-sm-2">
+                                    <input type="password" class="form-control" name="password" id="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">再次输入密码</label>
+                                <div class="col-sm-2">
+                                    <input type="password" class="form-control" name="rpassword" id="rpassword">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">用户名</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="nickname">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">email</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="email">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">电话</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="phone">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <!-- <div class="form-group">
+                                <label class="col-sm-2 control-label">支付类型
+                                    <br/>
+                                    <small class="text-navy"></small>
+                                </label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" checked="" value="1" id="daypay" name="paytype">日结</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" value="2" id="weekpay" name="paytype">周结</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" value="3" id="monthpay" name="paytype">月结</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div> -->
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">付款账号</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="payaccount">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">收款人</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="payuser">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">支付类型</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="paytype">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">分成比例</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="proportion">
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <div class="col-sm-4 col-sm-offset-2">
+                                    <span class="btn btn-primary" onclick="save()">保存内容</span>
+                                    <span class="btn btn-white" onclick="cancel()">取消</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+			            </div>
+			            <div class="modal-body" id = "textcontent">在这里添加一些文本</div>
+			            <div class="modal-footer" id="btngroup">
+			            	<!-- <button type="button" class="btn btn-default" onclick="del()" id="delbtn">删除</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button> -->
+			            </div>
+			        </div><!-- /.modal-content -->
+			    </div><!-- /.modal -->
+			</div>	
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.5"></script>
+    <script src="js/content.min.js?v=1.0.0"></script>
+    <script src="js/distributoradd.js"></script>
+  </body>
+</html>

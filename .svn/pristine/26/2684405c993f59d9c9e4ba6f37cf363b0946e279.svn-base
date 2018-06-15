@@ -1,0 +1,15 @@
+package com.qin.crxl.comic.entity.vo;
+
+public class SearchInitializationData extends BaseEntityVO{
+	private String conext;
+
+	public String getConext() {
+		return conext;
+	}
+
+	public void setConext(String conext) {
+		this.conext = conext;
+	}
+	
+
+}

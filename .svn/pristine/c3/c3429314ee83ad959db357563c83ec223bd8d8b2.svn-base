@@ -1,0 +1,1168 @@
+$(function(){
+	tablebasic();
+	inpblur();
+});
+/*页面进行时渲染数据*/
+function tablebasic(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		success:function(data){
+			if(data.error == 200){
+				
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+            
+			};
+		}
+	});
+}
+/*页面进行时渲染数据*/
+function namess(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"condition":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+			};
+		}
+	});
+}
+/*改变列表的个数*/
+function change(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+				
+			}
+		}
+	});
+}
+/*删除完成进行渲染*/
+function deletefunsh(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+				
+			}
+		}
+	});
+}
+/* 删除    */
+function deleter(id){   
+	$(".alertatn").css("display","block");
+	$("#surebtn").click(function(){
+		$.ajax({
+			url:"/Comic/qpp/comic/delete/cartoon.do",
+			type:"post",
+			data:{
+				"id":id
+			},
+			success:function(data){
+				$(".alertatn").css("display","none");
+				$("#tbody").empty();
+				deletefunsh();
+				
+			}
+		
+		});
+	});
+	$("#deletebtn").click(function(){
+		$(".alertatn").css("display","none");
+	});
+	
+}
+/*页码的第一个*/
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+				
+			}
+		}
+	});
+}
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+				
+			}
+		}
+	});
+}
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+				
+			}
+		}
+	});
+}
+/*修改页面*/
+function edit(id){
+	
+	window.location.href = "table_basic_edit.html?id="+id;
+}
+/*增加话*/
+function add(id){
+		$.ajax({
+			url :"/Comic/qpp/comic/select/cartoonSet.do",
+			type:"post",
+			data:{
+				"id":id
+			},
+			success:function(data){
+				if(data.error == 200){
+					if(data.obj.length > 0 ){
+						window.location.href = "table_basic_add.html?id="+id;
+					}else{
+						alert("还没有画");
+						window.location.href = "table_basic_add.html?id="+id;
+					}
+				}
+			}
+		});
+}
+/*查看画*/
+function watch(id){
+	window.location.href = "table_basic_watch.html?id="+id;
+}
+function selecter(id){
+	window.location.href = "table_basic_select.html?id="+id;
+}
+function hot(hot,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"hot":hot,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				deletefunsh();
+			}	
+		}
+	});
+}
+function grounding(state,id){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id
+		},
+		success:function(data){
+			if(data.error == 200){
+				deletefunsh();
+			}	
+		}
+	});
+}
+function topp(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot" :hot 
+		},
+		success:function(data){
+			if(data.error == 200){
+				deletefunsh();
+			}	
+		}
+	});
+}
+function bottomm(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot":hot
+		},
+		success:function(data){
+			if(data.error == 200){
+				deletefunsh();
+			}	
+		}
+	});
+}
+function stick(id,sort,state,sortNum,hot){
+	$.ajax({
+		url :"/Comic/qpp/comic/update/cartoon.do",
+		type:"post",
+		data:{
+			"state":state,
+			"id":id,
+			"sort":sort,
+			"sortNum" : sortNum,
+			"hot":hot
+		},
+		success:function(data){
+			if(data.error == 200){
+				deletefunsh();
+			}	
+		}
+	});
+}
+function authorss(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/cartoon.do",
+		type:"post",
+		data:{
+			"cartoonAuthor":$("#select").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowpage" : $(".pagination-num").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i=0;i<data.obj.length;i++){
+					if(data.obj[i].cartoon.firstType == 1){
+						var firstTypehtml = "普通漫画";
+					}else{
+						var firstTypehtml = "真人漫画";
+					}
+					if(data.obj[i].cartoonTypeAll == ""){
+						var cartoonTypeAll = "其他";
+					}else{
+						var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+					}
+					if(data.obj[i].cartoon.updateTile == ""){
+						var updateTile = "其他";
+					}else{
+						var updateTile = data.obj[i].cartoon.updateTile;
+					}
+					var updateType = data.obj[i].cartoon.updateType;
+					if(data.obj[i].cartoon.hot == 1){
+						var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.hot == 0){
+						var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+					if(data.obj[i].cartoon.state == 1){
+						var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+					}else if(data.obj[i].cartoon.state == 0){
+						var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+					}
+				var str = "";
+				str +="<tr>" +"<td>" +
+					"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+					"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonName +
+					"</td>" +
+					"<td>" +
+					firstTypehtml +
+					"</td>" +
+					"<td>" +
+					cartoonTypeAll + 
+					"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+                    "<i class='fa fa-chevron-up'></i>" +
+                    "</a>"+
+					"</td>" +
+					"<td>" +
+					data.obj[i].cartoon.cartoonAuthor+
+					"</td>" +
+					"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+					"<td>" + 
+					data.obj[i].cartoon.introduc +
+					"</td>" +
+					"<td>" +
+					updateTile +
+					"</td>" +
+					"<td>" +
+					updateType +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+					"</td>" +
+					"<td>" +
+					hot_title +
+					"</td>" +
+					"<td>" +
+					grounding +
+					"</td>" +
+					"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+					"</td>" +
+					"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+					"</tr>";
+				$("#tbody").append(str);
+					
+					 
+				};
+            
+			};
+		}
+	});
+}
+function inpblur(){
+	$(".pagination-num").blur(function(){
+			$.ajax({
+				url:"/Comic/qpp/comic/select/cartoon.do",
+				type:"post",
+				data:{
+					"pageNum" : $(".pagination-page-list").val(),
+					"nowpage" : $(".pagination-num").val()
+				},
+				success:function(data){
+					if(data.error == 200){
+						$("#tbody").empty();
+						$(".pagination-num").val(data.nowpage);
+						$(".pagination-data").html(data.totalpage);
+						for(var i=0;i<data.obj.length;i++){
+							if(data.obj[i].cartoon.firstType == 1){
+								var firstTypehtml = "普通漫画";
+							}else{
+								var firstTypehtml = "真人漫画";
+							}
+							if(data.obj[i].cartoonTypeAll == ""){
+								var cartoonTypeAll = "其他";
+							}else{
+								var cartoonTypeAll = data.obj[i].cartoonTypeAll;
+							}
+							if(data.obj[i].cartoon.updateTile == ""){
+								var updateTile = "其他";
+							}else{
+								var updateTile = data.obj[i].cartoon.updateTile;
+							}
+
+							var updateType = data.obj[i].cartoon.updateType;
+							if(data.obj[i].cartoon.hot == 1){
+								var hot_title = "<a onclick='hot(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+							}else if(data.obj[i].cartoon.hot == 0){
+								var hot_title = "<a onclick='hot(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+							}
+							if(data.obj[i].cartoon.state == 1){
+								var grounding = "<a onclick='grounding(0,&quot;"+data.obj[i].cartoon.id+"&quot;)' ><i class='fa fa-check text-navy' style='color:#D84C29'></i></a>";
+							}else if(data.obj[i].cartoon.state == 0){
+								var grounding = "<a onclick='grounding(1,&quot;"+data.obj[i].cartoon.id+"&quot;)'><i class='fa fa-check text-navy'></i></a>";
+							}
+						var str = "";
+						str +="<tr>" +"<td>" +
+							"<div class='icheckbox_square-green checked' style='position: relative;'>" +
+							"<input type='checkbox' checked='' class='i-checks' name='input[]' style='position: absolute; opacity: 0;'><ins class='iCheck-helper' style='position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;'></ins></div>" +
+							"</td>" +
+							"<td>" +
+							data.obj[i].cartoon.cartoonName +
+							"</td>" +
+							"<td>" +
+							firstTypehtml +
+							"</td>" +
+							"<td>" +
+							cartoonTypeAll + 
+							"<a class='collapse-link' onclick='selecter(&quot;"+data.obj[i].cartoon.id+"&quot;)'> " +
+		                    "<i class='fa fa-chevron-up'></i>" +
+		                    "</a>"+
+							"</td>" +
+							"<td>" +
+							data.obj[i].cartoon.cartoonAuthor+
+							"</td>" +
+							"<td><img src='"+data.obj[i].cartoon.cartoonAuthorPic+"'></td>" +
+							"<td>" + 
+							data.obj[i].cartoon.introduc +
+							"</td>" +
+							"<td>" +
+							updateTile +
+							"</td>" +
+							"<td>" +
+							updateType +
+							"</td>" +
+							"<td>" +
+							"<img src='"+data.obj[i].cartoon.mainPhoto+"'>" +
+							"</td>" +
+							"<td>" +
+							"<img src='"+data.obj[i].cartoon.introduction+"'>" + 
+							"</td>" +
+							"<td>" +
+							"<img src='"+data.obj[i].cartoon.smallPhoto+"'>" +
+							"</td>" +
+							"<td>" +
+							"<img src='"+data.obj[i].cartoon.midelPhoto+"'>" +
+							"</td>" +
+							"<td>" +
+							hot_title +
+							"</td>" +
+							"<td>" +
+							grounding +
+							"</td>" +
+							"<td><span class='watch btn_btn' onclick='watch(&quot;"+data.obj[i].cartoon.id+"&quot;)'>查</span><span class='edit btn_btn' onclick='edit(&quot;"+data.obj[i].cartoon.id+"&quot;)'>改</span><span class='delete btn_btn' onclick='deleter(&quot;"+data.obj[i].cartoon.id+"&quot;)'>删</span>" +
+							"</td>" +
+							"<td><span class='add btn_btn' onclick='topp(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,1,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>上</span><span class='delete btn_btn' onclick='bottomm(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,0,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>下</span><span class='edit btn_btn' onclick='stick(&quot;"+data.obj[i].cartoon.id+"&quot;,&quot;"+data.obj[i].cartoon.sort+"&quot;,&quot;"+data.obj[i].cartoon.state+"&quot;,2,&quot;"+data.obj[i].cartoon.hot+"&quot;)'>置顶</span></td>" +
+							"</tr>";
+						$("#tbody").append(str);
+							
+							 
+						};
+		            
+					};
+				}
+			});
+	});
+}

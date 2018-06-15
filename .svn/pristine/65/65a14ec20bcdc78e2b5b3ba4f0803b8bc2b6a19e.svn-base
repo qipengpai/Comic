@@ -1,0 +1,215 @@
+ <!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <title>banner</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min.css?v=4.0.0" rel="stylesheet"><base target="_blank">
+    <link href="css/table_basic.css" rel="stylesheet">
+    <link href="css/page.css" rel="stylesheet">
+    <style>
+    	tr img{
+    	width:20px;
+    	}
+    	.text-navy {
+    		color: #999;
+		}
+		tr img{  
+                cursor: pointer;  
+                transition: all 0.6s;  
+         } 
+		tr img:hover{  
+                transform: scale(10);  
+         }
+         .input-group-btn .btn-sm {
+		    margin-left: 10px!important;
+		}
+		span{
+			cursor:pointer;
+		}
+		.pagination-num{
+			width:50px;
+		}
+    </style>
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <input type="text" placeholder="请输入关键词" class="input-sm form-control" id="newsid"> 
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <input type="date" id="newdata" class="input-sm form-control" >
+                                </div>
+                            </div>
+                             <div class="col-sm-1">
+                            	<span class="input-group-btn">
+                                       <select class="input-sm form-control" id="pushed">
+                                       		<option value="">请选择</option>
+                                       		<option value="0" >未发布</option>
+                                       		<option value="1" >已发布</option>
+                                       </select>
+                                 </span>
+                            </div>
+                            <div class="col-sm-1">
+                            	<span>
+                            	<button type="button" class="btn btn-sm btn-primary" onclick="sousuo()"> 搜索</button>
+								</span>
+                            </div>
+                            <a class="col-sm-2" onclick="window.location.href='newsadd.html'" target="_blank">
+								<button class="btn btn-primary pull-right" id="addinfo">新增消息</button>
+							</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+
+                                        <th></th>
+                                        <th>消息标题</th>
+                                        <th>内容</th>
+                                        <th>类型</th>
+                                        <th>发送时间</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                       	
+                                       	
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="datagrid-pager pagination">
+        <table cellspacing="0" cellpadding="0" border="0">
+        	<tbody>
+       			 <tr>
+        			<td>
+        				<select class="pagination-page-list" onchange="change()">
+        					<option value="5">5</option>
+        					<option selected="selected" value="10">10</option>
+        					<option value="15">15</option>
+        				</select>
+        			</td>
+        			<td>
+        				<div class="pagination-btn-separator">
+        				</div>
+        			</td>
+        			<td>
+        				<a onclick="leftbottom()" class="l-btn l-btn-small l-btn-plain l-btn-disabled l-btn-plain-disabled" group="" id="">
+        				<span class="l-btn-left l-btn-icon-left">
+        					<span class="l-btn-text l-btn-empty">&nbsp;</span>
+        					<span class="l-btn-icon pagination-first">&nbsp;</span>
+        				</span>
+        				</a>
+        			</td>
+        			<td>
+        				<a onclick="leftcenter()" class="l-btn l-btn-small l-btn-plain l-btn-disabled l-btn-plain-disabled" group="" id="">
+	        				<span class="l-btn-left l-btn-icon-left">
+		        				<span class="l-btn-text l-btn-empty">&nbsp;</span>
+		        				<span class="l-btn-icon pagination-prev">&nbsp;</span>
+	        				</span>
+	        			</a>
+	        		</td>
+	        		<td>
+		        		<div class="pagination-btn-separator">
+	        			</div>
+        			</td>
+        			<td>
+        				<span style="padding-left:6px;">第</span>
+        			</td>
+        			<td>
+        				<input class="pagination-num" type="number" value="1" size="2" onblur="change()">
+        			</td>
+        			<td>
+        				<span style="padding-right:6px;">页    共 <span class="pagination-data">1</span> 页</span>
+        			</td>
+        			<td>
+        				<div class="pagination-btn-separator"></div>
+        			</td>
+        			<td>
+        				<a onclick="rightcenter()" class="l-btn l-btn-small l-btn-plain l-btn-disabled l-btn-plain-disabled" group="" id="">
+		        			<span class="l-btn-left l-btn-icon-left"><span class="l-btn-text l-btn-empty">&nbsp;</span>
+		        			<span class="l-btn-icon pagination-next">&nbsp;</span></span>
+		        		</a>
+		        	</td>
+        			<td>
+        				<a onclick="rightbottom()" class="l-btn l-btn-small l-btn-plain l-btn-disabled l-btn-plain-disabled" group="" id="">
+        					<span class="l-btn-left l-btn-icon-left">
+	        					<span class="l-btn-text l-btn-empty">&nbsp;</span>
+	        					<span class="l-btn-icon pagination-last">&nbsp;</span>
+        					</span>
+        				</a>
+        			</td>
+        			<td>
+        				<div class="pagination-btn-separator"></div>
+        			</td>
+        			</tr>
+        			</tbody>
+        			</table>
+        			<div class="pagination-info">共 <span id="gong"></span> 条记录</div>
+        			<div style="clear:both;">
+        			</div>
+        			</div>
+    </div>
+<input type="hidden" value="" id="cunzhi"/>
+    	<!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+			            </div>
+			            <div class="modal-body" id = "textcontent">在这里添加一些文本</div>
+			            <div class="modal-footer" id="btngroup">
+			            	<!-- <button type="button" class="btn btn-default" onclick="del()" id="delbtn">删除</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal" id="offbtn">关闭</button> -->
+			            </div>
+			        </div><!-- /.modal-content -->
+			    </div><!-- /.modal -->
+			</div>	
+    <script src="js/jquery.min.js"></script>
+    <!--管理员登录验证  -->
+    <script src="js/login_Yan.js"></script>
+    <script src="js/jquery.peity.min.js"></script>
+    <script src="js/content.min.js"></script>
+     <script src="js/bootstrap.min.js"></script>
+     <script src="js/cartoon_circle.js"></script>
+    <script src="js/icheck.min.js"></script>
+    <script src="js/peity-demo.min.js"></script>
+    
+    <script>
+        $(document).ready(function(){$(".i-checks").iCheck({checkboxClass:"icheckbox_square-green",radioClass:"iradio_square-green",})});
+    </script>
+    <script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
+</body>
+
+</html>

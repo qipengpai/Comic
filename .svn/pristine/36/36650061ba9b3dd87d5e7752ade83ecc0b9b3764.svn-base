@@ -1,0 +1,5 @@
+package com.qin.crxl.comic.entity.vo;
+
+public class BannerData extends BaseEntityVO {
+
+}

@@ -1,0 +1,33 @@
+$(function(){
+	order();
+	
+});
+function order(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/mallCartoonOrderMoneyWater.do",
+		type:"post",
+		data:{
+			"cartoonId": $("#select01").val() ,
+			"starTime" : $("#date01").val(),
+			"endTime": $("#date02").val(),
+			"nowPage": $(".pagination-num").val(),
+			"pageNum" :  $(".pagination-page-list").val() 
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#zls").html(data.msg);
+				for(var i = 0;i<data.obj.length;i++){
+					var str = "";
+					str += "<tr><td></td><td>"+data.obj[i][1]+"</td><td>"+
+							data.obj[i][2] +"</td></tr>";
+					$("#tbody").append(str);
+				}
+				
+			}else{
+				$("#tbody").empty();
+				alert(data.msg);
+			}
+		}
+	});
+}

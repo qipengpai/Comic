@@ -1,0 +1,6 @@
+#商户号
+mch_id=101560147690
+#密钥
+key=f291884b29296b9c8ae0132ac885b1bd
+#接口请求地址
+req_url=https://pay.swiftpass.cn/pay/gateway

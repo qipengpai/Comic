@@ -1,0 +1,91 @@
+package com.qin.crxl.comic.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.qin.crxl.comic.base.BaseEntity;
+
+@SuppressWarnings("serial")
+@Entity
+@Table
+public class CartoonTask extends BaseEntity implements Serializable {
+	@SuppressWarnings("static-access")
+	@Id
+	private String id = ran.generateString(32);
+	private String taskName = ""; // 任務名
+	private int state = 0; // 任務狀態
+	private String implDate = ""; // 操作時間
+	private int taskAward = 0; // 任務獎勵
+	private String taskType = ""; // 任務類型
+	private String taskInfo = ""; // 任務類型
+	private int sort = 0; // 任務獎勵
+
+	public int getSort() {
+		return sort;
+	}
+
+	public void setSort(int sort) {
+		this.sort = sort;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public String getImplDate() {
+		return implDate;
+	}
+
+	public void setImplDate(String implDate) {
+		this.implDate = implDate;
+	}
+
+	public int getTaskAward() {
+		return taskAward;
+	}
+
+	public void setTaskAward(int taskAward) {
+		this.taskAward = taskAward;
+	}
+
+	public String getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(String taskType) {
+		this.taskType = taskType;
+	}
+
+	public String getTaskInfo() {
+		return taskInfo;
+	}
+
+	public void setTaskInfo(String taskInfo) {
+		this.taskInfo = taskInfo;
+	}
+
+}

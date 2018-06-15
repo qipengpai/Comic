@@ -1,0 +1,48 @@
+$(function(){
+	
+});
+function addbanner(){
+	$.ajax({
+		url:"/Comic/qpp/comic/add/banner.do",
+		type:"post",
+		data:{
+			"cartoonId":GetQueryString("id"),
+			"httpImg": $(".addurl").val(),
+			"title" : $("#mallimg").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				window.location.href = "table_banner.html";
+			}else{
+				
+			}
+		}
+	});
+}
+function mainphoto(){
+	var formData = new FormData($(".uploadForm" )[0]);
+	$.ajax({
+		url : '/Comic/app/uplod/multipartFile.do',
+		type:"post",
+		 data: formData,    
+         async: false,    
+         cache: false,    
+         contentType: false,    
+         processData: false,    
+         success: function (returndata) {  
+       	  if(returndata.error==200){
+       		 $(".mainPhoto").attr("src",returndata.obj[0].src);
+       		 $(".addurl").val(returndata.obj[0].src);
+       	  };
+       	  
+         }
+	});
+}
+/* 获取id */
+function GetQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return decodeURIComponent(r[2]);
+	return null;
+}

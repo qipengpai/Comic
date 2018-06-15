@@ -1,0 +1,182 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.CartoonAllModel;
+import com.qin.crxl.comic.entity.vo.CartoonAllModelData;
+import com.qin.crxl.comic.service.CartoonAllModelService;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+import com.qin.game.entity.redis.JedisUtil;
+
+@Service
+public class CartoonAllModelServiceImpl extends BaseServiceImpl<CartoonAllModel> implements CartoonAllModelService{
+
+	@Override
+	public List<CartoonAllModel> getThisCartoonModel(String cartoonId) {
+		// 查询该漫画所有
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonId='"+cartoonId+"' ORDER BY sort");
+		return SQL(sb.toString(), CartoonAllModel.class);
+	}
+
+	@Override
+	public boolean deleteThisCartoonModel(String id) {
+		// 删除漫画的漫画模块
+		boolean flag=false;
+		try {
+			CartoonAllModel cartoonAllModel=get(id);
+			if (cartoonAllModel==null) {
+				return flag;
+			}
+			super.delete(id);
+			JedisUtil.del("ComicModelSix-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.batchDel("ComicAllModelMoreTh-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.del("ComicAllModelMoreCount-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.batchDel("ComicFree");
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	public List<CartoonAllModel> getThisCartoonModelBycartoonModelId2(String cartoonModelId) {
+		// 查询该模块所有漫画所有
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+cartoonModelId+"' ORDER BY sort DESC");
+		return SQL(sb.toString(), CartoonAllModel.class);
+	}
+	@Override
+	public boolean addThisCartoonModel(String cartoonId, String cartoonModelId) {
+		// 增加该漫画 漫画模块
+		List<CartoonAllModel> list =getThisCartoonModelBycartoonModelId2(cartoonModelId);
+		boolean flag=false;
+		try {
+			CartoonAllModel cartoonAllModel=new CartoonAllModel();
+			if (!ParaClick.clickList(list)) {
+				cartoonAllModel.setSort(10000);
+			}else{
+				cartoonAllModel.setSort(list.get(0).getSort()+1);
+			}
+			cartoonAllModel.setCartoonId(cartoonId);
+			cartoonAllModel.setCartoonModelId(cartoonModelId);
+			super.save(cartoonAllModel);
+			JedisUtil.del("ComicModelSix-"+cartoonModelId);
+			JedisUtil.batchDel("ComicAllModelMoreTh-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.del("ComicAllModelMoreCount-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.batchDel("ComicFree");
+			flag=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	@Override
+	public List<CartoonAllModel> getThisCartoonModelBycartoonModelId(String cartoonModelId, String nowpage) {
+		// 查询该模块所有漫画所有
+		StringBuffer sb =new StringBuffer();
+		
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+cartoonModelId+"' ORDER BY sort ");
+		if (!ParaClick.clickString(nowpage)) {
+			sb.append(" LIMIT "+(Integer.parseInt(nowpage) - 1) * 10+",10 ");
+		}
+		return SQL(sb.toString(), CartoonAllModel.class);
+	}
+	
+	
+	@Override
+	public int getThisCartoonModelBycartoonModelIdNum(CartoonAllModelData cartoonAllModelData) {
+		// 查询该模块所有漫画所有  数量
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT count(*) FROM CartoonAllModel WHERE cartoonModelId='"+cartoonAllModelData.getCartoonModelId()+"'");
+		return gettotalpage(sb.toString());
+	}
+	@Override
+	public boolean updateSortByModel(CartoonAllModelData cartoonAllModelData) {
+		// 升降序置顶
+		boolean flag = false;
+		List<CartoonAllModel> list= getThisCartoonModelBycartoonModelId(cartoonAllModelData.getCartoonModelId(),"");
+		CartoonAllModel cartoonAllModel = get(cartoonAllModelData.getId());
+		try {
+			switch (Integer.parseInt(cartoonAllModelData.getSign())) {
+			case 0:
+				//down
+				for (int i = 0; i < list.size(); i++) {
+					if (cartoonAllModel.getId().equals(list.get(i).getId())) {
+						if (i>=list.size()-1) {
+							return flag;
+						}
+						cartoonAllModel.setSort(list.get(i+1).getSort());
+						list.get(i+1).setSort(Integer.parseInt(cartoonAllModelData.getSort()));
+					}
+				}
+				break;
+			case 1:
+				//up
+				for (int i = 0; i < list.size(); i++) {
+					if (cartoonAllModel.getId().equals(list.get(i).getId())) {
+						if (i==0) {
+							return flag;
+						}
+						cartoonAllModel.setSort(list.get(i-1).getSort());
+						list.get(i-1).setSort(Integer.parseInt(cartoonAllModelData.getSort()));
+					}
+				}
+				break;
+			case 2:
+				//置顶
+				if (list.size()>1) {
+					cartoonAllModel.setSort(list.get(0).getSort()-1);
+				}else{
+					return flag;
+				}
+				break;
+			default:
+				return flag;
+			}
+			JedisUtil.del("ComicModelSix-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.batchDel("ComicAllModelMoreTh-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.del("ComicAllModelMoreCount-"+cartoonAllModel.getCartoonModelId());
+			JedisUtil.batchDel("ComicFree");
+			flag = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	@Override
+	public List<CartoonAllModel> getCartoonBeforeSix(String id) {
+		// 每个模块排名前6
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+id+"' ORDER BY sort ASC LIMIT 0,6");
+		return SQL("ComicModelSix-"+id,3600 , sb.toString(), CartoonAllModel.class);
+	}
+
+	@Override
+	public List<CartoonAllModel> getCartoonMore(String cartoonModelId,String nowPage) {
+		// 查看该模块更多漫画
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+cartoonModelId+"' ORDER BY sort ASC");
+		sb.append(" LIMIT " + (Integer.parseInt(nowPage) - 1)
+				* 10 + ",10");
+		return SQL("ComicModelMore-"+cartoonModelId+nowPage,3600 , sb.toString(), CartoonAllModel.class);
+	}
+
+	@Override
+	public int getCartoonMoreCount(String cartoonModelId) {
+		//查看该模块更多漫画数量
+		StringBuffer sb =new StringBuffer();
+		sb.append("SELECT * FROM CartoonAllModel WHERE cartoonModelId='"+cartoonModelId+"'");
+		return gettotalpage("ComicModelMoreCount-"+cartoonModelId,3600 , sb.toString());
+		
+	}
+
+	
+}

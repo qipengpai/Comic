@@ -1,0 +1,55 @@
+package com.qin.crxl.comic.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.qin.crxl.comic.base.BaseServiceImpl;
+import com.qin.crxl.comic.entity.HistorySearch;
+import com.qin.crxl.comic.entity.UserEntity;
+import com.qin.crxl.comic.service.HistorySearchServcie;
+import com.qin.crxl.comic.tool.DateUtil;
+import com.qin.crxl.comic.tool.ParaClick;
+
+@Service
+public class HistorySearchServcieImpl  extends BaseServiceImpl<HistorySearch> implements
+HistorySearchServcie {
+	
+	
+	@Override
+	public List<Object[]> getHistory(String userId) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT distinct content from HistorySearch where userid='"+userId+"'  ORDER BY ImplDate DESC LIMIT 0,8");
+		List<Object[]> list = super.getSessionFactory()
+				.createSQLQuery(sb.toString()).list();
+		return list;
+	}
+
+	@Override
+	public boolean addHistory(String content, UserEntity userEntity) {
+		//增加历史记录
+		boolean flag=false;
+		try {
+			List<HistorySearch> list=super.SQL("SELECT * FROM HistorySearch WHERE userId='"+userEntity.getUserId()+"' AND content='"+content+"'", HistorySearch.class);
+			if (ParaClick.clickList(list)) {
+				return true;
+			}
+			HistorySearch historySearch=new HistorySearch();
+			historySearch.setContent(content);
+			historySearch.setUserId(userEntity.getUserId());
+			historySearch.setImplDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			historySearch.setState(1);
+			historySearch.setSearchDate(DateUtil.getdate_yyyy_MM_dd_HH_MM_SS());
+			super.save(historySearch);
+			flag=true;
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return flag;
+		}
+		
+		return flag;
+	}
+
+}

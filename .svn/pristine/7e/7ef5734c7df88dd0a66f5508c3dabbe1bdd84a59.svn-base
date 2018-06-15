@@ -1,0 +1,200 @@
+$(function(){
+	tableuser();
+});
+/*页面进行时渲染数据*/
+function tableuser(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"nowPage" : $(".pagination-num").val(),
+			"pageNum" : $(".pagination-page-list").val()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$("#gong").html(data.totalNum);
+				$(".pagination-data").html(data.totalpage);
+				$(".pagination-num").val(data.nowpage);
+				$("#gong").val(data.totalNum);
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "是";
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].username+"</td><td>" +
+					data.obj[i].nickname +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].phone +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+			};
+		}
+	});
+}
+
+function leftbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : 1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "是";
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].username+"</td><td>" +
+					data.obj[i].nickname +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].phone +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+/*页码的上一个*/
+function leftcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()>1)?$(".pagination-num").val()-1:1
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "是";
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].username+"</td><td>" +
+					data.obj[i].nickname +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].phone +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+				
+			}
+		}
+	});
+}
+
+
+
+/*页码的最后一个*/
+function rightbottom(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : $(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "是";
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].username+"</td><td>" +
+					data.obj[i].nickname +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].phone +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}
+/*页码的后一个*/
+function rightcenter(){
+	$.ajax({
+		url:"/Comic/qpp/comic/select/userEntity.do",
+		type:"post",
+		data:{
+			"condition" : $("#search").val(),
+			"pageNum" : $(".pagination-page-list").val(),
+			"nowPage" : ($(".pagination-num").val()<$(".pagination-data").html())?(parseInt($(".pagination-num").val())+1):$(".pagination-data").html()
+		},
+		success:function(data){
+			if(data.error == 200){
+				$("#tbody").empty();
+				$(".pagination-num").val(data.nowpage);
+				$(".pagination-data").html(data.totalpage);
+				for(var i = 0;i<data.obj.length;i++){
+					if(data.obj[i].vipId == 0){
+						vipId = "否";
+					}else if(data.obj[i].vipId == 1){
+						vipId = "是";
+					}
+					var str = "<tr><td></td><td>"+data.obj[i].username+"</td><td>" +
+					data.obj[i].nickname +
+					"</td><td>" +
+					vipId +
+					"</td>"+
+					"<td>" +data.obj[i].phone +"</td>" +
+					"<td><img src='"+data.obj[i].headimgurl+"'>" + "</td>" +
+					"<td>"+data.obj[i].integral+"</td>" +
+					"<td>"+data.obj[i].startTime+"</td>" +
+					"<td>"+data.obj[i].overTime+"</td>" +
+					"</tr>";
+					$("#tbody").append(str);
+				}
+			}
+		}
+	});
+}

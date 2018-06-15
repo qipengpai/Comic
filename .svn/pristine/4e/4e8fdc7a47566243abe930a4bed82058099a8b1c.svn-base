@@ -1,0 +1,49 @@
+package com.qin.crxl.comic.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qin.crxl.comic.entity.vo.UserOrderData;
+import com.qin.crxl.comic.service.AdminUserOrderService;
+import com.qin.crxl.comic.system.ActionUrl;
+import com.qin.crxl.comic.tool.Model;
+import com.qin.crxl.comic.tool.ParaClick;
+
+/**
+ * 用户订单
+ * @author cui
+ *
+ */
+@Controller
+public class AdminUserOrderController {
+	@Autowired
+	private AdminUserOrderService adminUserOrderService;
+	
+	@ResponseBody
+	@RequestMapping(value = ActionUrl.SELECT_USERORDER, method = RequestMethod.POST)
+	public Model selectUserOrder(UserOrderData userOrderData){
+		int num=0;
+		if(ParaClick.clickString(userOrderData.getNowPage())){
+			userOrderData.setNowPage("1");
+		}
+		if(ParaClick.clickString(userOrderData.getPageNum())){
+			userOrderData.setPageNum("10");
+		}
+		List<String[]> userOrderList = adminUserOrderService.selectUserOrder(userOrderData);
+		num=adminUserOrderService.getCountUserOrder(userOrderData);
+		if(ParaClick.clickList(userOrderList)){
+			Model model=new Model();
+			model.setError(200);
+			model.setNowpage(Integer.parseInt(userOrderData.getNowPage()));
+			model.setTotalpage((num + Integer.parseInt(userOrderData.getPageNum()) - 1) / Integer.parseInt(userOrderData.getPageNum()));
+			model.setObj(userOrderList);
+			return model;
+		}
+		return new Model(500,"无数据");
+	}
+}
